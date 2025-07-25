@@ -2,97 +2,74 @@ const Card = require("../models/cardmodel");
 
 // Get all cards
 const getAllCards = async (req, res, next) => {
-    let cards;
-
     try {
-        cards = await Card.find();
+        const cards = await Card.find();
+        return res.status(200).json({ cards });
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ message: "Server Error" });
     }
-
-    if (!cards) {
-        return res.status(404).json({ message: "Cards not found" });
-    }
-
-    return res.status(200).json({ cards });
 };
 
 // Add card
 const addCard = async (req, res, next) => {
-    const { name, gmail, age, address } = req.body;
-
-    let card;
+    const { cardHolderName, cardNumber, expiryDate, cvv, cardType } = req.body;
 
     try {
-        card = new Card({ name, gmail, age, address });
+        const card = new Card({ cardHolderName, cardNumber, expiryDate, cvv, cardType });
         await card.save();
+        return res.status(201).json({ card });
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ message: "Unable to add card" });
     }
-
-    if (!card) {
-        return res.status(500).send({ message: "Unable to add card" });
-    }
-
-    return res.status(201).json({ card });
 };
 
 // Get card by ID
 const getById = async (req, res, next) => {
     const id = req.params.id;
 
-    let card;
-
     try {
-        card = await Card.findById(id);
+        const card = await Card.findById(id);
+        if (!card) return res.status(404).send({ message: "Card not found" });
+        return res.status(200).json({ card });
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ message: "Error fetching card" });
     }
-
-    if (!card) {
-        return res.status(404).send({ message: "Card not found" });
-    }
-
-    return res.status(200).json({ card });
 };
 
 // Update card
 const updateCard = async (req, res, next) => {
     const id = req.params.id;
-    const { name, gmail, age, address } = req.body;
-
-    let card;
+    const { cardHolderName, cardNumber, expiryDate, cvv, cardType } = req.body;
 
     try {
-        card = await Card.findByIdAndUpdate(id, { name, gmail, age, address }, { new: true });
+        const card = await Card.findByIdAndUpdate(
+            id,
+            { cardHolderName, cardNumber, expiryDate, cvv, cardType },
+            { new: true }
+        );
+        if (!card) return res.status(404).send({ message: "Unable to update card" });
+        return res.status(200).json({ card });
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ message: "Error updating card" });
     }
-
-    if (!card) {
-        return res.status(404).send({ message: "Unable to update card" });
-    }
-
-    return res.status(200).json({ card });
 };
 
 // Delete card
 const deleteCard = async (req, res, next) => {
     const id = req.params.id;
 
-    let card;
-
     try {
-        card = await Card.findByIdAndDelete(id);
+        const card = await Card.findByIdAndDelete(id);
+        if (!card) return res.status(404).send({ message: "Unable to delete card" });
+        return res.status(200).json({ card });
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        return res.status(500).json({ message: "Error deleting card" });
     }
-
-    if (!card) {
-        return res.status(404).send({ message: "Unable to delete card" });
-    }
-
-    return res.status(200).json({ card });
 };
 
 module.exports = { getAllCards, addCard, getById, updateCard, deleteCard };
