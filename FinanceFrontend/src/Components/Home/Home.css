@@ -1,0 +1,85 @@
+/* Home.css */
+
+.home-container {
+  max-width: 800px;
+  margin: 40px auto;
+  background: #fefefe;
+  padding: 30px 40px;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.home-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #2c3e50;
+  text-align: center;
+}
+
+.btn-add-property {
+  display: inline-block;
+  padding: 12px 24px;
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 30px;
+  box-shadow: 0 6px 15px rgba(41, 128, 185, 0.4);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+}
+
+.btn-add-property:hover {
+  background-color: #1c5980;
+  box-shadow: 0 8px 22px rgba(28, 89, 128, 0.6);
+}
+
+.property-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.property-item {
+  background: white;
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.property-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.12);
+}
+
+.property-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #34495e;
+  margin-bottom: 8px;
+}
+
+.property-details {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* No property message */
+.no-properties {
+  font-style: italic;
+  font-size: 1.1rem;
+  text-align: center;
+  color: #999;
+  margin-top: 40px;
+}

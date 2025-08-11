@@ -36,19 +36,19 @@ function Nav() {
         
         <li className="home-li">
           <Link 
-            to="/adduser" 
-            className={`home-a ${isActive('/adduser') ? 'active-page' : ''}`}
+            to="/addassessment" 
+            className={`home-a ${isActive('/addassessment') ? 'active-page' : ''}`}
           >
-            <h1>Add User</h1>
+            <h1>Add New Assessment</h1>
           </Link>
         </li>
         
         <li className="home-li">
           <Link 
-            to="/userdetails" 
-            className={`home-a ${isActive('/userdetails') ? 'active-page' : ''}`}
+            to="/assessmentdetails" 
+            className={`home-a ${isActive('/assessmentdetails') ? 'active-page' : ''}`}
           >
-            <h1>User Details</h1>
+            <h1>Assessment Details</h1>
           </Link>
         </li>
         
