@@ -14,24 +14,45 @@ const getAllProperties = async (req, res) => {
 // Add new property
 const addProperty = async (req, res) => {
   try {
+    console.log("Request body:", req.body); // Debug log
+    
+    // Validate required fields
+    if (!req.body.branch || !req.body.division || !req.body.street || !req.body.propertyNo) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const property = new Property(req.body);
-    const saved = await property.save();
-    res.status(201).json(saved);
+    await property.save();
+    
+    console.log("Property created:", property); // Debug log
+    res.status(201).json({ property });
+    
   } catch (err) {
-    console.error("Add property error:", err); // Log full error
+    console.error("Error in addProperty:", err);
+    
+    // Handle duplicate key error
+    if (err.code === 11000) {
+      return res.status(400).json({ 
+        message: "Property with this number already exists",
+        field: Object.keys(err.keyPattern)[0]
+      });
+    }
+    
     res.status(500).json({ 
-      message: "Unable to add property", 
-      error: err.message,
-      errors: err.errors  // for mongoose validation errors
+      message: "Unable to add property",
+      error: err.message 
     });
   }
 };
-const getPropertiesByFilter = async (filter) => {
+
+const getPropertyByPropertyNo = async (req, res) => {
   try {
-    const properties = await Property.find(filter);
-    return properties;
+    const property = await Property.findOne({ propertyNo: req.params.propertyNo });
+    if (!property) return res.status(404).json({ message: "Property not found" });
+    res.status(200).json({ property });
   } catch (err) {
-    throw err;
+    console.error(err);
+    res.status(500).json({ message: "Error fetching property" });
   }
 };
 
@@ -80,5 +101,6 @@ module.exports = {
     addProperty,
     getPropertyById,
     updateProperty,
-    deleteProperty
+    deleteProperty,
+    getPropertyByPropertyNo
 };

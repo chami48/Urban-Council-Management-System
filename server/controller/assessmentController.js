@@ -23,6 +23,18 @@ const addAssessment = async (req, res) => {
     }
 };
 
+const getAssessmentByPropertyNo = async (req, res) => {
+  try {
+    const assessment = await Assessment.findOne({ propertyNo: req.params.propertyNo });
+    if (!assessment) return res.status(200).json({ assessment: null }); // no assessment found
+    res.status(200).json({ assessment });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching assessment" });
+  }
+};
+
+
 // Get assessment by ID
 const getAssessmentById = async (req, res) => {
     try {
@@ -68,5 +80,6 @@ module.exports = {
     addAssessment,
     getAssessmentById,
     updateAssessment,
-    deleteAssessment
+    deleteAssessment,
+    getAssessmentByPropertyNo
 };

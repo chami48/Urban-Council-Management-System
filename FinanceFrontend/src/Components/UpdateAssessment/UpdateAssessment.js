@@ -11,7 +11,8 @@ function UpdateAssessment() {
     const fetchHandler = async () => {
       try {
         const res = await axios.get(`http://localhost:5001/assessments/${id}`);
-        setInputs(res.data.assessment || {});
+setInputs(res.data.assessment || {});
+
       } catch (err) {
         console.error("Error fetching assessment:", err);
       }
@@ -23,11 +24,13 @@ function UpdateAssessment() {
     try {
       await axios.put(`http://localhost:5001/assessments/${id}`, {
         assessmentNo: String(inputs.assessmentNo),
-        ownerName: String(inputs.ownerName),
-        propertyType: String(inputs.propertyType),
         division: String(inputs.division),
         street: String(inputs.street),
         propertyNo: String(inputs.propertyNo),
+        ownerName: String(inputs.ownerName),
+        ownerNIC: String(inputs.ownerNIC),
+        contactNo: String(inputs.contactNo),
+        propertyType: String(inputs.propertyType),
         annualValue: Number(inputs.annualValue),
         taxRate: Number(inputs.taxRate),
         status: String(inputs.status),
@@ -63,26 +66,6 @@ function UpdateAssessment() {
           required
         />
 
-        <label htmlFor="ownerName">Owner Name:</label>
-        <input
-          type="text"
-          id="ownerName"
-          name="ownerName"
-          value={inputs.ownerName || ""}
-          onChange={handleChange}
-          required
-        />
-
-        <label htmlFor="propertyType">Property Type:</label>
-        <input
-          type="text"
-          id="propertyType"
-          name="propertyType"
-          value={inputs.propertyType || ""}
-          onChange={handleChange}
-          required
-        />
-
         <label htmlFor="division">Division:</label>
         <input
           type="text"
@@ -113,6 +96,48 @@ function UpdateAssessment() {
           required
         />
 
+        <label htmlFor="ownerName">Owner Name:</label>
+        <input
+          type="text"
+          id="ownerName"
+          name="ownerName"
+          value={inputs.ownerName || ""}
+          onChange={handleChange}
+          required
+        />
+
+        <label htmlFor="ownerNIC">Owner NIC:</label>
+        <input
+          type="text"
+          id="ownerNIC"
+          name="ownerNIC"
+          value={inputs.ownerNIC || ""}
+          onChange={handleChange}
+          required
+        />
+
+        <label htmlFor="contactNo">Contact No:</label>
+        <input
+          type="text"
+          id="contactNo"
+          name="contactNo"
+          value={inputs.contactNo || ""}
+          onChange={handleChange}
+          required
+        />
+
+        <label htmlFor="propertyType">Property Type:</label>
+        <select
+          id="propertyType"
+          name="propertyType"
+          value={inputs.propertyType || ""}
+          onChange={handleChange}
+          required
+        >
+          <option value="වාණිජ">වාණිජ</option>
+          <option value="නේවාසික">නේවාසික</option>
+        </select>
+
         <label htmlFor="annualValue">Annual Value:</label>
         <input
           type="number"
@@ -134,14 +159,16 @@ function UpdateAssessment() {
         />
 
         <label htmlFor="status">Status:</label>
-        <input
-          type="text"
+        <select
           id="status"
           name="status"
           value={inputs.status || ""}
           onChange={handleChange}
           required
-        />
+        >
+          <option value="ක්‍රියාකාරී">ක්‍රියාකාරී</option>
+          <option value="අක්‍රිය">අක්‍රිය</option>
+        </select>
 
         <button type="submit" className="btn btn-update">
           Submit

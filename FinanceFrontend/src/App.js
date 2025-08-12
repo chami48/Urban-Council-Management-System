@@ -10,6 +10,8 @@ import Login from "./Components/Login/Login";
 import ContactUs from "./Components/ContactUs/ContactUs";
 import Assessments from "./Components/AssessmentDetails/Assessments";
 import AddProperty from "./Components/AddProperty/AddProperty";
+import PropertyAssessmentDetails from "./Components/PropertyAssessmentDetails/PropertyAssessmentDetails";
+
 
 function App() {
   return (
@@ -22,6 +24,7 @@ function App() {
           <Route path="/addproperty" element={<AddProperty />} />
           <Route path="/addassessment" element={<AddAssessment />} />
           <Route path="/assessmentdetails" element={<Assessments />} />
+          <Route path="/propertyassessmentdetails/:part1/:part2" element={<PropertyAssessmentDetails />} />
           <Route path="/updateassessment/:id" element={<UpdateAssessment />} />
           <Route path="/register" element={<Register />} />
           <Route path="/log" element={<Login />} />
