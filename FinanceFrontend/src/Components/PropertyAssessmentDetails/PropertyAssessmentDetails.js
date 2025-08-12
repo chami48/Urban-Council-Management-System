@@ -7,79 +7,96 @@ function PropertyAssessmentDetails() {
   const { part1, part2 } = useParams();
   const navigate = useNavigate();
 
-  // Combine parts with slash to reconstruct propertyNo
-  const propertyNo = `${part1}/${part2}`;
-  // Encode propertyNo to safely use in URL (slash becomes %2F)
-  const encodedPropertyNo = encodeURIComponent(propertyNo);
-
+  // Handle different URL patterns
+  const propertyNo = part2 ? `${part1}/${part2}` : part1;
+  
   const [property, setProperty] = useState(null);
   const [assessment, setAssessment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [retryCount, setRetryCount] = useState(0);
 
   const fetchData = async () => {
     setLoading(true);
     setError(null);
 
     try {
+      console.log("Fetching data for propertyNo:", propertyNo);
+      
       // Fetch property details
+      const encodedPropertyNo = encodeURIComponent(propertyNo);
+      console.log("Encoded propertyNo:", encodedPropertyNo);
+      
       const propertyResponse = await axios.get(
         `http://localhost:5001/properties/propertyNo/${encodedPropertyNo}`,
-        { timeout: 5000 }
+        { timeout: 10000 }
       );
 
-      if (!propertyResponse.data?.property) {
-        throw new Error("Property data not found in response");
+      console.log("Property response:", propertyResponse.data);
+
+      if (propertyResponse.data?.property) {
+        setProperty(propertyResponse.data.property);
+        console.log("Property set:", propertyResponse.data.property);
+      } else {
+        console.log("No property found");
+        setError({ message: "Property not found", status: 404 });
+        return;
       }
-      setProperty(propertyResponse.data.property);
 
       // Fetch assessment details
       try {
+        console.log("Fetching assessment...");
         const assessmentResponse = await axios.get(
           `http://localhost:5001/assessments/propertyNo/${encodedPropertyNo}`,
-          { timeout: 5000 }
+          { timeout: 10000 }
         );
+
+        console.log("Assessment response:", assessmentResponse.data);
 
         if (assessmentResponse.data?.assessment) {
           setAssessment(assessmentResponse.data.assessment);
+          console.log("Assessment set:", assessmentResponse.data.assessment);
         } else {
+          console.log("No assessment found");
           setAssessment(null);
         }
       } catch (assessmentError) {
-        console.log("No assessment found for property:", propertyNo);
-        setAssessment(null);
+        console.log("Assessment fetch error:", assessmentError);
+        if (assessmentError.response?.status === 404) {
+          console.log("No assessment found (404)");
+          setAssessment(null);
+        } else {
+          console.error("Assessment error:", assessmentError);
+          // Don't set error here, just log it - missing assessment is not an error
+          setAssessment(null);
+        }
       }
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Property fetch error:", err);
       setError({
         message: err.response?.data?.message || err.message,
         status: err.response?.status,
       });
-
-      if (err.response?.status === 404) {
-        // Property not found, redirect after delay
-        setTimeout(() => navigate("/properties"), 3000);
-      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [propertyNo, retryCount]);
+    if (propertyNo) {
+      fetchData();
+    }
+  }, [propertyNo]);
 
-  const handleRetry = () => {
-    setRetryCount((prev) => prev + 1);
+  const handleAddAssessment = () => {
+    // Navigate to add assessment with property number pre-filled
+    navigate(`/addassessment?propertyNo=${encodeURIComponent(propertyNo)}`);
   };
 
   if (loading) {
     return (
       <div className="loading-container">
         <div className="loading-spinner"></div>
-        <p>Loading property details...</p>
+        <p>Loading property details for: {propertyNo}</p>
       </div>
     );
   }
@@ -89,10 +106,16 @@ function PropertyAssessmentDetails() {
       <div className="error-container">
         <h3>Error Loading Data</h3>
         <p>{error.message}</p>
+        <p>Property Number: {propertyNo}</p>
         {error.status === 404 ? (
-          <p>Redirecting to properties list...</p>
+          <div>
+            <p>Property not found. Please check the property number.</p>
+            <button onClick={() => navigate('/')} className="back-button">
+              Go to Home
+            </button>
+          </div>
         ) : (
-          <button onClick={handleRetry} className="retry-button">
+          <button onClick={fetchData} className="retry-button">
             Retry
           </button>
         )}
@@ -103,9 +126,9 @@ function PropertyAssessmentDetails() {
   return (
     <div className="details-container">
       <div className="header-section">
-        <h2>Property and Owner Details</h2>
+        <h2>Property and Assessment Details</h2>
         <button onClick={() => navigate(-1)} className="back-button">
-          &larr; Back to List
+          &larr; Back
         </button>
       </div>
 
@@ -115,8 +138,8 @@ function PropertyAssessmentDetails() {
           <div className="details-section property-section">
             <h3>
               Property Information
-              <span className="property-status">
-                {assessment?.status || "UNASSESSED"}
+              <span className={`property-status ${assessment ? 'assessed' : 'unassessed'}`}>
+                {assessment ? 'ASSESSED' : 'UNASSESSED'}
               </span>
             </h3>
             <div className="detail-grid">
@@ -124,10 +147,6 @@ function PropertyAssessmentDetails() {
               <DetailItem label="Branch" value={property.branch} />
               <DetailItem label="Division" value={property.division} />
               <DetailItem label="Street" value={property.street} />
-              <DetailItem
-                label="Last Updated"
-                value={new Date(property.updatedAt).toLocaleString()}
-              />
             </div>
           </div>
 
@@ -136,29 +155,31 @@ function PropertyAssessmentDetails() {
             <h3>Assessment Information</h3>
             {assessment ? (
               <div className="detail-grid">
-                
+                <DetailItem label="Assessment No" value={assessment.assessmentNo} />
                 <DetailItem label="Owner Name" value={assessment.ownerName} />
-                <DetailItem
-                  label="Annual Value"
-                  value={`LKR ${assessment.annualValue?.toLocaleString() || "0"}`}
+                <DetailItem label="Owner NIC" value={assessment.ownerNIC} />
+                <DetailItem label="Contact No" value={assessment.contactNo} />
+                <DetailItem label="Property Type" value={assessment.propertyType} />
+                <DetailItem 
+                  label="Annual Value" 
+                  value={`LKR ${assessment.annualValue?.toLocaleString() || "0"}`} 
                 />
                 <DetailItem label="Tax Rate" value={`${assessment.taxRate}%`} />
                 <DetailItem
                   label="Tax Amount"
-                  value={`LKR ${(
-                    (assessment.annualValue * assessment.taxRate) /
-                    100
-                  )?.toLocaleString()}`}
+                  value={`LKR ${((assessment.annualValue * assessment.taxRate) / 100)?.toLocaleString()}`}
                 />
+                <DetailItem label="Status" value={assessment.status} />
               </div>
             ) : (
               <div className="no-assessment">
                 <p>No assessment records found for this property</p>
                 <button
-                  onClick={() => navigate(`/add-assessment?propertyNo=${encodedPropertyNo}`)}
+                  onClick={handleAddAssessment}
                   className="add-assessment-button"
-                > Confirm & Add
-</button>
+                >
+                  Add Assessment
+                </button>
               </div>
             )}
           </div>

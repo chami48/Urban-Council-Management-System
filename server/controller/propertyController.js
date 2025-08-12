@@ -1,3 +1,4 @@
+
 const Property = require("../models/propertyModel");
 
 // Get all properties

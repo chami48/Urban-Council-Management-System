@@ -7,9 +7,9 @@ function AddProperty() {
   const navigate = useNavigate();
 
   const [inputs, setInputs] = useState({
-    branch: "",       // අයත් කාර්යාලය /උප කාර්යාලය | Branch / Sub office*
-    division: "",     // කොට්ඨාශය | Division*
-    street: "",       // මාර්ගය | Street Name*
+    branch: "",
+    division: "",
+    street: "",
     propertyNo: "", 
   });
 
@@ -22,33 +22,43 @@ function AddProperty() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("Submitting:", inputs);
-  
-  try {
-    // First try with the full URL
-    const response = await axios.post(
-      "http://localhost:5001/properties", 
-      inputs,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    e.preventDefault();
+    console.log("Submitting:", inputs);
     
-    console.log("Success:", response.data);
-   navigate(`/propertyassessmentdetails/${inputs.propertyNo}`);
-  } catch (err) {
-    console.error("Full error:", {
-      message: err.message,
-      response: err.response?.data,
-      status: err.response?.status,
-      config: err.config
-    });
-    alert(`Error: ${err.response?.data?.message || err.message}`);
-  }
-};
+    try {
+      const response = await axios.post(
+        "http://localhost:5001/properties", 
+        inputs,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log("Success:", response.data);
+      
+      // Navigate with proper URL encoding for property numbers containing slashes
+      const encodedPropertyNo = encodeURIComponent(inputs.propertyNo);
+      // Split by slash and pass as separate parameters for cleaner routing
+      const parts = inputs.propertyNo.split('/');
+      if (parts.length === 2) {
+        navigate(`/propertyassessmentdetails/${parts[0]}/${parts[1]}`);
+      } else {
+        // Fallback for property numbers without slashes
+        navigate(`/propertyassessmentdetails/${inputs.propertyNo}/`);
+      }
+      
+    } catch (err) {
+      console.error("Full error:", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        config: err.config
+      });
+      alert(`Error: ${err.response?.data?.message || err.message}`);
+    }
+  };
 
   return (
     <div className="form-container">
@@ -105,10 +115,10 @@ function AddProperty() {
           required
         >
           <option value="">Select Property No</option>
-          <option value="123B">123/B</option>
+          <option value="123/B">123/B</option>
           <option value="145/B">145/B</option>
-          <option value="456A">456/A</option>
-          <option value="010A">010/A</option>
+          <option value="456/A">456/A</option>
+          <option value="010/A">010/A</option>
         </select>
 
         <button type="submit" className="btn-submit">Add property</button>
