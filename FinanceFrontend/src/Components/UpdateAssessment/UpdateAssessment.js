@@ -32,7 +32,7 @@ setInputs(res.data.assessment || {});
         contactNo: String(inputs.contactNo),
         description: String(inputs.description),
         propertyType: String(inputs.propertyType),
-        annualValue: Number(inputs.annualValue),
+        appraisedValue: Number(inputs.appraisedValue),
         taxRate: Number(inputs.taxRate),
         status: String(inputs.status),
       });
@@ -149,12 +149,12 @@ setInputs(res.data.assessment || {});
           <option value="නේවාසික">නේවාසික</option>
         </select>
 
-        <label htmlFor="annualValue">Annual Value:</label>
+        <label htmlFor="annualValue">Appraised Value:</label>
         <input
           type="number"
-          id="annualValue"
-          name="annualValue"
-          value={inputs.annualValue || ""}
+          id="appraisedValue"
+          name="appraisedValue"
+          value={inputs.appraisedValue || ""}
           onChange={handleChange}
           required
         />

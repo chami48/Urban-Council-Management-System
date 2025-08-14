@@ -46,11 +46,7 @@ function Assessments() {
     window.location.href = `/updateassessment/${id}`;
   };
 
-  const handlePrinter = useReactToPrint({
-    content: () => componentsRef.current,
-    documentTitle: "Property Assessment Report",
-    onAfterPrint: () => alert("Report Downloaded!"),
-  });
+  
 
   const handleSearch = () => {
     if (!searchQuery.trim()) {
@@ -101,9 +97,7 @@ function Assessments() {
         <button onClick={handleSearch} className="btn btn-search">
           Search
         </button>
-        <button onClick={handlePrinter} className="btn btn-download">
-          📄 Download Report
-        </button>
+       
       </div>
 
       {noResults ? (
@@ -125,7 +119,7 @@ function Assessments() {
                 <th>Contact No</th>
                 <th>Description</th>
                 <th>Property Type</th>
-                <th>Annual Value</th>
+                <th>Appraised Value</th>
                 <th>Tax Rate</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -144,7 +138,7 @@ function Assessments() {
                   <td>{a.contactNo}</td>
                   <td>{a.description}</td>
                   <td>{a.propertyType}</td>
-                  <td>Rs.{a.annualValue}.00</td>
+                  <td>Rs.{a.appraisedValue}.00</td>
                   <td>{a.taxRate}%</td>
                   <td>
                     <span className={`status-badge ${getStatusClass(a.status)}`}>

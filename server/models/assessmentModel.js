@@ -10,7 +10,7 @@ const assessmentSchema = new mongoose.Schema({
     contactNo: { type: String, required: true }, 
     description:{type:String, required: true},                   // සම්බන්ධතා අංකය
     propertyType: { type: String, enum: ["වාණිජ", "නේවාසික"], required: true }, // ගොඩනැගිල්ලේ වර්ගය
-    annualValue: { type: Number, required: true },                  // වාර්ෂික වටිනාකම
+    appraisedValue: { type: Number, required: true },                  // වාර්ෂික වටිනාකම
     taxRate: { type: Number, required: true },                      // බදු අනුපාතය
     
     status: { type: String, enum: ["ක්‍රියාකාරී", "අක්‍රිය"], default: "ක්‍රියාකාරී" } // තත්ත්වය

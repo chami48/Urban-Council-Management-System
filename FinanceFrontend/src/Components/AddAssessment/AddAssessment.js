@@ -16,7 +16,7 @@ function AddAssessment() {
     description: "",
     contactNo: "",
     propertyType: "වාණිජ",
-    annualValue: "",
+    appraisedValue: "",
     taxRate: "",
     lat: "",
     lng: "",
@@ -44,7 +44,7 @@ function AddAssessment() {
         contactNo: inputs.contactNo,
         description:inputs.description,
         propertyType: inputs.propertyType,
-        annualValue: Number(inputs.annualValue),
+        appraisedValue: Number(inputs.appraisedValue),
         taxRate: Number(inputs.taxRate),
         status: inputs.status
       });
@@ -91,8 +91,8 @@ function AddAssessment() {
           <option value="නේවාසික">නේවාසික</option>
         </select>
 
-        <label>Annual Value:</label>
-        <input type="number" name="annualValue" value={inputs.annualValue} onChange={handleChange} required />
+        <label>Appraised Value:</label>
+        <input type="number" name="appraisedValue" value={inputs.appraisedValue} onChange={handleChange} required />
 
         <label>Tax Rate:</label>
         <input type="number" name="taxRate" value={inputs.taxRate} onChange={handleChange} required />

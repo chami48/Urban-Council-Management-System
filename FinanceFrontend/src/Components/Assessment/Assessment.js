@@ -75,9 +75,6 @@ function Assessments() {
           <button onClick={handleSearch} className="btn btn-search">
             Search
           </button>
-          <button onClick={handlePrinter} className="btn btn-download">
-            Download Report
-          </button>
         </div>
       </div>
 

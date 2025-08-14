@@ -1,10 +1,12 @@
 import React from "react";
 import { Route, Routes } from "react-router";
 import './App.css';
-import Home from "./Components/Home/Home";
+import AdminHome from "./Components/AdminHome/AdminHome";
+import PropertyHome from "./Components/PropertyHome/PropertyHome";
 import AddAssessment from "./Components/AddAssessment/AddAssessment";
 import UpdateAssessment from "./Components/UpdateAssessment/UpdateAssessment";
 import Nav from "./Components/Nav/Nav";
+import AdminNav from "./Components/AdminNav/AdminNav";
 import Register from "./Components/Register/Register";
 import Login from "./Components/Login/Login";
 import ContactUs from "./Components/ContactUs/ContactUs";
@@ -17,10 +19,10 @@ function App() {
   return (
     <div className="App">
       <React.Fragment>
-        <Nav />
+        
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/mainhome" element={<Home />} />
+          <Route path="/adminhome" element={<AdminHome />} />
+          <Route path="/propertyhome" element={<PropertyHome />} />
           <Route path="/addproperty" element={<AddProperty />} />
           <Route path="/addassessment" element={<AddAssessment />} />
           <Route path="/assessmentdetails" element={<Assessments />} />

@@ -150,12 +150,12 @@ function PropertyAssessmentDetails() {
                 <DetailItem label="Property Type" value={assessment.propertyType} />
                 <DetailItem 
                   label="Annual Value" 
-                  value={`LKR ${assessment.annualValue?.toLocaleString() || "0"}`} 
+                  value={`LKR ${assessment.appraisedValue?.toLocaleString() || "0"}`} 
                 />
                 <DetailItem label="Tax Rate" value={`${assessment.taxRate}%`} />
                 <DetailItem
-                  label="Tax Amount"
-                  value={`LKR ${((assessment.annualValue * assessment.taxRate) / 100)?.toLocaleString()}`}
+                  label="Annual Tax Amount"
+                  value={`LKR ${((assessment.appraisedValue * assessment.taxRate) / 100)?.toLocaleString()}`}
                 />
                 <DetailItem label="Status" value={assessment.status} />
               </div>
@@ -170,7 +170,7 @@ function PropertyAssessmentDetails() {
           <div style={{ marginTop: "20px" }}>
             <button
               className="confirm-add-button"
-              onClick={() => navigate("/mainhome", { state: { property } })}
+              onClick={() => navigate("/propertyhome", { state: { property } })}
             >
               Confirm & Add
             </button>

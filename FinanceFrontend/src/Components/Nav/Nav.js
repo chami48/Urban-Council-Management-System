@@ -1,89 +1,145 @@
-import React, { useState, useEffect } from "react";
-import './Nav.css';
-import { Link, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Search, Phone, Clock, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import './Nav.css'; // Import the CSS file
 
 function Nav() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const location = useLocation();
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Handle scroll effect
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      setIsScrolled(scrollTop > 50);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  // Check if current path is active
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
-
   return (
-    <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
-      <ul className="home-ul">
-        <li className="home-li">
-          <Link 
-            to="/mainhome" 
-            className={`home-a ${isActive('/mainhome') ? 'active-page' : ''}`}
-          >
-            <h1>Home</h1>
-          </Link>
-        </li>
+    <header className="nav-header">
+      <div className="nav-container">
         
-        <li className="home-li">
-          <Link 
-            to="/addassessment" 
-            className={`home-a ${isActive('/addassessment') ? 'active-page' : ''}`}
-          >
-            <h1>Add New Assessment</h1>
-          </Link>
-        </li>
-        
-        <li className="home-li">
-          <Link 
-            to="/assessmentdetails" 
-            className={`home-a ${isActive('/assessmentdetails') ? 'active-page' : ''}`}
-          >
-            <h1>Assessment Details</h1>
-          </Link>
-        </li>
-        
-        <li className="home-li">
-          <Link 
-            to="/contactus" 
-            className={`home-a ${isActive('/contactus') ? 'active-page' : ''}`}
-          >
-            <h1>Contact Us</h1>
-          </Link>
-        </li>
-        
-        <li className="home-li">
-          <Link 
-            to="/register" 
-            className={`home-a ${isActive('/register') ? 'active-page' : ''}`}
-          >
-            <button className="btn-register">
-              Register
+        {/* Top Bar */}
+        <div className="nav-top-bar">
+          <div className="nav-top-left">
+            <div className="nav-top-item">
+              <Clock />
+              <span>
+                {currentTime.toLocaleTimeString('en-US', { timeZone: 'Asia/Colombo' })} LKT
+              </span>
+            </div>
+            <div className="nav-top-item">
+              <Phone />
+              <span>034-2266789</span>
+            </div>
+          </div>
+          <div className="nav-top-right">
+            <button className="nav-lang-btn">
+              <Globe />
+              <span>English</span>
             </button>
-          </Link>
-        </li>
-        
-        <li className="home-li">
-          <Link 
-            to="/log" 
-            className={`home-a ${isActive('/log') ? 'active-page' : ''}`}
-          >
-            <button className="btn-login">
-              Login
+            <button className="nav-gov-btn">
+              Gov.lk
             </button>
-          </Link>
-        </li>
-      </ul>
-    </nav>
+          </div>
+        </div>
+
+        {/* Main Header */}
+        <div className="nav-main-header">
+          <div className="nav-logo-section">
+            <div className="nav-emblem">
+              <img
+                src="/emblem.svg"
+                alt="Sri Lanka Emblem"
+              />
+            </div>
+            <div className="nav-title">
+              <h1>හොරණ නගර සභාව</h1>
+              <p>HORANA URBAN COUNCIL</p>
+            </div>
+          </div>
+
+          <div className="nav-search-section">
+            <div className="nav-search-container">
+              <Search className="nav-search-icon" />
+              <input
+                type="text"
+                placeholder="Search services..."
+                className="nav-search-input"
+              />
+            </div>
+            <button className="nav-lang-switch">
+              සිංහල
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="nav-navigation">
+          <div className="nav-menu">
+            {/* Home */}
+            <Link
+              to="/mainhome"
+              className="nav-menu-item active"
+            >
+              <span>🏠</span>
+              <span>HOME</span>
+            </Link>
+
+            {/* Services Dropdown */}
+            <div className="nav-dropdown">
+              <button className="nav-dropdown-btn">
+                <span>⚙️</span>
+                <span>SERVICES</span>
+              </button>
+              <div className="nav-dropdown-menu">
+                <Link
+                  to="/adduser?type=playground"
+                  className="nav-dropdown-item"
+                >
+                  🏟 Playground Booking
+                </Link>
+                <Link
+                  to="/adduser?type=swimming"
+                  className="nav-dropdown-item"
+                >
+                  🏊 Swimming Pool Booking
+                </Link>
+                <Link
+                  to="/crematorium?type=crematorium"
+                  className="nav-dropdown-item"
+                >
+                  ⚰ Crematorium Booking
+                </Link>
+              </div>
+            </div>
+
+            {/* Bookings */}
+            <Link
+              to="/userdetails"
+              className="nav-menu-item"
+            >
+              <span>📅</span>
+              <span>BOOKINGS</span>
+            </Link>
+
+            {/* Admin */}
+            <Link
+              to="/adminhome"
+              className="nav-menu-item"
+            >
+              <span>👨‍💼</span>
+              <span>ADMIN</span>
+            </Link>
+
+            {/* Contact */}
+            <Link
+              to="/contact"
+              className="nav-menu-item"
+            >
+              <span>📞</span>
+              <span>CONTACT US</span>
+            </Link>
+          </div>
+        </nav>
+      </div>
+    </header>
   );
 }
 
