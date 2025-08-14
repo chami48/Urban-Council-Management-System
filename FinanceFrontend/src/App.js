@@ -1,6 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router";
 import './App.css';
+import Home from "./Components/Home/Home"
 import AdminHome from "./Components/AdminHome/AdminHome";
 import PropertyHome from "./Components/PropertyHome/PropertyHome";
 import AddAssessment from "./Components/AddAssessment/AddAssessment";
@@ -21,6 +22,8 @@ function App() {
       <React.Fragment>
         
         <Routes>
+          <Route path="/" element={<Home />}/>
+          <Route path="/mainhome" element={<Home />}/>
           <Route path="/adminhome" element={<AdminHome />} />
           <Route path="/propertyhome" element={<PropertyHome />} />
           <Route path="/addproperty" element={<AddProperty />} />
