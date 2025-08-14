@@ -22,10 +22,10 @@ function PropertyAssessmentDetails() {
     try {
       console.log("Fetching data for propertyNo:", propertyNo);
       
-      // Fetch property details
       const encodedPropertyNo = encodeURIComponent(propertyNo);
       console.log("Encoded propertyNo:", encodedPropertyNo);
       
+      // Fetch property details
       const propertyResponse = await axios.get(
         `http://localhost:5001/properties/propertyNo/${encodedPropertyNo}`,
         { timeout: 10000 }
@@ -35,43 +35,32 @@ function PropertyAssessmentDetails() {
 
       if (propertyResponse.data?.property) {
         setProperty(propertyResponse.data.property);
-        console.log("Property set:", propertyResponse.data.property);
       } else {
-        console.log("No property found");
         setError({ message: "Property not found", status: 404 });
         return;
       }
 
       // Fetch assessment details
       try {
-        console.log("Fetching assessment...");
         const assessmentResponse = await axios.get(
           `http://localhost:5001/assessments/propertyNo/${encodedPropertyNo}`,
           { timeout: 10000 }
         );
 
-        console.log("Assessment response:", assessmentResponse.data);
-
         if (assessmentResponse.data?.assessment) {
           setAssessment(assessmentResponse.data.assessment);
-          console.log("Assessment set:", assessmentResponse.data.assessment);
         } else {
-          console.log("No assessment found");
           setAssessment(null);
         }
       } catch (assessmentError) {
-        console.log("Assessment fetch error:", assessmentError);
         if (assessmentError.response?.status === 404) {
-          console.log("No assessment found (404)");
           setAssessment(null);
         } else {
           console.error("Assessment error:", assessmentError);
-          // Don't set error here, just log it - missing assessment is not an error
           setAssessment(null);
         }
       }
     } catch (err) {
-      console.error("Property fetch error:", err);
       setError({
         message: err.response?.data?.message || err.message,
         status: err.response?.status,
@@ -88,7 +77,6 @@ function PropertyAssessmentDetails() {
   }, [propertyNo]);
 
   const handleAddAssessment = () => {
-    // Navigate to add assessment with property number pre-filled
     navigate(`/addassessment?propertyNo=${encodeURIComponent(propertyNo)}`);
   };
 
@@ -173,15 +161,19 @@ function PropertyAssessmentDetails() {
               </div>
             ) : (
               <div className="no-assessment">
-                <p>No assessment records found for this property</p>
-                <button
-                  onClick={handleAddAssessment}
-                  className="add-assessment-button"
-                >
-                  Add Assessment
-                </button>
+                <p>This property is not registered</p>
               </div>
             )}
+          </div>
+
+          {/* Add Confirm & Add Button */}
+          <div style={{ marginTop: "20px" }}>
+            <button
+              className="confirm-add-button"
+              onClick={() => navigate("/mainhome", { state: { property } })}
+            >
+              Confirm & Add
+            </button>
           </div>
         </>
       )}

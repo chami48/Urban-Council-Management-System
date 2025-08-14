@@ -32,7 +32,6 @@ function Assessments() {
     });
   };
 
-  // 🗑 Delete Handler
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this assessment?")) return;
     try {
@@ -43,10 +42,8 @@ function Assessments() {
     }
   };
 
-  // ✏ Update Handler (redirect or popup)
   const handleUpdate = (id) => {
     window.location.href = `/updateassessment/${id}`;
-    // You can replace with navigate() if using react-router's useNavigate
   };
 
   const handlePrinter = useReactToPrint({
@@ -71,22 +68,26 @@ function Assessments() {
     });
   };
 
-  // Helper function to get status class
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
-      case 'active': return 'status-active';
-      case 'pending': return 'status-pending';
-      case 'inactive': return 'status-inactive';
-      default: return 'status-pending';
+      case "ක්‍රියාකාරී":
+      case "active":
+        return "status-active";
+      case "අක්‍රිය":
+      case "inactive":
+        return "status-inactive";
+      default:
+        return "status-pending";
     }
   };
 
   return (
     <div className="assessments-container">
-      {/* Header Section */}
       <div className="header-section">
         <h1 className="header-title">Property Assessments</h1>
-        <p className="header-subtitle">Manage and view all property assessment records</p>
+        <p className="header-subtitle">
+          Manage and view all property assessment records
+        </p>
       </div>
 
       <div className="search-section">
@@ -110,53 +111,64 @@ function Assessments() {
           <p>No Assessments Found</p>
         </div>
       ) : (
-        <div ref={componentsRef} className="assessments-list">
-          {assessments.map((a) => (
-            <div key={a._id} className="assessment-item">
-              <strong>{a.assessmentNo}</strong>
-              <div className="assessment-details">
-                <div className="detail-row">
-                  <span className="detail-label">Owner:</span>
-                  <span className="detail-value">{a.ownerName}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Property:</span>
-                  <span className="detail-value">{a.propertyType}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Division:</span>
-                  <span className="detail-value">{a.division}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Street:</span>
-                  <span className="detail-value">{a.street}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Property No:</span>
-                  <span className="detail-value">{a.propertyNo}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Annual Value:</span>
-                  <span className="detail-value">Rs.{a.annualValue}.00</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Tax Rate:</span>
-                  <span className="detail-value">{a.taxRate}%</span>
-                </div>
-              </div>
-              <span className={`status-badge ${getStatusClass(a.status)}`}>
-                {a.status}
-              </span>
-              <div className="actions">
-                <button className="btn btn-update" onClick={() => handleUpdate(a._id)}>
-                  ✏️ Update
-                </button>
-                <button className="btn btn-delete" onClick={() => handleDelete(a._id)}>
-                  🗑️ Delete
-                </button>
-              </div>
-            </div>
-          ))}
+        <div ref={componentsRef} className="table-wrapper">
+          <table className="assessment-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Assessment No</th>
+                <th>Division</th>
+                <th>Street</th>
+                <th>Property No</th>
+                <th>Owner Name</th>
+                <th>Owner NIC</th>
+                <th>Contact No</th>
+                <th>Description</th>
+                <th>Property Type</th>
+                <th>Annual Value</th>
+                <th>Tax Rate</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assessments.map((a, index) => (
+                <tr key={a._id}>
+                  <td>{index + 1}</td>
+                  <td>{a.assessmentNo}</td>
+                  <td>{a.division}</td>
+                  <td>{a.street}</td>
+                  <td>{a.propertyNo}</td>
+                  <td>{a.ownerName}</td>
+                  <td>{a.ownerNIC}</td>
+                  <td>{a.contactNo}</td>
+                  <td>{a.description}</td>
+                  <td>{a.propertyType}</td>
+                  <td>Rs.{a.annualValue}.00</td>
+                  <td>{a.taxRate}%</td>
+                  <td>
+                    <span className={`status-badge ${getStatusClass(a.status)}`}>
+                      {a.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-update"
+                      onClick={() => handleUpdate(a._id)}
+                    >
+                      ✏️ Update
+                    </button>
+                    <button
+                      className="btn btn-delete"
+                      onClick={() => handleDelete(a._id)}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

@@ -13,6 +13,7 @@ function AddAssessment() {
     propertyNo: "",
     ownerName: "",
     ownerNIC: "",
+    description: "",
     contactNo: "",
     propertyType: "වාණිජ",
     annualValue: "",
@@ -41,6 +42,7 @@ function AddAssessment() {
         ownerName: inputs.ownerName,
         ownerNIC: inputs.ownerNIC,
         contactNo: inputs.contactNo,
+        description:inputs.description,
         propertyType: inputs.propertyType,
         annualValue: Number(inputs.annualValue),
         taxRate: Number(inputs.taxRate),
@@ -79,6 +81,9 @@ function AddAssessment() {
 
         <label>Contact No:</label>
         <input type="text" name="contactNo" value={inputs.contactNo} onChange={handleChange} required />
+
+        <label>Desctription:</label>
+        <input type="text" name="description" value={inputs.description} onChange={handleChange} required />
 
         <label>Property Type:</label>
         <select name="propertyType" value={inputs.propertyType} onChange={handleChange} required>

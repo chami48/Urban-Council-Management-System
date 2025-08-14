@@ -30,6 +30,7 @@ setInputs(res.data.assessment || {});
         ownerName: String(inputs.ownerName),
         ownerNIC: String(inputs.ownerNIC),
         contactNo: String(inputs.contactNo),
+        description: String(inputs.description),
         propertyType: String(inputs.propertyType),
         annualValue: Number(inputs.annualValue),
         taxRate: Number(inputs.taxRate),
@@ -122,6 +123,16 @@ setInputs(res.data.assessment || {});
           id="contactNo"
           name="contactNo"
           value={inputs.contactNo || ""}
+          onChange={handleChange}
+          required
+        />
+
+        <label htmlFor="description">Description:</label>
+        <input
+          type="text"
+          id="description"
+          name="description"
+          value={inputs.description || ""}
           onChange={handleChange}
           required
         />
