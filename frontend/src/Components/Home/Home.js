@@ -173,7 +173,7 @@ function Home() {
               Our Services
             </h2>
             <h3 className="text-2xl font-semibold text-gray-600">
-              අපගේ සේවාවන්
+              අපගේ සේවාවන් 
             </h3>
             <p className="text-gray-600 mt-4">
               Access government services quickly and efficiently
@@ -211,7 +211,7 @@ function Home() {
                       }`}
                       aria-disabled={!service.link}
                     >
-                      Apply Now
+                      Apply Now ggg
                       <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
                   </div>
