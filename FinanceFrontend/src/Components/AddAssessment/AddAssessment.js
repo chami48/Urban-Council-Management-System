@@ -87,8 +87,8 @@ function AddAssessment() {
 
         <label>Property Type:</label>
         <select name="propertyType" value={inputs.propertyType} onChange={handleChange} required>
-          <option value="වාණිජ">Business</option>
-          <option value="නේවාසික">Home</option>
+          <option value="වාණිජ">වාණිජ</option>
+          <option value="නේවාසික">නේවාසික</option>
         </select>
 
         <label>Appraised Value:</label>
