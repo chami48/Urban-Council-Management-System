@@ -1,0 +1,293 @@
+/* Modern Navigation Styles */
+.navbar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar.scrolled {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  backdrop-filter: blur(30px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  padding: 0.25rem 2rem;
+}
+
+.navbar:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.home-ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.home-li {
+  position: relative;
+  margin: 0;
+}
+
+.home-a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.home-a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  border-radius: 12px;
+}
+
+.home-a:hover::before {
+  transform: scaleX(1);
+}
+
+.home-a:hover {
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.home-a h1 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+  text-transform: uppercase;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.home-a button {
+  border: none;
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-register {
+  background: linear-gradient(145deg, #ff6b6b, #ee5a52) !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.btn-login {
+  background: linear-gradient(145deg, #4CAF50, #45a049) !important;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.home-a button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.home-a button:hover::before {
+  left: 100%;
+}
+
+.home-a button:hover {
+  transform: translateY(-3px);
+}
+
+.btn-register:hover {
+  background: linear-gradient(145deg, #ff5252, #d32f2f) !important;
+  box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+}
+
+.btn-login:hover {
+  background: linear-gradient(145deg, #45a049, #388e3c) !important;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+}
+
+.home-a button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+/* Login button special styling */
+.home-li:last-child .home-a button {
+  background: linear-gradient(145deg, #4CAF50, #45a049);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
+.home-li:last-child .home-a button:hover {
+  background: linear-gradient(145deg, #45a049, #388e3c);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+}
+
+/* Active state */
+.home-a.active-page {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: scale(1.05);
+}
+
+.home-a.active-page h1 {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 0.5rem 1rem;
+  }
+  
+  .home-ul {
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .home-a h1 {
+    font-size: 1rem;
+  }
+  
+  .home-a {
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem;
+  }
+  
+  .home-ul {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 0;
+  }
+  
+  .home-li {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .home-a {
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .home-a h1 {
+    font-size: 1.1rem;
+  }
+  
+  .home-a button {
+    width: 100%;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-a h1 {
+    font-size: 0.95rem;
+  }
+  
+  .home-a button {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Smooth scrolling and animations */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Loading animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-li {
+  animation: fadeInUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.home-li:nth-child(1) { animation-delay: 0.1s; }
+.home-li:nth-child(2) { animation-delay: 0.2s; }
+.home-li:nth-child(3) { animation-delay: 0.3s; }
+.home-li:nth-child(4) { animation-delay: 0.4s; }
+.home-li:nth-child(5) { animation-delay: 0.5s; }
+.home-li:nth-child(6) { animation-delay: 0.6s; }
+
+/* Accessibility improvements */
+.home-a:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+.home-a button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* Subtle pulse animation for buttons */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  }
+}
+
+.home-a button {
+  animation: pulse 2s infinite;
+}

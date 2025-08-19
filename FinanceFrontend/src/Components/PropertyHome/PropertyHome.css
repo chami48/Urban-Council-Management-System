@@ -1,0 +1,42 @@
+.property-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.property-table th,
+.property-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.property-table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.btn-view {
+  background-color: #5bc0de;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.btn-remove {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.btn-add-property {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
