@@ -177,6 +177,8 @@ function Home() {
             </h3>
             <p className="text-gray-600 mt-4">
               Access government services quickly and efficiently
+               Access government services quickly and efficiently
+                Access government services quickly and efficiently
             </p>
           </div>
 
