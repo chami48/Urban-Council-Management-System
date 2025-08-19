@@ -6,8 +6,6 @@ import AdminHome from "./Components/AdminHome/AdminHome";
 import PropertyHome from "./Components/PropertyHome/PropertyHome";
 import AddAssessment from "./Components/AddAssessment/AddAssessment";
 import UpdateAssessment from "./Components/UpdateAssessment/UpdateAssessment";
-import Nav from "./Components/Nav/Nav";
-import AdminNav from "./Components/AdminNav/AdminNav";
 import Register from "./Components/Register/Register";
 import Login from "./Components/Login/Login";
 import ContactUs from "./Components/ContactUs/ContactUs";
