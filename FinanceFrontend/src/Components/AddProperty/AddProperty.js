@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import './AddProperty.css';
+import Nav from "../Nav/Nav";
 
 function AddProperty() {
   const navigate = useNavigate();
@@ -61,6 +62,8 @@ function AddProperty() {
   };
 
   return (
+    <div>
+      <Nav/>
     <div className="form-container">
       <h2>Add New Property</h2>
       <form onSubmit={handleSubmit}>
@@ -123,6 +126,7 @@ function AddProperty() {
 
         <button type="submit" className="btn-submit">Add property</button>
       </form>
+    </div>
     </div>
   );
 }
