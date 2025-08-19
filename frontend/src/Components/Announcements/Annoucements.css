@@ -1,0 +1,82 @@
+/* Container */
+.announcements-container {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Title */
+.announcements-container h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Input fields */
+.announcements-container input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: 0.3s;
+  font-size: 14px;
+}
+
+.announcements-container input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.3);
+}
+
+/* Buttons */
+.announcements-container button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 14px;
+}
+
+.announcements-container button:hover {
+  background: #0056b3;
+}
+
+/* Delete button (red) */
+.announcements-container button.delete-btn {
+  background: #dc3545;
+}
+
+.announcements-container button.delete-btn:hover {
+  background: #a71d2a;
+}
+
+/* Announcement List */
+.announcements-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.announcements-container li {
+  background: #f8f9fa;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.announcement-details {
+  flex: 1;
+  font-size: 14px;
+  color: #444;
+}

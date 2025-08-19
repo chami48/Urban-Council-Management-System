@@ -1,0 +1,67 @@
+/* Main container spacing */
+.contact-container {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Page title */
+.contact-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #003366;
+  margin-bottom: 20px;
+}
+
+/* Accordion header buttons */
+.accordion-button {
+  background-color: #f0f6ff;
+  color: #003366;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: #003366;
+  color: #ffffff;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+  border-color: #003366;
+}
+
+/* Accordion item border */
+.accordion-item {
+  border: none;
+  margin-bottom: 8px;
+}
+
+/* Table styling */
+.table {
+  background-color: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.table th {
+  background-color: #003366;
+  color: #ffffff;
+  text-align: center;
+}
+
+.table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border-color: #ddd;
+}
+
+/* Hover effect for rows */
+.table tbody tr:hover {
+  background-color: #f9f9f9;
+}

@@ -1,0 +1,299 @@
+/* Nav Component CSS Styles */
+
+.nav-header {
+  background: linear-gradient(to right, #1e3a8a, #1e40af);
+  color: white;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Top Bar Styles */
+.nav-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #1d4ed8;
+}
+
+.nav-top-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-top-item {
+  display: flex;
+  align-items: center;
+}
+
+.nav-top-item svg {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.nav-top-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-lang-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.nav-lang-btn:hover {
+  color: #bfdbfe;
+}
+
+.nav-lang-btn svg {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.nav-gov-btn {
+  padding: 0.25rem 0.75rem;
+  background-color: #ea580c;
+  border: none;
+  border-radius: 0.25rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.nav-gov-btn:hover {
+  background-color: #c2410c;
+}
+
+/* Main Header Styles */
+.nav-main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+}
+
+.nav-logo-section {
+  display: flex;
+  align-items: center;
+}
+
+.nav-emblem {
+  width: 5rem;
+  height: 5rem;
+  margin-right: 1rem;
+}
+
+.nav-emblem img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.nav-title h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.nav-title p {
+  color: #bfdbfe;
+  margin: 0;
+}
+
+.nav-search-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-search-container {
+  position: relative;
+}
+
+.nav-search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.nav-search-input {
+  padding: 0.5rem 1rem 0.5rem 2.5rem;
+  width: 20rem;
+  border-radius: 0.5rem;
+  border: none;
+  color: #1f2937;
+  outline: none;
+}
+
+.nav-search-input:focus {
+  box-shadow: 0 0 0 2px #93c5fd;
+}
+
+.nav-lang-switch {
+  padding: 0.5rem 1rem;
+  background-color: #ea580c;
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.nav-lang-switch:hover {
+  background-color: #c2410c;
+}
+
+/* Navigation Styles */
+.nav-navigation {
+  padding-bottom: 1rem;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: white;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.nav-menu-item:hover {
+  background-color: #1d4ed8;
+}
+
+.nav-menu-item.active {
+  background-color: #dc2626;
+  color: white;
+  font-weight: 500;
+}
+
+.nav-menu-item span:first-child {
+  margin-right: 0.5rem;
+}
+
+/* Dropdown Styles */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-btn {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s;
+}
+
+.nav-dropdown-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.nav-dropdown-btn span:first-child {
+  margin-right: 0.5rem;
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  background-color: white;
+  color: #1f2937;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  margin-top: 0.25rem;
+  min-width: 180px;
+  z-index: 50;
+  display: none;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+  display: block;
+}
+
+.nav-dropdown-item {
+  display: block;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: #1f2937;
+  transition: background-color 0.2s;
+}
+
+.nav-dropdown-item:hover {
+  background-color: #dbeafe;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .nav-search-input {
+    width: 15rem;
+  }
+  
+  .nav-menu {
+    gap: 1rem;
+  }
+}
+
+/* Adjust search section responsiveness */
+@media (max-width: 768px) {
+  .nav-main-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .nav-search-section {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;       /* Make search section full width */
+    max-width: 400px;  /* Optional: limit maximum width */
+    margin: 0 auto;    /* Center it */
+  }
+
+  .nav-search-input {
+    width: 100%;       /* Full width inside the search section */
+  }
+
+  .nav-menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;       /* Ensure menu doesn't overlap search */
+  }
+
+  .nav-top-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
