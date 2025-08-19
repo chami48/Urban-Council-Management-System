@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router";
-import './App.css';
+import './DApp.css';
 import Home from "./Components/Home/Home"
 import AdminHome from "./Components/AdminHome/AdminHome";
 import PropertyHome from "./Components/PropertyHome/PropertyHome";
@@ -16,7 +16,7 @@ import AddProperty from "./Components/AddProperty/AddProperty";
 import PropertyAssessmentDetails from "./Components/PropertyAssessmentDetails/PropertyAssessmentDetails";
 
 
-function App() {
+function DApp() {
   return (
     <div className="App">
       <React.Fragment>
@@ -40,4 +40,4 @@ function App() {
   );
 }
 
-export default App;
+export default DApp;
