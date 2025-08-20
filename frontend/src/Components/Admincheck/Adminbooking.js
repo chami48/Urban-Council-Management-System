@@ -5,7 +5,8 @@ import Nav from "../Nav/Nav";
 import {
   Calendar, Clock, Users, MapPin, Mail, Phone,
   AlertCircle, CheckCircle, XCircle, ChevronDown,
-  User, FileText, Flame, Activity, Download, Building, Home, Hash
+  User, FileText, Flame, Activity, Download, Building, Home, Hash,
+  List, ChevronLeft, ChevronRight, Filter
 } from "lucide-react";
 
 // API endpoints
@@ -58,6 +59,310 @@ const LoadingSpinner = () => (
   </div>
 );
 
+const CalendarEvent = ({ booking, type, onClick }) => {
+  const getStatusColor = () => {
+    if (booking.approve) return 'bg-emerald-500 border-emerald-600';
+    if (booking.reject) return 'bg-red-500 border-red-600';
+    return 'bg-amber-500 border-amber-600';
+  };
+
+  const title = type === 'playground' 
+    ? booking.eventName || 'Playground Event'
+    : `Cremation - ${booking.deceasedFullName}`;
+
+  const time = type === 'playground'
+    ? `${booking.startTime} - ${booking.endTime}`
+    : new Date(booking.cremationDate).toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      });
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileHover={{ scale: 1.02 }}
+      onClick={() => onClick(booking)}
+      className={`p-2 mb-1 rounded text-white text-xs cursor-pointer border-l-4 ${getStatusColor()} hover:shadow-md transition-all`}
+    >
+      <div className="font-medium truncate">{title}</div>
+      <div className="opacity-90">{time}</div>
+      {type === 'playground' && booking.organizerName && (
+        <div className="opacity-75 truncate">{booking.organizerName}</div>
+      )}
+    </motion.div>
+  );
+};
+
+const TimeSlotCalendar = ({ bookings, activeTab, onEventClick, selectedDate }) => {
+  const timeSlots = [
+    '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
+    '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
+    '18:00', '19:00', '20:00', '21:00', '22:00'
+  ];
+
+  const getBookingsForTimeSlot = (timeSlot) => {
+    if (!selectedDate) return [];
+    
+    return bookings.filter(booking => {
+      const bookingDate = activeTab === 'playground' 
+        ? new Date(booking.eventDate)
+        : new Date(booking.cremationDate);
+      
+      if (bookingDate.toDateString() !== selectedDate.toDateString()) {
+        return false;
+      }
+
+      if (activeTab === 'playground') {
+        const startTime = booking.startTime;
+        const startHour = startTime ? startTime.split(':')[0].padStart(2, '0') + ':00' : null;
+        return startHour === timeSlot;
+      } else {
+        const cremationHour = bookingDate.getHours().toString().padStart(2, '0') + ':00';
+        return cremationHour === timeSlot;
+      }
+    });
+  };
+
+  const formatTimeSlot = (timeSlot) => {
+    const hour = parseInt(timeSlot.split(':')[0]);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+    return `${displayHour}:00 ${period}`;
+  };
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+          Schedule for {selectedDate?.toLocaleDateString('en-US', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
+        </h3>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          {activeTab === 'playground' ? 'Playground Events' : 'Crematorium Bookings'}
+        </p>
+      </div>
+      
+      <div className="max-h-96 overflow-y-auto">
+        {timeSlots.map(timeSlot => {
+          const slotBookings = getBookingsForTimeSlot(timeSlot);
+          
+          return (
+            <div key={timeSlot} className="border-b border-slate-200 dark:border-slate-700 last:border-b-0">
+              <div className="flex">
+                <div className="w-20 p-3 bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700">
+                  <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    {formatTimeSlot(timeSlot)}
+                  </div>
+                </div>
+                <div className="flex-1 p-3 min-h-[60px]">
+                  {slotBookings.length > 0 ? (
+                    <div className="space-y-2">
+                      {slotBookings.map(booking => (
+                        <CalendarEvent
+                          key={booking._id}
+                          booking={booking}
+                          type={activeTab}
+                          onClick={onEventClick}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500">
+                      <span className="text-sm">Available</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const CalendarView = ({ bookings, activeTab, onEventClick }) => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showTimeSlots, setShowTimeSlots] = useState(false);
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const days = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(year, month, day));
+    }
+    
+    return days;
+  };
+
+  const getBookingsForDate = (date) => {
+    if (!date) return [];
+    
+    return bookings.filter(booking => {
+      const bookingDate = activeTab === 'playground' 
+        ? new Date(booking.eventDate)
+        : new Date(booking.cremationDate);
+      
+      return bookingDate.toDateString() === date.toDateString();
+    });
+  };
+
+  const navigateMonth = (direction) => {
+    setCurrentDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setMonth(prev.getMonth() + direction);
+      return newDate;
+    });
+  };
+
+  const handleDateClick = (day) => {
+    setSelectedDate(day);
+    setShowTimeSlots(true);
+  };
+
+  const days = getDaysInMonth(currentDate);
+
+  if (showTimeSlots) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => setShowTimeSlots(false)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <ChevronLeft size={16} />
+            Back to Calendar
+          </button>
+          <div className="text-sm text-slate-600 dark:text-slate-400">
+            {getBookingsForDate(selectedDate).length} bookings scheduled
+          </div>
+        </div>
+        <TimeSlotCalendar 
+          bookings={bookings}
+          activeTab={activeTab}
+          onEventClick={onEventClick}
+          selectedDate={selectedDate}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+      {/* Calendar Header */}
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+        <button
+          onClick={() => navigateMonth(-1)}
+          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        
+        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+          {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+        </h2>
+        
+        <button
+          onClick={() => navigateMonth(1)}
+          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="p-4">
+        {/* Days of week header */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {daysOfWeek.map(day => (
+            <div key={day} className="p-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar days */}
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, index) => {
+            const dayBookings = day ? getBookingsForDate(day) : [];
+            const isToday = day && day.toDateString() === new Date().toDateString();
+            const isSelected = day && selectedDate && day.toDateString() === selectedDate.toDateString();
+
+            return (
+              <div
+                key={index}
+                className={`min-h-[100px] p-1 border border-slate-200 dark:border-slate-700 ${
+                  day ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50' : ''
+                } ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''} ${
+                  isSelected ? 'ring-2 ring-blue-500' : ''
+                }`}
+                onClick={() => day && handleDateClick(day)}
+              >
+                {day && (
+                  <>
+                    <div className={`text-sm font-medium mb-1 ${
+                      isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
+                    }`}>
+                      {day.getDate()}
+                    </div>
+                    <div className="space-y-1">
+                      {dayBookings.slice(0, 2).map(booking => (
+                        <CalendarEvent
+                          key={booking._id}
+                          booking={booking}
+                          type={activeTab}
+                          onClick={onEventClick}
+                        />
+                      ))}
+                      {dayBookings.length > 2 && (
+                        <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 rounded px-2 py-1">
+                          +{dayBookings.length - 2} more
+                        </div>
+                      )}
+                      {dayBookings.length > 0 && (
+                        <div className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer">
+                          View Schedule →
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 function Adminbooking() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,6 +371,8 @@ function Adminbooking() {
   const [activeTab, setActiveTab] = useState("playground");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [viewMode, setViewMode] = useState("list"); // 'list' or 'calendar'
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
@@ -133,21 +440,28 @@ function Adminbooking() {
     return matchesSearch && matchesStatus;
   });
 
+  const handleEventClick = (booking) => {
+    setSelectedBooking(booking);
+    setViewMode("list");
+    setExpanded({ [booking._id]: true });
+  };
+
   const renderBookingContent = (booking) => {
     const isPlayground = activeTab === "playground";
     const isExpanded = !!expanded[booking._id];
+    const isHighlighted = selectedBooking && selectedBooking._id === booking._id;
     
     const summaryDetails = isPlayground ? (
       <>
         <InfoItem icon={<User size={14} />} label="Organizer">{booking.organizerName}</InfoItem>
         <InfoItem icon={<Mail size={14} />} label="Email">{booking.email}</InfoItem>
-        <InfoItem icon={<Calendar size={14} />} label="Event Date">{new Date(booking.eventDate).toLocaleDateString()}</InfoItem>
+        <InfoItem icon={<Calendar size={14} />} label="Event Date">{new Date(booking.eventDate).toLocaleString()}</InfoItem>
       </>
     ) : (
       <>
         <InfoItem icon={<User size={14} />} label="Applicant">{booking.applicantFullName}</InfoItem>
         <InfoItem icon={<MapPin size={14} />} label="Address">{booking.address}</InfoItem>
-        <InfoItem icon={<Calendar size={14} />} label="Cremation Date">{new Date(booking.cremationDate).toLocaleDateString()}</InfoItem>
+        <InfoItem icon={<Calendar size={14} />} label="Cremation Date">{new Date(booking.cremationDate).toLocaleString()}</InfoItem>
       </>
     );
 
@@ -164,7 +478,7 @@ function Adminbooking() {
     ) : (
       <>
         <InfoItem icon={<User size={14} />} label="Deceased Name">{booking.deceasedFullName}</InfoItem>
-        <InfoItem icon={<Calendar size={14} />} label="Date of Death">{new Date(booking.dateOfDeath).toLocaleDateString()}</InfoItem>
+        <InfoItem icon={<Calendar size={14} />} label="Date of Death">{new Date(booking.dateOfDeath).toLocaleString()}</InfoItem>
         <InfoItem icon={<Home size={14} />} label="Residence Area">{booking.residenceArea}</InfoItem>
         <InfoItem icon={<Hash size={14} />} label="NIC">{booking.nic}</InfoItem>
         <InfoItem icon={<Hash size={14} />} label="Registration No.">{booking.registrationNumber}</InfoItem>
@@ -204,7 +518,11 @@ function Adminbooking() {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
+        className={`bg-white dark:bg-slate-800 rounded-lg border overflow-hidden ${
+          isHighlighted 
+            ? 'border-blue-500 shadow-lg ring-2 ring-blue-500/20' 
+            : 'border-slate-200 dark:border-slate-700'
+        }`}
       >
         <div className="p-5">
           <div className="flex justify-between items-start gap-4">
@@ -341,6 +659,29 @@ function Adminbooking() {
               
               <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
                 <button
+                  onClick={() => setViewMode("list")}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                    viewMode === 'list' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  <List size={14} /> List
+                </button>
+                <button
+                  onClick={() => setViewMode("calendar")}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                    viewMode === 'calendar' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                  }`}
+                >
+                  <Calendar size={14} /> Calendar
+                </button>
+              </div>
+              
+              <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
+                <button
                   onClick={() => setActiveTab("playground")}
                   className={`px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === 'playground' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
                 >
@@ -358,12 +699,34 @@ function Adminbooking() {
         </div>
 
         <AnimatePresence mode="wait">
-          {filteredBookings.length > 0 ? (
-            <div className="grid grid-cols-1 gap-5">
+          {viewMode === "calendar" ? (
+            <motion.div
+              key="calendar"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <CalendarView 
+                bookings={filteredBookings} 
+                activeTab={activeTab}
+                onEventClick={handleEventClick}
+              />
+            </motion.div>
+          ) : filteredBookings.length > 0 ? (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="grid grid-cols-1 gap-5"
+            >
               {filteredBookings.map(booking => renderBookingContent(booking))}
-            </div>
+            </motion.div>
           ) : (
             <motion.div
+              key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

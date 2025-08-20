@@ -8,13 +8,14 @@ import UpdateUser from './Components/UpdateUser/UpdateUser';
 import CrematoriumForm from "./Components/CrematoriumForm/CrematoriumForm";
 import Adminbooking from "./Components/Admincheck/Adminbooking";
 import Displaybooking from "./Components/Displaybooking/Displaybooking";
+import HoranaCouncilLanding from "./Components/Landing/oranaCouncilLanding";
 
 function App() {
   return (
     <div className="App">
       <React.Fragment>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HoranaCouncilLanding />} />
           <Route path="/mainhome" element={<Home />} />
           <Route path="/adduser" element={<AddUser />} />
           <Route path="/userdetails" element={<Users />} />
