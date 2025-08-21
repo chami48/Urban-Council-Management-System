@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { useReactToPrint } from "react-to-print";
 import "./Assessments.css";
+import AdminNav from "../AdminNav/AdminNav"; 
 
 const URL = "http://localhost:5001/assessments";
 
@@ -78,6 +78,9 @@ function Assessments() {
   };
 
   return (
+    <div>
+      <AdminNav/>
+    
     <div className="assessments-container">
       <div className="header-section">
         <h1 className="header-title">Property Assessments</h1>
@@ -165,6 +168,7 @@ function Assessments() {
           </table>
         </div>
       )}
+    </div>
     </div>
   );
 }

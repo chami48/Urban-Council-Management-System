@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import './AddAssessment.css';
+import AdminNav from '../AdminNav/AdminNav';
 
 function AddAssessment() {
   const navigate = useNavigate();
@@ -57,6 +58,8 @@ function AddAssessment() {
   };
 
   return (
+    <div>
+    <AdminNav/>
     <div className="form-container">
       <h2>Add New Property Assessment</h2>
       <form onSubmit={handleSubmit}>
@@ -106,7 +109,11 @@ function AddAssessment() {
 
         <button type="submit" className="btn-submit">Add Assessment</button>
       </form>
+      
     </div>
+
+    </div>
+    
   );
 }
 

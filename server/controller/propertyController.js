@@ -88,11 +88,16 @@ const updateProperty = async (req, res) => {
 // Delete property
 const deleteProperty = async (req, res) => {
     try {
+        console.log("Deleting property with ID:", req.params.id); // Debug log
         const property = await Property.findByIdAndDelete(req.params.id);
-        if (!property) return res.status(404).json({ message: "Unable to delete property" });
+        if (!property) {
+            console.log("Property not found"); // Debug log
+            return res.status(404).json({ message: "Unable to delete property" });
+        }
+        console.log("Property deleted:", property); // Debug log
         res.status(200).json({ property });
     } catch (err) {
-        console.error(err);
+        console.error("Error in deleteProperty:", err);
         res.status(500).json({ message: "Error deleting property" });
     }
 };
