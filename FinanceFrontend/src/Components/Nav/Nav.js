@@ -57,7 +57,7 @@ function Nav() {
 
           <div className="nav-search-section">
             <div className="nav-search-container">
-              <Search className="nav-search-icon" />
+              {/* <Search className="nav-search-icon" /> */}
               <input
                 type="text"
                 placeholder="Search services..."

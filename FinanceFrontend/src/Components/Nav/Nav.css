@@ -106,13 +106,14 @@
 }
 
 .nav-title h1 {
-  font-size: 1.5rem;
+  font-size: 3.5rem;
   font-weight: bold;
   margin: 0;
 }
 
 .nav-title p {
   color: #bfdbfe;
+  font-size: 2.5rem;
   margin: 0;
 }
 
@@ -124,6 +125,7 @@
 
 .nav-search-container {
   position: relative;
+  width:300%;
 }
 
 .nav-search-icon {
