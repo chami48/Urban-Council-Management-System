@@ -99,4 +99,4 @@ function AdminHome() {
   );
 }
 
-export default PropertyHome;
+export default AdminHome;

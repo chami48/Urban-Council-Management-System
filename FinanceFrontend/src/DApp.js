@@ -12,6 +12,7 @@ import ContactUs from "./Components/ContactUs/ContactUs";
 import Assessments from "./Components/AssessmentDetails/Assessments";
 import AddProperty from "./Components/AddProperty/AddProperty";
 import PropertyAssessmentDetails from "./Components/PropertyAssessmentDetails/PropertyAssessmentDetails";
+import HoranaCouncilLanding from "./Components/Landing/HoranaCouncilLanding";
 
 
 function DApp() {
@@ -20,7 +21,7 @@ function DApp() {
       <React.Fragment>
         
         <Routes>
-          <Route path="/" element={<Home />}/>
+          <Route path="/" element={<HoranaCouncilLanding />}/>
           <Route path="/mainhome" element={<Home />}/>
           <Route path="/adminhome" element={<AdminHome />} />
           <Route path="/propertyhome" element={<PropertyHome />} />
