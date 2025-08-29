@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import Nav from "../Nav/Nav";
+import Navigation from '../Navigation/Navigation';
+
 import {
   Calendar, Clock, Users, MapPin, Mail, Phone,
   AlertCircle, CheckCircle, XCircle, ChevronDown,
@@ -373,6 +374,7 @@ function Adminbooking() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [viewMode, setViewMode] = useState("list"); // 'list' or 'calendar'
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const fetchBookings = useCallback(async () => {
     setLoading(true);
@@ -609,142 +611,149 @@ function Adminbooking() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      <Nav />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Navigation Component */}
+      <Navigation 
+        sidebarCollapsed={sidebarCollapsed} 
+        setSidebarCollapsed={setSidebarCollapsed} 
+      />
       
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Booking Requests</h1>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                Manage {activeTab === "playground" ? "playground" : "crematorium"} bookings
-              </p>
-            </div>
-            <div className="text-sm text-slate-600 dark:text-slate-300">
-              Showing <span className="font-medium">{filteredBookings.length}</span> of <span className="font-medium">{bookings.length}</span> requests
-            </div>
-          </div>
-          
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={`Search ${activeTab === "playground" ? "events" : "requests"}...`}
-                  className="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <div className="absolute left-3 top-2.5 text-slate-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                </div>
+      {/* Main Content */}
+      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Booking Requests</h1>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Manage {activeTab === "playground" ? "playground" : "crematorium"} bookings
+                </p>
+              </div>
+              <div className="text-sm text-slate-600 dark:text-slate-300">
+                Showing <span className="font-medium">{filteredBookings.length}</span> of <span className="font-medium">{bookings.length}</span> requests
               </div>
             </div>
             
-            <div className="flex gap-3">
-              <select
-                className="text-sm rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-              >
-                <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-              
-              <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                    viewMode === 'list' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  <List size={14} /> List
-                </button>
-                <button
-                  onClick={() => setViewMode("calendar")}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                    viewMode === 'calendar' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  <Calendar size={14} /> Calendar
-                </button>
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+              <div className="flex-1">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder={`Search ${activeTab === "playground" ? "events" : "requests"}...`}
+                    className="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <div className="absolute left-3 top-2.5 text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </div>
+                </div>
               </div>
               
-              <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-                <button
-                  onClick={() => setActiveTab("playground")}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === 'playground' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+              <div className="flex gap-3">
+                <select
+                  className="text-sm rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
                 >
-                  Playground
-                </button>
-                <button
-                  onClick={() => setActiveTab("crematorium")}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === 'crematorium' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
-                >
-                  Crematorium
-                </button>
+                  <option value="all">All Statuses</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+                
+                <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                      viewMode === 'list' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    <List size={14} /> List
+                  </button>
+                  <button
+                    onClick={() => setViewMode("calendar")}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                      viewMode === 'calendar' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    <Calendar size={14} /> Calendar
+                  </button>
+                </div>
+                
+                <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
+                  <button
+                    onClick={() => setActiveTab("playground")}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === 'playground' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                  >
+                    Playground
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("crematorium")}
+                    className={`px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === 'crematorium' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
+                  >
+                    Crematorium
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <AnimatePresence mode="wait">
-          {viewMode === "calendar" ? (
-            <motion.div
-              key="calendar"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <CalendarView 
-                bookings={filteredBookings} 
-                activeTab={activeTab}
-                onEventClick={handleEventClick}
-              />
-            </motion.div>
-          ) : filteredBookings.length > 0 ? (
-            <motion.div
-              key="list"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="grid grid-cols-1 gap-5"
-            >
-              {filteredBookings.map(booking => renderBookingContent(booking))}
-            </motion.div>
-          ) : (
-            <motion.div
-              key="empty"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="text-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12"
-            >
-              <div className="mx-auto h-12 w-12 text-slate-400">
-                {activeTab === 'playground' ? <Activity size={48} /> : <Flame size={48} />}
-              </div>
-              <h3 className="mt-3 text-lg font-medium text-slate-900 dark:text-white">No matching requests</h3>
-              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                {searchTerm || filterStatus !== "all" 
-                  ? "Try adjusting your search or filter criteria"
-                  : `All caught up! No ${activeTab} requests found.`}
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          <AnimatePresence mode="wait">
+            {viewMode === "calendar" ? (
+              <motion.div
+                key="calendar"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <CalendarView 
+                  bookings={filteredBookings} 
+                  activeTab={activeTab}
+                  onEventClick={handleEventClick}
+                />
+              </motion.div>
+            ) : filteredBookings.length > 0 ? (
+              <motion.div
+                key="list"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 gap-5"
+              >
+                {filteredBookings.map(booking => renderBookingContent(booking))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="text-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12"
+              >
+                <div className="mx-auto h-12 w-12 text-slate-400">
+                  {activeTab === 'playground' ? <Activity size={48} /> : <Flame size={48} />}
+                </div>
+                <h3 className="mt-3 text-lg font-medium text-slate-900 dark:text-white">No matching requests</h3>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  {searchTerm || filterStatus !== "all" 
+                    ? "Try adjusting your search or filter criteria"
+                    : `All caught up! No ${activeTab} requests found.`}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </main>
     </div>
   );
 }
