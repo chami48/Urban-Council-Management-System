@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Assessments.css";
 import AdminNav from "../AdminNav/AdminNav"; 
@@ -20,6 +21,7 @@ function Assessments() {
   const [searchQuery, setSearchQuery] = useState("");
   const [noResults, setNoResults] = useState(false);
   const componentsRef = useRef();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadAssessments();
@@ -44,6 +46,10 @@ function Assessments() {
 
   const handleUpdate = (id) => {
     window.location.href = `/updateassessment/${id}`;
+  };
+
+  const handleAddAssessment = () => {
+    navigate('/addassessment');
   };
 
   const handleSearch = () => {
@@ -94,17 +100,26 @@ function Assessments() {
             </div>
           </div>
           
-          <div className="header-status">
-            <div className="status-item">
-              <div className="live-indicator"></div>
-              <span>Live Data</span>
+          <div className="header-actions">
+            <div className="header-status">
+              <div className="status-item">
+                <div className="live-indicator"></div>
+                <span>Live Data</span>
+              </div>
+              <div className="status-item">
+                <svg className="icon-clock" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Updated just now</span>
+              </div>
             </div>
-            <div className="status-item">
-              <svg className="icon-clock" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            
+            <button onClick={handleAddAssessment} className="add-assessment-btn">
+              <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <span>Updated just now</span>
-            </div>
+              Add Assessment
+            </button>
           </div>
         </div>
 
@@ -140,6 +155,12 @@ function Assessments() {
             </div>
             <h3 className="no-results-title">No Assessments Found</h3>
             <p className="no-results-subtitle">Try adjusting your search criteria or check back later.</p>
+            <button onClick={handleAddAssessment} className="add-first-assessment-btn">
+              <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              Add Your First Assessment
+            </button>
           </div>
         ) : (
           <div ref={componentsRef} className="table-card">

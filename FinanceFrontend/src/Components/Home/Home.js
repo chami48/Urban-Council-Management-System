@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Nav from '../Nav/Nav.js';
 
 // Simple icon components
@@ -17,6 +18,7 @@ const Youtube = () => <span>📺</span>;
 
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const navigate = useNavigate();
 
   // Hero slides data
   const slides = [
@@ -49,12 +51,12 @@ function Home() {
   }, [slides.length]);
 
   const services = [
-    { icon: FileText, title: "Building Permits", titleSinhala: "ගොඩනැගිලි බලපත්‍ර", description: "Apply for construction permits online" },
-    { icon: Users, title: "Birth Certificates", titleSinhala: "උප්පැන්න සහතික", description: "Get certified birth certificates" },
-    { icon: Award, title: "Business Licenses", titleSinhala: "ව්‍යාපාර බලපත්‍ර", description: "Register and license your business" },
-    { icon: MapPin, title: "Property Tax", titleSinhala: "දේපල බද්ද", description: "Pay property taxes online" },
-    { icon: Calendar, title: "Event Booking", titleSinhala: "උත්සව වෙන්කරවීම", description: "Book community halls and venues" },
-    { icon: Bell, title: "Waste Management", titleSinhala: "අපද්‍රව්‍ය කළමනාකරණය", description: "Schedule waste collection services" }
+    { icon: FileText, title: "Building Permits", titleSinhala: "ගොඩනැගිලි බලපත්‍ර", description: "Apply for construction permits online", route: "/building-permits" },
+    { icon: Users, title: "Birth Certificates", titleSinhala: "උප්පැන්න සහතික", description: "Get certified birth certificates", route: "/birth-certificates" },
+    { icon: Award, title: "Business Licenses", titleSinhala: "ව්‍යාපාර බලපත්‍ර", description: "Register and license your business", route: "/business-licenses" },
+    { icon: MapPin, title: "Property Tax", titleSinhala: "දේපල බද්ද", description: "Pay property taxes online", route: "/property-tax" },
+    { icon: Calendar, title: "Event Booking", titleSinhala: "උත්සව වෙන්කරවීම", description: "Book community halls and venues", route: "/event-booking" },
+    { icon: Bell, title: "Waste Management", titleSinhala: "අපද්‍රව්‍ය කළමනාකරණය", description: "Schedule waste collection services", route: "/waste-management" }
   ];
 
   const news = [
@@ -77,6 +79,11 @@ function Home() {
       description: "Community input session for annual budget planning"
     }
   ];
+
+  // Handle service click navigation
+  const handleServiceClick = (route) => {
+    navigate(route);
+  };
 
   // Styles
   const styles = {
@@ -501,6 +508,7 @@ function Home() {
               <div 
                 key={index} 
                 style={styles.serviceCard}
+                onClick={() => handleServiceClick(service.route)}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
                   e.currentTarget.style.borderColor = '#3b82f6';
@@ -524,14 +532,11 @@ function Home() {
                     <h4 style={styles.serviceTitle}>{service.titleSinhala}</h4>
                     <h5 style={styles.serviceSubtitle}>{service.title}</h5>
                     <p style={styles.serviceDesc}>{service.description}</p>
-                    <a 
-                      href="#" 
+                    <span 
                       style={styles.serviceLink}
-                      onMouseEnter={(e) => e.target.style.color = '#1d4ed8'}
-                      onMouseLeave={(e) => e.target.style.color = '#3b82f6'}
                     >
                       Apply Now <ChevronRight />
-                    </a>
+                    </span>
                   </div>
                 </div>
               </div>

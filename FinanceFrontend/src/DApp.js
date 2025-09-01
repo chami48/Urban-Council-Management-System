@@ -13,6 +13,7 @@ import Assessments from "./Components/AssessmentDetails/Assessments";
 import AddProperty from "./Components/AddProperty/AddProperty";
 import PropertyAssessmentDetails from "./Components/PropertyAssessmentDetails/PropertyAssessmentDetails";
 import HoranaCouncilLanding from "./Components/Landing/HoranaCouncilLanding";
+import PropertyTax from "./Components/PropertyTax/PropertyTax";
 
 
 function DApp() {
@@ -33,6 +34,7 @@ function DApp() {
           <Route path="/register" element={<Register />} />
           <Route path="/log" element={<Login />} />
           <Route path="/contactus" element={<ContactUs />} />
+          <Route path="/property-tax" element={<PropertyTax />} />
         </Routes>
       </React.Fragment>
     </div>
