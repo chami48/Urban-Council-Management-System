@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminHome.css';
+import AdminNav from '../AdminNav/AdminNav';
+
 
 // Icons (you can replace with your preferred icon library)
 const Icon = ({ name, size = 20 }) => {
@@ -178,13 +180,14 @@ function AdminHome() {
       profileLink: '/profile/financial-manager',
       status: 'online'
     },
-    { 
-      name: 'Heshan Gunawardhena', 
-      title: 'Assessment Officer', 
-      department: 'Operations',
-      profileLink: '/profile/assessment-officer',
-      status: 'online'
-    },
+   {
+  name: "Heshan Gunawardhena",
+  title :"Assessment Officer",
+  department: "Operations",
+  profileLink: "/assessmentdetails",  // Linked file path
+  status: "online"
+},
+
     { 
       name: 'Bhathiya Jayakodi', 
       title: 'Permit Approve Officer', 
@@ -284,6 +287,7 @@ function AdminHome() {
 
   return (
     <div className="admin-dashboard">
+      
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
