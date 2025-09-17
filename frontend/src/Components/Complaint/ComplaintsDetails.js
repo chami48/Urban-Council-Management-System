@@ -1,169 +1,732 @@
 import React, { useEffect, useState } from 'react';
-import Nav from '../Nav/Nav';
+import Navigation from '../Navigation/Navigation';
 import axios from 'axios';
+import { motion, AnimatePresence } from "framer-motion";
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import {
+  Search, Filter, MessageSquare, Trash2, FileText,
+  Mail, Phone, MapPin, User, Calendar, AlertCircle,
+  CheckCircle, XCircle, Eye, EyeOff, Send, X,
+  Download, Paperclip, RefreshCw
+} from "lucide-react";
 
-const URL = "http://localhost:5000/users";
+const URL = "http://localhost:5000/complaints";
 
 const fetchHandler = async () => {
-  return await axios.get(URL).then((res) => res.data);
+  try {
+    const response = await axios.get(URL);
+    return response.data;
+  } catch (error) {
+    console.error("API Error:", error.response?.status, error.response?.data);
+    throw error;
+  }
 };
 
-function ComplaintsDetails() {
-  const [users, setUsers] = useState([]);
-  const [showFormId, setShowFormId] = useState(null); // which complaint's update form is open
+const LoadingSpinner = () => (
+  <div className="flex flex-col items-center justify-center min-h-[60vh]">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-blue-100 rounded-full"></div>
+      <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
+    </div>
+    <div className="mt-6 text-center">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading complaints</h3>
+      <p className="text-sm text-gray-500">Please wait while we fetch the latest data...</p>
+    </div>
+  </div>
+);
+
+const StatusBadge = ({ complaint }) => {
+  if (complaint.status === 'resolved') {
+    return (
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 rounded-full border border-emerald-200">
+        <CheckCircle size={12} />
+        Resolved
+      </div>
+    );
+  }
+  if (complaint.status === 'rejected') {
+    return (
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-red-50 to-red-100 text-red-700 rounded-full border border-red-200">
+        <XCircle size={12} />
+        Rejected
+      </div>
+    );
+  }
+  return (
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 rounded-full border border-amber-200">
+      <AlertCircle size={12} />
+      Pending
+    </div>
+  );
+};
+
+const InfoCard = ({ icon, label, children, className = "" }) => (
+  <div className={`p-4 bg-gray-50 rounded-xl border border-gray-200 ${className}`}>
+    <div className="flex items-start gap-3">
+      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 flex-shrink-0">
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-sm font-medium text-gray-900 break-words">{children || "Not specified"}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const MessageModal = ({ isOpen, onClose, phoneNumber, onSend }) => {
   const [message, setMessage] = useState("");
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ search state
+  const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    fetchHandler().then((data) => setUsers(data.users));
-  }, []);
+  const handleSend = async () => {
+    if (!message.trim()) return;
 
-  // ✅ Delete complaint function
-  const handleDelete = async (id) => {
+    setSending(true);
     try {
-      await axios.delete(`${URL}/${id}`);
-      setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
-    } catch (err) {
-      console.error("Error deleting complaint:", err);
+      await onSend(phoneNumber, message);
+      setMessage("");
+      onClose();
+    } catch (error) {
+      console.error("Send error:", error);
+    } finally {
+      setSending(false);
     }
   };
 
-  // ✅ Send message function
-  const handleSendMessage = async (phoneNumber) => {
-    if (!message.trim()) {
-      alert("Please enter a message.");
-      return;
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+      >
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <MessageSquare size={20} className="text-blue-600" />
+            Send SMS Message
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="p-6">
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Send to: {phoneNumber}
+            </label>
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Type your message here..."
+              className="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none"
+              rows={4}
+            />
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSend}
+              disabled={!message.trim() || sending}
+              className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
+            >
+              {sending ? (
+                <RefreshCw size={16} className="animate-spin" />
+              ) : (
+                <Send size={16} />
+              )}
+              {sending ? "Sending..." : "Send Message"}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const ComplaintCard = ({ complaint, onDelete, onSendMessage, isExpanded, onToggleExpand }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      await onDelete(complaint._id);
+      setShowDeleteConfirm(false);
+    } catch (error) {
+      console.error("Delete error:", error);
     }
+  };
+
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+    >
+      <div className="p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="text-xl font-bold text-gray-900">{complaint.NatureofComplaint}</h3>
+              <StatusBadge complaint={complaint} />
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Calendar size={14} />
+              <span>Submitted on {new Date(complaint.createdAt || Date.now()).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <InfoCard icon={<User size={16} />} label="Name">
+            {complaint.Name}
+          </InfoCard>
+          <InfoCard icon={<Phone size={16} />} label="Phone">
+            {complaint.Phone_Number}
+          </InfoCard>
+          <InfoCard icon={<Mail size={16} />} label="Email">
+            {complaint.Email}
+          </InfoCard>
+          <InfoCard icon={<MapPin size={16} />} label="Location">
+            {complaint.Location}
+          </InfoCard>
+        </div>
+
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-gray-100 pt-6 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <InfoCard icon={<FileText size={16} />} label="NIC Number">
+                    {complaint.NIC_Number}
+                  </InfoCard>
+                  <InfoCard icon={<MapPin size={16} />} label="Address">
+                    {complaint.Address}
+                  </InfoCard>
+                  <InfoCard icon={<MapPin size={16} />} label="GN Division" className="md:col-span-2">
+                    {complaint.Grama_Niladhari_Division}
+                  </InfoCard>
+                </div>
+
+                {complaint.Description && (
+                  <div className="mb-6">
+                    <InfoCard icon={<FileText size={16} />} label="Description" className="md:col-span-2">
+                      {complaint.Description}
+                    </InfoCard>
+                  </div>
+                )}
+
+                {complaint.Attach_Files && complaint.Attach_Files.length > 0 && (
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Paperclip className="w-5 h-5 text-blue-600" />
+                      Attachments
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {complaint.Attach_Files.map((file, index) => (
+                        <a
+                          key={index}
+                          href={`http://localhost:5000/uploads/${file}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-4 bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+                        >
+                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <Download size={16} className="text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">File {index + 1}</p>
+                            <p className="text-sm text-gray-500">Click to download</p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => onToggleExpand(complaint._id)}
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
+          >
+            {isExpanded ? <EyeOff size={16} /> : <Eye size={16} />}
+            {isExpanded ? "Hide Details" : "View Details"}
+          </button>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => onSendMessage(complaint.Phone_Number)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <MessageSquare size={16} />
+              Send Message
+            </button>
+
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                <Trash2 size={16} />
+                Delete
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDelete}
+                  className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-3 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+function ComplaintsDetails() {
+  const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [expandedComplaints, setExpandedComplaints] = useState({});
+  const [messageModal, setMessageModal] = useState({ isOpen: false, phoneNumber: "" });
+
+  useEffect(() => {
+    const loadComplaints = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchHandler();
+        setComplaints(data?.complaints || []);
+        setError(null);
+      } catch (err) {
+        setError("Failed to load complaints. Please check if the server is running.");
+        console.error("Error loading complaints:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadComplaints();
+  }, []);
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`${URL}/${id}`);
+      setComplaints(prev => prev.filter(complaint => complaint._id !== id));
+    } catch (err) {
+      console.error("Error deleting complaint:", err);
+      throw err;
+    }
+  };
+
+  const handleSendMessage = async (phoneNumber, message) => {
     try {
       await axios.post("http://localhost:5000/send-sms", {
         phone: phoneNumber,
         text: message
       });
-      alert(`Message sent to ${phoneNumber}`);
-      setMessage("");
-      setShowFormId(null);
     } catch (err) {
       console.error("Error sending message:", err);
-      alert("Failed to send message.");
+      throw err;
     }
   };
 
-  // ✅ Filtered complaints based on search term
-  const filteredUsers = users.filter((user) =>
-    user.NatureofComplaint.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const toggleExpanded = (id) => {
+    setExpandedComplaints(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const openMessageModal = (phoneNumber) => {
+    setMessageModal({ isOpen: true, phoneNumber });
+  };
+
+  const closeMessageModal = () => {
+    setMessageModal({ isOpen: false, phoneNumber: "" });
+  };
+
+  const filteredComplaints = complaints.filter(complaint => {
+    const term = searchTerm.toLowerCase();
+    const matchesSearch =
+      complaint.NatureofComplaint?.toLowerCase().includes(term) ||
+      complaint.Name?.toLowerCase().includes(term) ||
+      complaint.Location?.toLowerCase().includes(term);
+
+    const matchesStatus = filterStatus === "all" ||
+      (filterStatus === "pending" && (!complaint.status || complaint.status === "pending")) ||
+      (filterStatus === "resolved" && complaint.status === "resolved") ||
+      (filterStatus === "rejected" && complaint.status === "rejected");
+
+    return matchesSearch && matchesStatus;
+  });
+
+  // -------- PDF Generation (fixed for jspdf-autotable v3) --------
+  const generateComplaintsReport = () => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+
+    // Header
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Complaints Management Report', pageWidth / 2, 20, { align: 'center' });
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
+    doc.text(`Total Complaints: ${filteredComplaints.length}`, pageWidth / 2, 40, { align: 'center' });
+
+    let yPosition = 55;
+
+    // Summary Statistics
+    const total = filteredComplaints.length || 1; // guard for %
+    const pendingCount = filteredComplaints.filter(c => !c.status || c.status === 'pending').length;
+    const resolvedCount = filteredComplaints.filter(c => c.status === 'resolved').length;
+    const rejectedCount = filteredComplaints.filter(c => c.status === 'rejected').length;
+
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Summary Statistics', 15, yPosition);
+    yPosition += 15;
+
+    autoTable(doc, {
+      head: [['Status', 'Count', 'Percentage']],
+      body: [
+        ['Pending', pendingCount.toString(), `${((pendingCount / total) * 100).toFixed(1)}%`],
+        ['Resolved', resolvedCount.toString(), `${((resolvedCount / total) * 100).toFixed(1)}%`],
+        ['Rejected', rejectedCount.toString(), `${((rejectedCount / total) * 100).toFixed(1)}%`]
+      ],
+      startY: yPosition,
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+      alternateRowStyles: { fillColor: [248, 250, 252] }
+    });
+
+    yPosition = (doc.lastAutoTable?.finalY || yPosition) + 20;
+
+    // New page if needed
+    if (yPosition > doc.internal.pageSize.height - 40) {
+      doc.addPage();
+      yPosition = 20;
+    }
+
+    // Detailed Complaints List
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Detailed Complaints List', 15, yPosition);
+    yPosition += 10;
+
+    const complaintsData = filteredComplaints.map(complaint => [
+      complaint.Name || 'N/A',
+      complaint.NatureofComplaint || 'N/A',
+      complaint.Phone_Number || 'N/A',
+      complaint.Location || 'N/A',
+      complaint.status || 'Pending',
+      new Date(complaint.createdAt || Date.now()).toLocaleDateString()
+    ]);
+
+    autoTable(doc, {
+      head: [['Name', 'Nature of Complaint', 'Phone', 'Location', 'Status', 'Date']],
+      body: complaintsData,
+      startY: yPosition,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+        overflow: 'linebreak'
+      },
+      headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      columnStyles: {
+        0: { cellWidth: 25 }, // Name
+        1: { cellWidth: 35 }, // Nature of Complaint
+        2: { cellWidth: 25 }, // Phone
+        3: { cellWidth: 25 }, // Location
+        4: { cellWidth: 20 }, // Status
+        5: { cellWidth: 20 }  // Date
+      }
+    });
+
+    // Optional: Complaints by Nature
+    const afterDetailY = doc.lastAutoTable?.finalY || yPosition;
+    if (filteredComplaints.length > 0 && afterDetailY < doc.internal.pageSize.height - 60) {
+      yPosition = afterDetailY + 20;
+
+      const complaintTypes = {};
+      filteredComplaints.forEach(complaint => {
+        const nature = complaint.NatureofComplaint || 'Unspecified';
+        complaintTypes[nature] = (complaintTypes[nature] || 0) + 1;
+      });
+
+      const typeData = Object.entries(complaintTypes).map(([type, count]) => [
+        type,
+        count.toString(),
+        `${((count / (filteredComplaints.length || 1)) * 100).toFixed(1)}%`
+      ]);
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Complaints by Nature', 15, yPosition);
+      yPosition += 10;
+
+      autoTable(doc, {
+        head: [['Nature of Complaint', 'Count', 'Percentage']],
+        body: typeData,
+        startY: yPosition,
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [34, 197, 94], textColor: 255 },
+        alternateRowStyles: { fillColor: [248, 250, 252] }
+      });
+    }
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(
+        'Complaints Management System - Horana Municipal Council',
+        pageWidth / 2,
+        doc.internal.pageSize.height - 10,
+        { align: 'center' }
+      );
+      doc.text(
+        `Page ${i} of ${pageCount}`,
+        pageWidth - 20,
+        doc.internal.pageSize.height - 10,
+        { align: 'right' }
+      );
+    }
+
+    // Save
+    const filename = `Complaints_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+  };
+  // -------- End PDF Generation --------
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <Navigation
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+        />
+        <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+          <LoadingSpinner />
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <Navigation
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+        />
+        <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+          <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
+            <div className="text-center bg-white rounded-2xl p-8 shadow-sm border border-red-200">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle size={32} className="text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Connection Error</h3>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
+              >
+                <RefreshCw size={16} />
+                Retry
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <Nav />
-      <h1 style={{ textAlign: "center", margin: "20px 0" }}>Complaint Details</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <Navigation
+        sidebarCollapsed={sidebarCollapsed}
+        setSidebarCollapsed={setSidebarCollapsed}
+      />
 
-      {/* ✅ Search Bar */}
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-        <input
-          type="text"
-          placeholder="Search by Nature of Complaint..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            padding: "10px",
-            width: "300px",
-            border: "1px solid #ccc",
-            borderRadius: "5px"
-          }}
-        />
-      </div>
-
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", justifyContent: "center" }}>
-        {filteredUsers.length > 0 ? (
-          filteredUsers.map((user, i) => (
-            <div
-              key={i}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: "10px",
-                padding: "15px",
-                width: "300px",
-                background: "#f9f9f9",
-                boxShadow: "0px 2px 8px rgba(0,0,0,0.1)"
-              }}
-            >
-              <h3 style={{ color: "#333" }}>{user.NatureofComplaint}</h3>
-              <p><strong>Name:</strong> {user.Name}</p>
-              <p><strong>NIC:</strong> {user.NIC_Number}</p>
-              <p><strong>Email:</strong> {user.Email || "N/A"}</p>
-              <p><strong>Phone:</strong> {user.Phone_Number}</p>
-              <p><strong>Address:</strong> {user.Address}</p>
-              <p><strong>Location:</strong> {user.Location}</p>
-              <p><strong>GN Division:</strong> {user.Grama_Niladhari_Division}</p>
-              <p><strong>Description:</strong> {user.Description}</p>
-
-              {user.Attach_Files && user.Attach_Files.length > 0 && (
-                <div>
-                  <strong>Attachments:</strong>
-                  {user.Attach_Files.map((file, index) => (
-                    <div key={index}>
-                      <a href={file} target="_blank" rel="noopener noreferrer">
-                        View File {index + 1}
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div style={{ marginTop: "15px", display: "flex", justifyContent: "space-between" }}>
-                <button 
-                  style={{ backgroundColor: "#4CAF50", color: "white", border: "none", padding: "8px 12px", borderRadius: "5px", cursor: "pointer" }}
-                  onClick={() => setShowFormId(showFormId === user._id ? null : user._id)}
-                >
-                  Update
-                </button>
-                <button 
-                  style={{ backgroundColor: "#f44336", color: "white", border: "none", padding: "8px 12px", borderRadius: "5px", cursor: "pointer" }}
-                  onClick={() => handleDelete(user._id)}
-                >
-                  Delete
-                </button>
+      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                  <FileText className="w-8 h-8 text-blue-600" />
+                  Complaints Management
+                </h1>
+                <p className="text-lg text-gray-600">
+                  Review and manage citizen complaints and feedback
+                </p>
               </div>
+              <div className="flex flex-col lg:flex-row items-center gap-4">
+                {/* PDF Download Button */}
+                <button
+                  onClick={generateComplaintsReport}
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
+                >
+                  <Download className="w-5 h-5" />
+                  Generate Report PDF
+                </button>
 
-              {showFormId === user._id && (
-                <div style={{ marginTop: "15px" }}>
-                  <textarea
-                    placeholder={`Write a message to ${user.Phone_Number}`}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      borderRadius: "5px",
-                      border: "1px solid #ccc",
-                      resize: "none"
-                    }}
-                    rows={3}
-                  />
-                  <button
-                    style={{
-                      marginTop: "8px",
-                      backgroundColor: "#2196F3",
-                      color: "white",
-                      border: "none",
-                      padding: "8px 12px",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                      width: "100%"
-                    }}
-                    onClick={() => handleSendMessage(user.Phone_Number)}
-                  >
-                    Send Message
-                  </button>
+                {/* Stats */}
+                <div className="flex items-center gap-4 px-6 py-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-900">{filteredComplaints.length}</p>
+                    <p className="text-sm text-gray-500">Shown</p>
+                  </div>
+                  <div className="w-px h-8 bg-gray-300"></div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{complaints.length}</p>
+                    <p className="text-sm text-gray-500">Total</p>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
-          ))
-        ) : (
-          <p style={{ textAlign: "center", color: "#888" }}>No complaints found.</p>
-        )}
-      </div>
+
+            {/* Filters */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Search complaints by nature, name, or location..."
+                      className="w-full pl-12 pr-4 py-3 text-sm border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+                    <select
+                      className="pl-10 pr-8 py-3 text-sm border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white appearance-none"
+                      value={filterStatus}
+                      onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="pending">Pending</option>
+                      <option value="resolved">Resolved</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <AnimatePresence mode="wait">
+            {filteredComplaints.length > 0 ? (
+              <motion.div
+                key="complaints-list"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-6"
+              >
+                {filteredComplaints.map(complaint => (
+                  <ComplaintCard
+                    key={complaint._id}
+                    complaint={complaint}
+                    onDelete={handleDelete}
+                    onSendMessage={openMessageModal}
+                    isExpanded={!!expandedComplaints[complaint._id]}
+                    onToggleExpand={toggleExpanded}
+                  />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="no-complaints"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="text-center bg-white rounded-2xl border border-gray-200 p-16 shadow-sm"
+              >
+                <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
+                  <FileText size={40} className="text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No complaints found</h3>
+                <p className="text-gray-500 max-w-md mx-auto">
+                  {searchTerm || filterStatus !== "all"
+                    ? "Try adjusting your search criteria or filters to find relevant complaints."
+                    : "No complaints are currently available for review."}
+                </p>
+                {(searchTerm || filterStatus !== "all") && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setFilterStatus("all");
+                    }}
+                    className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </main>
+
+      {/* Message Modal */}
+      <MessageModal
+        isOpen={messageModal.isOpen}
+        onClose={closeMessageModal}
+        phoneNumber={messageModal.phoneNumber}
+        onSend={handleSendMessage}
+      />
     </div>
   );
 }

@@ -79,7 +79,7 @@ const AdminHome = () => {
       icon: MessageSquare,
       color: 'green',
       description: 'Citizen complaints and municipal announcements',
-      route: ''
+      route: '/complaintsDetails'
     },
     {
       id: 'licenses',

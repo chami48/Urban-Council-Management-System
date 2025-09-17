@@ -78,6 +78,7 @@ function Home() {
       title: "Birth Certificates",
       titleSinhala: "උප්පැන්න සහතික",
       description: "Apply for certified birth certificates with secure online verification",
+      link:"/chatbot",
       category: "Civil Registration"
     },
     {

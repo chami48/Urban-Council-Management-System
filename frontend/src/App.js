@@ -17,6 +17,10 @@ import AddAssessment from './Components/Assessment/AddAssessment';
 import Complaints from "./Components/Complaint/Complaints";
 import Announcements from './Components/Announcements/Announcements';
 import ContactUs from './Components/ContactUs/contactus';
+import ServicesChatbot from './Components/chatbot/ServicesChatbot';
+import ComplaintsDetails from './Components/Complaint/ComplaintsDetails';
+
+
 
 
 function App() {
@@ -41,7 +45,8 @@ function App() {
           <Route path="/complaint" element={<Complaints />} />
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/contact" element={<ContactUs />} />   
-        
+          <Route path="/chatbot" element={<ServicesChatbot />} />
+          <Route path="/complaintsDetails" element={<ComplaintsDetails />} />
         </Routes>
       </React.Fragment>
     </div>

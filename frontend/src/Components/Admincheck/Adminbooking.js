@@ -7,7 +7,7 @@ import {
   Calendar, Clock, Users, MapPin, Mail, Phone,
   AlertCircle, CheckCircle, XCircle, ChevronDown,
   User, FileText, Flame, Activity, Download, Building, Home, Hash,
-  List, ChevronLeft, ChevronRight, Filter
+  List, ChevronLeft, ChevronRight, Filter, Eye, Search, Bell
 } from "lucide-react";
 
 // API endpoints
@@ -18,53 +18,68 @@ const CREMATORIUM_URL = "http://localhost:5000/crematorium";
 const StatusBadge = ({ booking }) => {
   if (booking.approve) {
     return (
-      <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 px-3 py-1 rounded-full">
-        <CheckCircle size={14} />
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 rounded-full border border-emerald-200 shadow-sm">
+        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
         <span>Approved</span>
       </div>
     );
   }
   if (booking.reject) {
     return (
-      <div className="flex items-center gap-2 text-xs font-semibold text-rose-700 bg-rose-100 dark:bg-rose-900/30 dark:text-rose-300 px-3 py-1 rounded-full">
-        <XCircle size={14} />
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-red-50 to-red-100 text-red-700 rounded-full border border-red-200 shadow-sm">
+        <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
         <span>Rejected</span>
       </div>
     );
   }
   return (
-    <div className="flex items-center gap-2 text-xs font-semibold text-amber-700 bg-amber-100 dark:bg-amber-900/30 dark:text-amber-300 px-3 py-1 rounded-full">
-      <AlertCircle size={14} />
-      <span>Pending</span>
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-amber-50 to-amber-100 text-amber-700 rounded-full border border-amber-200 shadow-sm">
+      <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
+      <span>Pending Review</span>
     </div>
   );
 };
 
-const InfoItem = ({ icon, label, children }) => (
-  <div className="flex flex-col gap-1">
-    <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{label}</p>
-    <div className="flex items-center gap-2 text-sm text-slate-800 dark:text-slate-100">
-      <span className="text-slate-400 dark:text-slate-500">{icon}</span>
-      <span className="truncate">{children || "N/A"}</span>
+const InfoCard = ({ icon, label, children, highlight = false }) => (
+  <div className={`p-4 rounded-xl border transition-all duration-200 ${
+    highlight 
+      ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200' 
+      : 'bg-gray-50/80 border-gray-200 hover:bg-gray-100/80'
+  }`}>
+    <div className="flex items-start gap-3">
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+        highlight 
+          ? 'bg-blue-100 text-blue-600' 
+          : 'bg-gray-200 text-gray-600'
+      }`}>
+        {icon}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{label}</p>
+        <p className="text-sm font-medium text-gray-900 break-words">{children || "Not specified"}</p>
+      </div>
     </div>
   </div>
 );
 
 const LoadingSpinner = () => (
-  <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)]">
-    <div className="relative w-12 h-12">
-      <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 border-r-blue-500 animate-spin"></div>
-      <div className="absolute inset-1 rounded-full border-2 border-transparent border-b-blue-400 border-l-blue-400 animate-spin-reverse"></div>
+  <div className="flex flex-col items-center justify-center min-h-[60vh]">
+    <div className="relative">
+      <div className="w-16 h-16 border-4 border-blue-100 rounded-full"></div>
+      <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
     </div>
-    <p className="mt-4 text-sm font-medium text-slate-500 dark:text-slate-400">Loading requests...</p>
+    <div className="mt-6 text-center">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading requests</h3>
+      <p className="text-sm text-gray-500">Please wait while we fetch the latest data...</p>
+    </div>
   </div>
 );
 
 const CalendarEvent = ({ booking, type, onClick }) => {
   const getStatusColor = () => {
-    if (booking.approve) return 'bg-emerald-500 border-emerald-600';
-    if (booking.reject) return 'bg-red-500 border-red-600';
-    return 'bg-amber-500 border-amber-600';
+    if (booking.approve) return 'bg-emerald-500 border-l-emerald-600';
+    if (booking.reject) return 'bg-red-500 border-l-red-600';
+    return 'bg-amber-500 border-l-amber-600';
   };
 
   const title = type === 'playground' 
@@ -81,16 +96,16 @@ const CalendarEvent = ({ booking, type, onClick }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ scale: 1.02 }}
+      whileHover={{ scale: 1.02, y: -1 }}
       onClick={() => onClick(booking)}
-      className={`p-2 mb-1 rounded text-white text-xs cursor-pointer border-l-4 ${getStatusColor()} hover:shadow-md transition-all`}
+      className={`p-3 mb-2 rounded-lg text-white text-xs cursor-pointer border-l-4 ${getStatusColor()} shadow-sm hover:shadow-md transition-all duration-200`}
     >
-      <div className="font-medium truncate">{title}</div>
-      <div className="opacity-90">{time}</div>
+      <div className="font-medium truncate mb-1">{title}</div>
+      <div className="opacity-90 text-xs">{time}</div>
       {type === 'playground' && booking.organizerName && (
-        <div className="opacity-75 truncate">{booking.organizerName}</div>
+        <div className="opacity-75 truncate text-xs mt-1">{booking.organizerName}</div>
       )}
     </motion.div>
   );
@@ -134,9 +149,9 @@ const TimeSlotCalendar = ({ bookings, activeTab, onEventClick, selectedDate }) =
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
-      <div className="p-4 border-b border-slate-200 dark:border-slate-700">
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+        <h3 className="text-xl font-bold text-gray-900 mb-1">
           Schedule for {selectedDate?.toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
@@ -144,7 +159,7 @@ const TimeSlotCalendar = ({ bookings, activeTab, onEventClick, selectedDate }) =
             day: 'numeric' 
           })}
         </h3>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-gray-600">
           {activeTab === 'playground' ? 'Playground Events' : 'Crematorium Bookings'}
         </p>
       </div>
@@ -154,14 +169,14 @@ const TimeSlotCalendar = ({ bookings, activeTab, onEventClick, selectedDate }) =
           const slotBookings = getBookingsForTimeSlot(timeSlot);
           
           return (
-            <div key={timeSlot} className="border-b border-slate-200 dark:border-slate-700 last:border-b-0">
+            <div key={timeSlot} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50/50 transition-colors">
               <div className="flex">
-                <div className="w-20 p-3 bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700">
-                  <div className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <div className="w-24 p-4 bg-gradient-to-br from-gray-50 to-gray-100 border-r border-gray-200 flex items-center">
+                  <div className="text-sm font-semibold text-gray-700">
                     {formatTimeSlot(timeSlot)}
                   </div>
                 </div>
-                <div className="flex-1 p-3 min-h-[60px]">
+                <div className="flex-1 p-4 min-h-[80px]">
                   {slotBookings.length > 0 ? (
                     <div className="space-y-2">
                       {slotBookings.map(booking => (
@@ -174,8 +189,13 @@ const TimeSlotCalendar = ({ bookings, activeTab, onEventClick, selectedDate }) =
                       ))}
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-full text-slate-400 dark:text-slate-500">
-                      <span className="text-sm">Available</span>
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <Clock className="w-4 h-4 text-gray-400" />
+                        </div>
+                        <span className="text-sm text-gray-500">Available</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -210,12 +230,10 @@ const CalendarView = ({ bookings, activeTab, onEventClick }) => {
 
     const days = [];
     
-    // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
     
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day));
     }
@@ -252,17 +270,20 @@ const CalendarView = ({ bookings, activeTab, onEventClick }) => {
 
   if (showTimeSlots) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <button
             onClick={() => setShowTimeSlots(false)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm"
           >
             <ChevronLeft size={16} />
             Back to Calendar
           </button>
-          <div className="text-sm text-slate-600 dark:text-slate-400">
-            {getBookingsForDate(selectedDate).length} bookings scheduled
+          <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg border border-blue-200">
+            <Calendar size={16} />
+            <span className="text-sm font-medium">
+              {getBookingsForDate(selectedDate).length} bookings scheduled
+            </span>
           </div>
         </div>
         <TimeSlotCalendar 
@@ -276,41 +297,37 @@ const CalendarView = ({ bookings, activeTab, onEventClick }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-      {/* Calendar Header */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
         <button
           onClick={() => navigateMonth(-1)}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+          className="p-2 hover:bg-white/80 rounded-lg transition-colors border border-transparent hover:border-gray-300"
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft size={20} className="text-gray-600" />
         </button>
         
-        <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+        <h2 className="text-xl font-bold text-gray-900">
           {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
         </h2>
         
         <button
           onClick={() => navigateMonth(1)}
-          className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors"
+          className="p-2 hover:bg-white/80 rounded-lg transition-colors border border-transparent hover:border-gray-300"
         >
-          <ChevronRight size={20} />
+          <ChevronRight size={20} className="text-gray-600" />
         </button>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="p-4">
-        {/* Days of week header */}
-        <div className="grid grid-cols-7 gap-1 mb-2">
+      <div className="p-6">
+        <div className="grid grid-cols-7 gap-2 mb-4">
           {daysOfWeek.map(day => (
-            <div key={day} className="p-2 text-center text-sm font-medium text-slate-600 dark:text-slate-400">
+            <div key={day} className="p-3 text-center text-sm font-semibold text-gray-600 bg-gray-50 rounded-lg">
               {day}
             </div>
           ))}
         </div>
 
-        {/* Calendar days */}
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-2">
           {days.map((day, index) => {
             const dayBookings = day ? getBookingsForDate(day) : [];
             const isToday = day && day.toDateString() === new Date().toDateString();
@@ -319,17 +336,17 @@ const CalendarView = ({ bookings, activeTab, onEventClick }) => {
             return (
               <div
                 key={index}
-                className={`min-h-[100px] p-1 border border-slate-200 dark:border-slate-700 ${
-                  day ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50' : ''
-                } ${isToday ? 'bg-blue-50 dark:bg-blue-900/20' : ''} ${
-                  isSelected ? 'ring-2 ring-blue-500' : ''
+                className={`min-h-[120px] p-2 rounded-lg border transition-all duration-200 ${
+                  day ? 'cursor-pointer hover:border-blue-300 hover:shadow-sm bg-white' : 'bg-gray-50'
+                } ${isToday ? 'bg-blue-50 border-blue-200 ring-2 ring-blue-100' : 'border-gray-200'} ${
+                  isSelected ? 'ring-2 ring-blue-300 border-blue-400' : ''
                 }`}
                 onClick={() => day && handleDateClick(day)}
               >
                 {day && (
                   <>
-                    <div className={`text-sm font-medium mb-1 ${
-                      isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
+                    <div className={`text-sm font-semibold mb-2 ${
+                      isToday ? 'text-blue-700' : 'text-gray-900'
                     }`}>
                       {day.getDate()}
                     </div>
@@ -343,14 +360,14 @@ const CalendarView = ({ bookings, activeTab, onEventClick }) => {
                         />
                       ))}
                       {dayBookings.length > 2 && (
-                        <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 rounded px-2 py-1">
+                        <div className="text-xs text-gray-500 bg-gray-100 rounded px-2 py-1 text-center">
                           +{dayBookings.length - 2} more
                         </div>
                       )}
                       {dayBookings.length > 0 && (
-                        <div className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 cursor-pointer">
+                        <button className="text-xs text-blue-600 hover:text-blue-800 font-medium w-full text-center py-1">
                           View Schedule →
-                        </div>
+                        </button>
                       )}
                     </div>
                   </>
@@ -372,7 +389,7 @@ function Adminbooking() {
   const [activeTab, setActiveTab] = useState("playground");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [viewMode, setViewMode] = useState("list"); // 'list' or 'calendar'
+  const [viewMode, setViewMode] = useState("list");
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
@@ -426,14 +443,12 @@ function Adminbooking() {
   };
 
   const filteredBookings = bookings.filter(booking => {
-    // Search filter
     const matchesSearch = activeTab === "playground"
       ? booking.eventName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.organizerName?.toLowerCase().includes(searchTerm.toLowerCase())
       : booking.deceasedFullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.applicantFullName?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Status filter
     const matchesStatus = filterStatus === "all" ||
       (filterStatus === "pending" && !booking.approve && !booking.reject) ||
       (filterStatus === "approved" && booking.approve) ||
@@ -455,46 +470,114 @@ function Adminbooking() {
     
     const summaryDetails = isPlayground ? (
       <>
-        <InfoItem icon={<User size={14} />} label="Organizer">{booking.organizerName}</InfoItem>
-        <InfoItem icon={<Mail size={14} />} label="Email">{booking.email}</InfoItem>
-        <InfoItem icon={<Calendar size={14} />} label="Event Date">{new Date(booking.eventDate).toLocaleString()}</InfoItem>
+        <InfoCard icon={<User size={16} />} label="Event Organizer" highlight={isHighlighted}>
+          {booking.organizerName}
+        </InfoCard>
+        <InfoCard icon={<Mail size={16} />} label="Contact Email">
+          {booking.email}
+        </InfoCard>
+        <InfoCard icon={<Calendar size={16} />} label="Event Date">
+          {new Date(booking.eventDate).toLocaleDateString('en-US', { 
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </InfoCard>
       </>
     ) : (
       <>
-        <InfoItem icon={<User size={14} />} label="Applicant">{booking.applicantFullName}</InfoItem>
-        <InfoItem icon={<MapPin size={14} />} label="Address">{booking.address}</InfoItem>
-        <InfoItem icon={<Calendar size={14} />} label="Cremation Date">{new Date(booking.cremationDate).toLocaleString()}</InfoItem>
+        <InfoCard icon={<User size={16} />} label="Applicant Name" highlight={isHighlighted}>
+          {booking.applicantFullName}
+        </InfoCard>
+        <InfoCard icon={<MapPin size={16} />} label="Address">
+          {booking.address}
+        </InfoCard>
+        <InfoCard icon={<Calendar size={16} />} label="Cremation Date">
+          {new Date(booking.cremationDate).toLocaleDateString('en-US', { 
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </InfoCard>
       </>
     );
 
     const expandedDetails = isPlayground ? (
-      <>
-        <InfoItem icon={<Activity size={14} />} label="Event Type">{booking.eventType}</InfoItem>
-        <InfoItem icon={<Building size={14} />} label="Venue">{booking.playgroundType}</InfoItem>
-        <InfoItem icon={<Phone size={14} />} label="Contact">{booking.phone}</InfoItem>
-        <InfoItem icon={<Users size={14} />} label="Attendees">{booking.expectedAttendees}</InfoItem>
-        <InfoItem icon={<Clock size={14} />} label="Time">{`${booking.startTime} - ${booking.endTime}`}</InfoItem>
-        {booking.description && <InfoItem icon={<FileText size={14} />} label="Description">{booking.description}</InfoItem>}
-        {booking.specialRequirement && <InfoItem icon={<FileText size={14} />} label="Special Requirements">{booking.specialRequirement}</InfoItem>}
-      </>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <InfoCard icon={<Activity size={16} />} label="Event Type">
+          {booking.eventType}
+        </InfoCard>
+        <InfoCard icon={<Building size={16} />} label="Venue">
+          {booking.playgroundType}
+        </InfoCard>
+        <InfoCard icon={<Phone size={16} />} label="Contact Number">
+          {booking.phone}
+        </InfoCard>
+        <InfoCard icon={<Users size={16} />} label="Expected Attendees">
+          {booking.expectedAttendees}
+        </InfoCard>
+        <InfoCard icon={<Clock size={16} />} label="Duration">
+          {`${booking.startTime} - ${booking.endTime}`}
+        </InfoCard>
+        {booking.description && (
+          <div className="md:col-span-2 lg:col-span-3">
+            <InfoCard icon={<FileText size={16} />} label="Event Description">
+              {booking.description}
+            </InfoCard>
+          </div>
+        )}
+        {booking.specialRequirement && (
+          <div className="md:col-span-2 lg:col-span-3">
+            <InfoCard icon={<AlertCircle size={16} />} label="Special Requirements">
+              {booking.specialRequirement}
+            </InfoCard>
+          </div>
+        )}
+      </div>
     ) : (
-      <>
-        <InfoItem icon={<User size={14} />} label="Deceased Name">{booking.deceasedFullName}</InfoItem>
-        <InfoItem icon={<Calendar size={14} />} label="Date of Death">{new Date(booking.dateOfDeath).toLocaleString()}</InfoItem>
-        <InfoItem icon={<Home size={14} />} label="Residence Area">{booking.residenceArea}</InfoItem>
-        <InfoItem icon={<Hash size={14} />} label="NIC">{booking.nic}</InfoItem>
-        <InfoItem icon={<Hash size={14} />} label="Registration No.">{booking.registrationNumber}</InfoItem>
-        <div>
-          <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Documents</p>
-          <div className="flex flex-col gap-2 mt-1">
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <InfoCard icon={<User size={16} />} label="Deceased Full Name">
+            {booking.deceasedFullName}
+          </InfoCard>
+          <InfoCard icon={<Calendar size={16} />} label="Date of Death">
+            {new Date(booking.dateOfDeath).toLocaleDateString()}
+          </InfoCard>
+          <InfoCard icon={<Home size={16} />} label="Residence Area">
+            {booking.residenceArea}
+          </InfoCard>
+          <InfoCard icon={<Hash size={16} />} label="NIC Number">
+            {booking.nic}
+          </InfoCard>
+          <InfoCard icon={<Hash size={16} />} label="Registration Number">
+            {booking.registrationNumber}
+          </InfoCard>
+        </div>
+        
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+          <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            Required Documents
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {booking.deathCertificateImage && (
               <a 
                 href={`http://localhost:5000/${booking.deathCertificateImage.replace(/\\/g, "/")}`} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                className="flex items-center gap-3 p-4 bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200"
               >
-                <Download size={14} /> Death Certificate
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Download size={16} className="text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">Death Certificate</p>
+                  <p className="text-sm text-gray-500">Click to download</p>
+                </div>
               </a>
             )}
             {booking.beOrderImage && (
@@ -502,41 +585,57 @@ function Adminbooking() {
                 href={`http://localhost:5000/${booking.beOrderImage.replace(/\\/g, "/")}`} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+                className="flex items-center gap-3 p-4 bg-white rounded-lg border border-blue-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200"
               >
-                <Download size={14} /> B.E. Order
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Download size={16} className="text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-900">B.E. Order</p>
+                  <p className="text-sm text-gray-500">Click to download</p>
+                </div>
               </a>
             )}
           </div>
         </div>
-      </>
+      </div>
     );
 
     return (
       <motion.div
         key={booking._id}
         layout
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
-        className={`bg-white dark:bg-slate-800 rounded-lg border overflow-hidden ${
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.3 }}
+        className={`bg-white rounded-2xl shadow-sm border transition-all duration-300 overflow-hidden ${
           isHighlighted 
-            ? 'border-blue-500 shadow-lg ring-2 ring-blue-500/20' 
-            : 'border-slate-200 dark:border-slate-700'
+            ? 'border-blue-300 shadow-lg ring-4 ring-blue-100' 
+            : 'border-gray-200 hover:shadow-md hover:border-gray-300'
         }`}
       >
-        <div className="p-5">
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100 truncate">
+        <div className="p-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                {isPlayground ? (
+                  <Activity className="w-5 h-5 text-blue-600" />
+                ) : (
+                  <Flame className="w-5 h-5 text-orange-600" />
+                )}
                 {isPlayground ? booking.eventName : `Request: ${booking.deceasedFullName}`}
               </h3>
-              <div className="mt-2 grid grid-cols-2 md:grid-cols-3 gap-4">
-                {summaryDetails}
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                <Calendar size={14} />
+                <span>Submitted on {new Date(booking.createdAt || Date.now()).toLocaleDateString()}</span>
               </div>
             </div>
             <StatusBadge booking={booking} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            {summaryDetails}
           </div>
         </div>
 
@@ -546,23 +645,26 @@ function Adminbooking() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="px-5 pb-5 border-t border-slate-200 dark:border-slate-700 pt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {expandedDetails}
+              <div className="px-6 pb-6 border-t border-gray-100">
+                <div className="pt-6">
+                  {expandedDetails}
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
         
-        <div className="bg-slate-50 dark:bg-slate-800/50 px-5 py-4 border-t border-slate-200 dark:border-slate-700">
-          <div className="flex justify-between items-center">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200">
+          <div className="flex justify-between items-center mb-4">
             <button
               onClick={() => toggleExpand(booking._id)}
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-800 dark:text-slate-300 dark:hover:text-slate-100"
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
             >
-              {isExpanded ? "Show Less" : "View Details"}
+              <Eye size={16} />
+              {isExpanded ? "Hide Details" : "View Full Details"}
               <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
                 <ChevronDown size={16} />
               </motion.div>
@@ -570,14 +672,16 @@ function Adminbooking() {
           </div>
 
           {(!booking.approve && !booking.reject) ? (
-            <div className="mt-4 space-y-4">
-              <div>
-                <label htmlFor={`comment-${booking._id}`} className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Admin Comment</label>
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl p-4 border border-gray-200">
+                <label htmlFor={`comment-${booking._id}`} className="block text-sm font-semibold text-gray-700 mb-3">
+                  Admin Review Comments
+                </label>
                 <textarea
                   id={`comment-${booking._id}`}
-                  rows={2}
-                  className="w-full px-3 py-2 text-sm rounded-md border border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200"
-                  placeholder="Provide feedback for the applicant..."
+                  rows={3}
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none"
+                  placeholder="Provide detailed feedback or reasoning for your decision..."
                   value={commentInputs[booking._id] || ""}
                   onChange={e => handleCommentChange(booking._id, e.target.value)}
                 />
@@ -585,22 +689,42 @@ function Adminbooking() {
               <div className="flex gap-3">
                 <button 
                   onClick={() => updateStatus(booking._id, true, false)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-emerald-600 hover:bg-emerald-700 px-3 py-2 text-sm font-medium text-white transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                 >
-                  <CheckCircle size={14} /> Approve
+                  <CheckCircle size={18} />
+                  <span>Approve Request</span>
                 </button>
                 <button 
                   onClick={() => updateStatus(booking._id, false, true)}
-                  className="flex-1 inline-flex items-center justify-center gap-2 rounded-md bg-rose-600 hover:bg-rose-700 px-3 py-2 text-sm font-medium text-white transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                 >
-                  <XCircle size={14} /> Reject
+                  <XCircle size={18} />
+                  <span>Reject Request</span>
                 </button>
               </div>
             </div>
           ) : (
-            <div className="mt-4 p-3 rounded-md bg-slate-100 dark:bg-slate-700/50">
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Admin Comment:</p>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{booking.comment || "No comment provided."}</p>
+            <div className="bg-white rounded-xl p-6 border border-gray-200">
+              <div className="flex items-start gap-4">
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  booking.approve 
+                    ? 'bg-emerald-100 text-emerald-600' 
+                    : 'bg-red-100 text-red-600'
+                }`}>
+                  {booking.approve ? <CheckCircle size={24} /> : <XCircle size={24} />}
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                    Request {booking.approve ? 'Approved' : 'Rejected'}
+                  </h4>
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <p className="text-sm font-medium text-gray-700 mb-1">Admin Comments:</p>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {booking.comment || "No additional comments provided."}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -612,100 +736,121 @@ function Adminbooking() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Navigation Component */}
       <Navigation 
         sidebarCollapsed={sidebarCollapsed} 
         setSidebarCollapsed={setSidebarCollapsed} 
       />
       
-      {/* Main Content */}
       <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Header Section */}
           <div className="mb-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-8">
               <div>
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Booking Requests</h1>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  Manage {activeTab === "playground" ? "playground" : "crematorium"} bookings
+                <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                  {activeTab === 'playground' ? (
+                    <Activity className="w-8 h-8 text-blue-600" />
+                  ) : (
+                    <Flame className="w-8 h-8 text-orange-600" />
+                  )}
+                  Booking Approval Center
+                </h1>
+                <p className="text-lg text-gray-600">
+                  Review and manage {activeTab === "playground" ? "playground event" : "crematorium"} requests
                 </p>
               </div>
-              <div className="text-sm text-slate-600 dark:text-slate-300">
-                Showing <span className="font-medium">{filteredBookings.length}</span> of <span className="font-medium">{bookings.length}</span> requests
+              <div className="flex items-center gap-4 px-6 py-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-gray-900">{filteredBookings.length}</p>
+                  <p className="text-sm text-gray-500">Shown</p>
+                </div>
+                <div className="w-px h-8 bg-gray-300"></div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-blue-600">{bookings.length}</p>
+                  <p className="text-sm text-gray-500">Total</p>
+                </div>
               </div>
             </div>
             
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="flex-1">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder={`Search ${activeTab === "playground" ? "events" : "requests"}...`}
-                    className="w-full pl-10 pr-4 py-2 text-sm rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                  <div className="absolute left-3 top-2.5 text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
+            {/* Filter Controls */}
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm mb-8">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder={`Search ${activeTab === "playground" ? "events" : "requests"}...`}
+                      className="w-full pl-12 pr-4 py-3 text-sm border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                   </div>
                 </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <select
-                  className="text-sm rounded-lg border border-slate-300 focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
                 
-                <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                      viewMode === 'list' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                    }`}
+                <div className="flex flex-wrap gap-3">
+                  <select
+                    className="px-4 py-3 text-sm border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
                   >
-                    <List size={14} /> List
-                  </button>
-                  <button
-                    onClick={() => setViewMode("calendar")}
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                      viewMode === 'calendar' 
-                        ? 'bg-blue-600 text-white' 
-                        : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
-                    }`}
-                  >
-                    <Calendar size={14} /> Calendar
-                  </button>
-                </div>
-                
-                <div className="inline-flex rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden">
-                  <button
-                    onClick={() => setActiveTab("playground")}
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === 'playground' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
-                  >
-                    Playground
-                  </button>
-                  <button
-                    onClick={() => setActiveTab("crematorium")}
-                    className={`px-3 py-1.5 text-sm font-medium transition-colors ${activeTab === 'crematorium' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
-                  >
-                    Crematorium
-                  </button>
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending Review</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                  
+                  <div className="flex rounded-xl border border-gray-300 overflow-hidden bg-white">
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={`px-4 py-3 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                        viewMode === 'list' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <List size={16} /> List View
+                    </button>
+                    <button
+                      onClick={() => setViewMode("calendar")}
+                      className={`px-4 py-3 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                        viewMode === 'calendar' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Calendar size={16} /> Calendar View
+                    </button>
+                  </div>
+                  
+                  <div className="flex rounded-xl border border-gray-300 overflow-hidden bg-white">
+                    <button
+                      onClick={() => setActiveTab("playground")}
+                      className={`px-4 py-3 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                        activeTab === 'playground' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Activity size={16} /> Playground
+                    </button>
+                    <button
+                      onClick={() => setActiveTab("crematorium")}
+                      className={`px-4 py-3 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                        activeTab === 'crematorium' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Flame size={16} /> Crematorium
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
+          {/* Content Section */}
           <AnimatePresence mode="wait">
             {viewMode === "calendar" ? (
               <motion.div
@@ -728,26 +873,30 @@ function Adminbooking() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 gap-5"
+                className="space-y-6"
               >
                 {filteredBookings.map(booking => renderBookingContent(booking))}
               </motion.div>
             ) : (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-12"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="text-center bg-white rounded-2xl border border-gray-200 p-16 shadow-sm"
               >
-                <div className="mx-auto h-12 w-12 text-slate-400">
-                  {activeTab === 'playground' ? <Activity size={48} /> : <Flame size={48} />}
+                <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-2xl flex items-center justify-center">
+                  {activeTab === 'playground' ? (
+                    <Activity size={40} className="text-gray-400" />
+                  ) : (
+                    <Flame size={40} className="text-gray-400" />
+                  )}
                 </div>
-                <h3 className="mt-3 text-lg font-medium text-slate-900 dark:text-white">No matching requests</h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No requests found</h3>
+                <p className="text-gray-500 max-w-md mx-auto">
                   {searchTerm || filterStatus !== "all" 
-                    ? "Try adjusting your search or filter criteria"
-                    : `All caught up! No ${activeTab} requests found.`}
+                    ? "Try adjusting your search criteria or filters to find relevant requests."
+                    : `No ${activeTab} requests are currently available for review.`}
                 </p>
               </motion.div>
             )}

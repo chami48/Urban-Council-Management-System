@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const Crematorium = require("../Model/Crematorium");
 
 const {
   getAllCrematoriumBookings,
@@ -30,9 +31,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Routes
+// ✅ Existing routes
 router.get("/", getAllCrematoriumBookings);
-
 router.post(
   "/",
   upload.fields([
@@ -41,7 +41,27 @@ router.post(
   ]),
   addCrematoriumBooking
 );
-
 router.patch("/update-status/:id", updateCrematoriumBookingStatus);
+
+// ✅ New availability check route
+router.post("/check-availability", async (req, res) => {
+  try {
+    const { date } = req.body;
+
+    if (!date) {
+      return res.status(400).json({ message: "Date is required" });
+    }
+
+    const existingBooking = await Crematorium.findOne({ cremationDate: new Date(date) });
+
+    if (existingBooking) {
+      return res.json({ available: false, message: "❌ Crematorium already booked for this date" });
+    }
+
+    res.json({ available: true, message: "✅ Crematorium available for booking" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
 module.exports = router;
