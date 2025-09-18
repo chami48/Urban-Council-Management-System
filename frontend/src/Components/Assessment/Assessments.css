@@ -1,53 +1,79 @@
-.table-wrapper {
-  overflow-x: auto;
+/* AddAssessment.css */
+
+/* Centered container with soft background */
+.form-container {
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.assessment-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
+/* Heading style */
+.form-container h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 25px;
 }
 
-.assessment-table th,
-.assessment-table td {
+/* Form layout */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Labels */
+label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #555;
+}
+
+/* Inputs and selects */
+input, select {
+  padding: 12px;
+  font-size: 1rem;
   border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background: #fafafa;
 }
 
-.assessment-table th {
-  background-color: #f2f2f2;
+input:focus, select:focus {
+  border-color: #5c4dff;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 6px rgba(92, 77, 255, 0.2);
 }
 
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.status-active {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-inactive {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.btn-update {
-  background-color: #5bc0de;
+/* Button styling */
+.btn-submit {
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #5c4dff, #7b66ff);
+  color: #fff;
   border: none;
-  color: white;
-  padding: 4px 8px;
-  margin-right: 4px;
+  border-radius: 10px;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.btn-delete {
-  background-color: #d9534f;
-  border: none;
-  color: white;
-  padding: 4px 8px;
-  cursor: pointer;
+.btn-submit:hover {
+  background: linear-gradient(135deg, #4a3dce, #6956e0);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(92, 77, 255, 0.3);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .form-container {
+    padding: 25px;
+    margin: 30px;
+  }
 }

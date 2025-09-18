@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useReactToPrint } from "react-to-print";
 
-const URL = "http://localhost:5001/assessments";
+const URL = "http://localhost:5000/assessments";
 
 const fetchHandler = async () => {
   try {
@@ -53,22 +53,15 @@ function Assessments() {
     });
   };
 
-  const handleSendReport = () => {
-    const phoneNumber = "+94727663031";
-    const message = "Selected Assessment Reports";
-    const whatsappUrl = `https://web.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
-  };
-
   return (
     <div className="assessments-container">
+      {/* Search Section */}
       <div className="search-section">
         <div className="search-container">
           <input
             onChange={(e) => setSearchQuery(e.target.value)}
             value={searchQuery}
             type="text"
-            name="search"
             placeholder="Search Assessment Details"
             className="search-input"
           />
@@ -78,24 +71,53 @@ function Assessments() {
         </div>
       </div>
 
+      {/* Results Section */}
       {noResults ? (
         <div className="no-results">
           <p>No Assessments Found</p>
         </div>
       ) : (
         <div ref={componentsRef} className="assessments-grid">
-          {assessments.map((assessment, i) => (
-            <div key={i} className="assessment-item">
-              <pre>{JSON.stringify(assessment, null, 2)}</pre>
-            </div>
-          ))}
+          <table className="assessments-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Assessment No</th>
+                <th>Division</th>
+                <th>Street</th>
+                <th>Property No</th>
+                <th>Owner</th>
+                <th>NIC</th>
+                <th>Contact</th>
+                <th>Value</th>
+                <th>Tax Rate</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {assessments.map((a, i) => (
+                <tr key={a._id || i}>
+                  <td>{i + 1}</td>
+                  <td>{a.assessmentNo}</td>
+                  <td>{a.division}</td>
+                  <td>{a.street}</td>
+                  <td>{a.propertyNo}</td>
+                  <td>{a.ownerName}</td>
+                  <td>{a.ownerNIC}</td>
+                  <td>{a.contactNo}</td>
+                  <td>{a.appraisedValue}</td>
+                  <td>{a.taxRate}%</td>
+                  <td>{a.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
-      <button onClick={handleSendReport} className="whatsapp-floating-btn">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-..." />
-        </svg>
+      {/* Print Button */}
+      <button onClick={handlePrinter} className="btn btn-print">
+        Print Report
       </button>
     </div>
   );
