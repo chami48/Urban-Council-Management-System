@@ -49,6 +49,7 @@ function App() {
           <Route path="/complaintsDetails" element={<ComplaintsDetails />} />
           <Route path="/updateassessment/:id" element={<UpdateAssessment/>}/>
           <Route path="/propertytax" element={<PropertyTax />} />
+          <Route path="/assessmentdetails" element={<Assessments/>}/>
           
         </Routes>
       </React.Fragment>
