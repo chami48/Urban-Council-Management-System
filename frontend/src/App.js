@@ -19,9 +19,9 @@ import Announcements from './Components/Announcements/Announcements';
 import ContactUs from './Components/ContactUs/contactus';
 import ServicesChatbot from './Components/chatbot/ServicesChatbot';
 import ComplaintsDetails from './Components/Complaint/ComplaintsDetails';
-
-
-
+import UpdateAssessment from './Components/Assessment/UpdateAssessment';
+import PropertyTax from './Components/Property/PropertyTax';
+import Assessments from './Components/Assessment/Assessments';
 
 function App() {
   return (
@@ -47,6 +47,9 @@ function App() {
           <Route path="/contact" element={<ContactUs />} />   
           <Route path="/chatbot" element={<ServicesChatbot />} />
           <Route path="/complaintsDetails" element={<ComplaintsDetails />} />
+          <Route path="/updateassessment/:id" element={<UpdateAssessment/>}/>
+          <Route path="/propertytax" element={<PropertyTax />} />
+          
         </Routes>
       </React.Fragment>
     </div>
