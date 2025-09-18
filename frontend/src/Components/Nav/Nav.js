@@ -121,11 +121,11 @@ function Nav() {
 
             {/* Admin */}
             <Link
-              to="/admincheck"
+              to="/complaint"
               className="flex items-center py-2 px-4 hover:bg-blue-700 rounded transition-colors"
             >
               <span>👨‍💼</span>
-              <span className="ml-2">ADMIN</span>
+              <span className="ml-2">COMPLAIN</span>
             </Link>
 
             {/* Contact */}

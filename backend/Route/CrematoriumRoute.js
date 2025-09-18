@@ -7,7 +7,7 @@ const {
   getAllCrematoriumBookings,
   addCrematoriumBooking,
   updateCrematoriumBookingStatus,
-} = require("../Controlers/CrematoriumController");
+} = require("../controller/CrematoriumController");
 
 const router = express.Router();
 
