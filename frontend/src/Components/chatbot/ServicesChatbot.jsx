@@ -57,7 +57,7 @@ const BookingChatbot = () => {
     }
   };
 
-  // Playground booking questions sequence
+  // FIXED: Updated playground booking questions to match your backend schema
   const playgroundQuestions = [
     'eventName', 'eventType', 'description', 'organizerName', 'email', 
     'phone', 'playgroundType', 'expectedAttendees', 'eventDate', 
@@ -288,28 +288,45 @@ const BookingChatbot = () => {
     }
   };
 
-  // Check real availability from database
+  // FIXED: Updated availability check to use correct API endpoint and data structure
   const checkAvailability = async (date, startTime, endTime, type) => {
     try {
       await simulateTyping();
       addMessage(`${t('checkAvailability')} ${date}${startTime ? ` from ${startTime}` : ''}${endTime ? ` to ${endTime}` : ''}...`);
 
-      // Check for conflicting bookings
-      const endpoint = type === 'playground' ? '/users' : '/crematorium';
-      const response = await axios.get(`http://localhost:5000${endpoint}`);
+      // FIXED: Use correct endpoints
+      const endpoint = type === 'playground' ? '/playgrounds' : '/crematorium';
+      console.log(`Checking availability at: http://localhost:5000${endpoint}`);
       
-      const existingBookings = response.data.users || response.data.data || [];
+      const response = await axios.get(`http://localhost:5000${endpoint}`);
+      console.log('Availability check response:', response.data);
+      
+      // FIXED: Extract data correctly based on your backend structure
+      let existingBookings = [];
+      if (type === 'playground') {
+        // Your playground API returns { items: [...], count: ... }
+        existingBookings = response.data.items || [];
+      } else {
+        // Crematorium API returns { data: [...] }
+        existingBookings = response.data.data || [];
+      }
+      
+      console.log('Existing bookings:', existingBookings);
       
       // Check for conflicts
       const hasConflict = existingBookings.some(booking => {
         const bookingDate = new Date(booking.eventDate || booking.cremationDate).toDateString();
         const requestedDate = new Date(date).toDateString();
         
+        console.log('Comparing dates:', bookingDate, 'vs', requestedDate);
+        
         if (bookingDate !== requestedDate) return false;
         
         if (type === 'playground' && startTime && endTime) {
           const bookingStart = booking.startTime;
           const bookingEnd = booking.endTime;
+          
+          console.log('Checking time overlap:', `${startTime}-${endTime}`, 'vs', `${bookingStart}-${bookingEnd}`);
           
           // Check time overlap
           return (startTime < bookingEnd && endTime > bookingStart);
@@ -433,8 +450,11 @@ const BookingChatbot = () => {
         addMessage("Please use the correct time format: HH:MM (e.g., 14:30)");
         return;
       }
+    } else if (currentField === 'specialRequirement' && (text.toLowerCase().includes('none') || text.toLowerCase().includes('නැත') || text.toLowerCase().includes('இல்லை'))) {
+      processedValue = '';
     }
     
+    console.log(`Setting ${currentField} to:`, processedValue);
     setBookingData(prev => ({ ...prev, [currentField]: processedValue }));
     
     if (currentStep + 1 < playgroundQuestions.length) {
@@ -514,14 +534,20 @@ const BookingChatbot = () => {
     }
   };
 
+  // FIXED: Updated playground booking submission to use correct API endpoint and data structure
   const submitPlaygroundBooking = async () => {
     try {
       addMessage(t('processing'));
       
-      const response = await axios.post("http://localhost:5000/users", {
+      console.log('Submitting playground booking with data:', bookingData);
+      
+      // FIXED: Use the correct API endpoint for playground bookings
+      const response = await axios.post("http://localhost:5000/playgrounds", {
         ...bookingData,
         expectedAttendees: Number(bookingData.expectedAttendees),
       });
+
+      console.log('Playground booking response:', response);
 
       if (response.status === 201) {
         addMessage(t('bookingComplete'));
@@ -532,6 +558,7 @@ const BookingChatbot = () => {
       }
     } catch (error) {
       console.error("Error submitting playground booking:", error);
+      console.error("Error details:", error.response?.data);
       addMessage("Sorry, there was an error submitting your booking. Please try again or contact support.");
     }
   };
@@ -733,7 +760,7 @@ const BookingChatbot = () => {
                 placeholder={
                   currentLanguage === 'en' ? 'Type your message...' : 
                   currentLanguage === 'si' ? 'ඔබගේ පණිවිඩය ටයිප් කරන්න...' : 
-                  'உங்கள் செய்தியை தட்டச்சு செய்யুங்கள்...'
+                  'உங்கள் செய்தியை தட்டச்சு செய்யுங்கள்...'
                 }
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 disabled={waitingForFile}

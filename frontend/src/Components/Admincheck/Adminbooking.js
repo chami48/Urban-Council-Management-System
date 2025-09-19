@@ -26,8 +26,8 @@ const accent = {
   btn: "from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800",
 };
 
-// API endpoints
-const PLAYGROUND_URL = "http://localhost:5000/users";
+// FIXED: API endpoints to match your actual backend
+const PLAYGROUND_URL = "http://localhost:5000/playgrounds";
 const CREMATORIUM_URL = "http://localhost:5000/crematorium";
 
 // Government letterhead configuration
@@ -47,7 +47,10 @@ const GOVERNMENT_CONFIG = {
 // Small UI Components
 // ---------------------------------------------
 const StatusBadge = ({ booking }) => {
-  if (booking.approve) {
+  // FIXED: Use the status field from your backend
+  const status = booking.status || "Pending";
+  
+  if (status === "Approved") {
     return (
       <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 rounded-full border border-emerald-200 shadow-sm">
         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
@@ -55,7 +58,7 @@ const StatusBadge = ({ booking }) => {
       </div>
     );
   }
-  if (booking.reject) {
+  if (status === "Rejected") {
     return (
       <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-gradient-to-r from-rose-50 to-rose-100 text-rose-700 rounded-full border border-rose-200 shadow-sm">
         <div className="w-1.5 h-1.5 bg-rose-500 rounded-full"></div>
@@ -109,8 +112,9 @@ const LoadingSpinner = () => (
 // ---------------------------------------------
 const CalendarEvent = ({ booking, type, onClick }) => {
   const getStatusColor = () => {
-    if (booking.approve) return 'bg-emerald-500 border-l-emerald-600';
-    if (booking.reject) return 'bg-rose-500 border-l-rose-600';
+    const status = booking.status || "Pending";
+    if (status === "Approved") return 'bg-emerald-500 border-l-emerald-600';
+    if (status === "Rejected") return 'bg-rose-500 border-l-rose-600';
     return 'bg-amber-500 border-l-amber-600';
   };
 
@@ -458,66 +462,6 @@ const loadImageAsBase64 = (src) => {
   });
 };
 
-// Helper function to convert SVG to base64 with detailed logging
-const svgToBase64 = async (svgPath) => {
-  console.log('🔍 SVG Loading Debug - Starting to load SVG from:', svgPath);
-  
-  try {
-    // Log the full URL being fetched
-    const fullUrl = new URL(svgPath, window.location.origin).href;
-    console.log('🔍 SVG Loading Debug - Full URL:', fullUrl);
-    
-    const response = await fetch(svgPath);
-    console.log('🔍 SVG Loading Debug - Fetch response status:', response.status);
-    console.log('🔍 SVG Loading Debug - Response headers:', Object.fromEntries(response.headers.entries()));
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
-    }
-    
-    const svgText = await response.text();
-    console.log('🔍 SVG Loading Debug - SVG text length:', svgText.length);
-    console.log('🔍 SVG Loading Debug - First 200 chars of SVG:', svgText.substring(0, 200));
-    
-    // Validate that it's actually SVG content
-    if (!svgText.trim().toLowerCase().includes('<svg')) {
-      throw new Error('Response does not contain valid SVG content');
-    }
-    
-    const base64 = btoa(unescape(encodeURIComponent(svgText)));
-    const dataUrl = `data:image/svg+xml;base64,${base64}`;
-    console.log('✅ SVG Loading Debug - Successfully converted to base64, length:', base64.length);
-    
-    return dataUrl;
-  } catch (error) {
-    console.error('❌ SVG Loading Debug - Error details:');
-    console.error('   Path:', svgPath);
-    console.error('   Error type:', error.name);
-    console.error('   Error message:', error.message);
-    console.error('   Full error:', error);
-    
-    // Try to check if file exists by testing different paths
-    console.log('🔍 SVG Loading Debug - Testing alternative paths...');
-    const testPaths = [
-      '/emblem.svg',
-      './emblem.svg',
-      '../public/emblem.svg',
-      '/public/emblem.svg'
-    ];
-    
-    for (const testPath of testPaths) {
-      try {
-        const testResponse = await fetch(testPath);
-        console.log(`🔍 SVG Loading Debug - Test path "${testPath}":`, testResponse.status);
-      } catch (testError) {
-        console.log(`🔍 SVG Loading Debug - Test path "${testPath}": FAILED`, testError.message);
-      }
-    }
-    
-    return null;
-  }
-};
-
 // FIXED: Enhanced government-style PDF report builder with proper image loading
 async function buildPdfReport({ rows, columns, title, subtitle }) {
   const doc = new jsPDF({ unit: 'pt', format: 'a4' });
@@ -833,12 +777,39 @@ function Adminbooking() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // FIXED: Data extraction to match your backend structure
+  const extractBookingData = (response, type) => {
+    console.log(`Extracting ${type} data from response:`, response.data);
+    
+    if (type === "playground") {
+      // Based on your backend: res.status(200).json({ items, count: items.length });
+      if (response.data.items && Array.isArray(response.data.items)) {
+        return response.data.items;
+      }
+      // Fallback patterns
+      if (Array.isArray(response.data)) return response.data;
+      if (response.data.bookings && Array.isArray(response.data.bookings)) return response.data.bookings;
+    } else {
+      // For crematorium (keeping original logic)
+      return response.data.data || [];
+    }
+    
+    console.warn(`Could not extract ${type} data, returning empty array`);
+    return [];
+  };
+
   const fetchBookings = useCallback(async () => {
     setLoading(true);
     try {
       const url = activeTab === "playground" ? PLAYGROUND_URL : CREMATORIUM_URL;
+      console.log(`Fetching ${activeTab} bookings from:`, url);
+      
       const response = await axios.get(url);
-      const data = activeTab === "playground" ? response.data.users : response.data.data;
+      console.log(`${activeTab} response:`, response.data);
+      
+      const data = extractBookingData(response, activeTab);
+      console.log(`Extracted ${activeTab} data:`, data);
+      
       setBookings(data || []);
     } catch (error) {
       console.error(`Failed to fetch ${activeTab} bookings:`, error);
@@ -856,18 +827,41 @@ function Adminbooking() {
     setCommentInputs(prev => ({ ...prev, [bookingId]: value }));
   };
 
-  const updateStatus = async (bookingId, approve, reject) => {
+  // FIXED: Update status to use your backend's API structure
+  const updateStatus = async (bookingId, isApprove) => {
     try {
       const comment = commentInputs[bookingId] || "";
-      const url = activeTab === "playground"
-        ? `${PLAYGROUND_URL}/update-status/${bookingId}`
-        : `${CREMATORIUM_URL}/update-status/${bookingId}`;
+      
+      if (activeTab === "playground") {
+        // Use your backend's PATCH /playgrounds/update-status/:id endpoint
+        const action = isApprove ? "approve" : "reject";
+        await axios.patch(`${PLAYGROUND_URL}/update-status/${bookingId}`, { 
+          action, 
+          comment 
+        });
+      } else {
+        // Keep crematorium logic as is
+        await axios.patch(`${CREMATORIUM_URL}/update-status/${bookingId}`, { 
+          approve: isApprove, 
+          reject: !isApprove, 
+          comment 
+        });
+      }
 
-      await axios.patch(url, { approve, reject, comment });
-
+      // Update local state to reflect the change
       setBookings(prev =>
-        prev.map(b => (b._id === bookingId ? { ...b, approve, reject, comment } : b))
+        prev.map(b => (
+          b._id === bookingId 
+            ? { 
+                ...b, 
+                status: isApprove ? "Approved" : "Rejected",
+                comment,
+                statusUpdatedAt: new Date().toISOString()
+              }
+            : b
+        ))
       );
+      
       setCommentInputs(prev => {
         const newComments = { ...prev };
         delete newComments[bookingId];
@@ -889,10 +883,11 @@ function Adminbooking() {
       : booking.deceasedFullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         booking.applicantFullName?.toLowerCase().includes(searchTerm.toLowerCase());
 
+    const status = booking.status || "Pending";
     const matchesStatus = filterStatus === "all" ||
-      (filterStatus === "pending" && !booking.approve && !booking.reject) ||
-      (filterStatus === "approved" && booking.approve) ||
-      (filterStatus === "rejected" && booking.reject);
+      (filterStatus === "pending" && status === "Pending") ||
+      (filterStatus === "approved" && status === "Approved") ||
+      (filterStatus === "rejected" && status === "Rejected");
 
     return matchesSearch && matchesStatus;
   });
@@ -913,7 +908,7 @@ function Adminbooking() {
         { header: 'Date', accessor: (r) => new Date(r.eventDate).toLocaleDateString() },
         { header: 'Time', accessor: (r) => `${r.startTime || ''} - ${r.endTime || ''}` },
         { header: 'Attendees', accessor: 'expectedAttendees' },
-        { header: 'Status', accessor: (r) => r.approve ? 'Approved' : r.reject ? 'Rejected' : 'Pending' },
+        { header: 'Status', accessor: (r) => r.status || 'Pending' },
       ];
     }
     return [
@@ -948,7 +943,7 @@ function Adminbooking() {
       try {
         const url = tab === 'playground' ? PLAYGROUND_URL : CREMATORIUM_URL;
         const response = await axios.get(url);
-        return tab === 'playground' ? (response.data.users || []) : (response.data.data || []);
+        return extractBookingData(response, tab);
       } catch (e) {
         console.error('Export fetch error', e);
         return [];
@@ -977,6 +972,7 @@ function Adminbooking() {
     const isPlayground = activeTab === "playground";
     const isExpanded = !!expanded[booking._id];
     const isHighlighted = selectedBooking && selectedBooking._id === booking._id;
+    const status = booking.status || "Pending";
 
     const summaryDetails = isPlayground ? (
       <>
@@ -1181,7 +1177,7 @@ function Adminbooking() {
             </button>
           </div>
 
-          {(!booking.approve && !booking.reject) ? (
+          {status === "Pending" ? (
             <div className="space-y-4">
               <div className="bg-white rounded-xl p-4 border border-slate-200">
                 <label htmlFor={`comment-${booking._id}`} className="block text-sm font-semibold text-slate-700 mb-3">
@@ -1198,14 +1194,14 @@ function Adminbooking() {
               </div>
               <div className="flex gap-3">
                 <button
-                  onClick={() => updateStatus(booking._id, true, false)}
+                  onClick={() => updateStatus(booking._id, true)}
                   className={`flex-1 inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r ${accent.btn} px-6 py-3 text-sm font-semibold text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5`}
                 >
                   <CheckCircle size={18} />
                   <span>Approve Request</span>
                 </button>
                 <button
-                  onClick={() => updateStatus(booking._id, false, true)}
+                  onClick={() => updateStatus(booking._id, false)}
                   className="flex-1 inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-700 hover:to-rose-800 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                 >
                   <XCircle size={18} />
@@ -1217,15 +1213,15 @@ function Adminbooking() {
             <div className="bg-white rounded-xl p-6 border border-slate-200">
               <div className="flex items-start gap-4">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                  booking.approve
+                  status === "Approved"
                     ? 'bg-emerald-100 text-emerald-600'
                     : 'bg-rose-100 text-rose-600'
                 }`}>
-                  {booking.approve ? <CheckCircle size={24} /> : <XCircle size={24} />}
+                  {status === "Approved" ? <CheckCircle size={24} /> : <XCircle size={24} />}
                 </div>
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-slate-900 mb-2">
-                    Request {booking.approve ? 'Approved' : 'Rejected'}
+                    Request {status}
                   </h4>
                   <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
                     <p className="text-sm font-medium text-slate-700 mb-1">Admin Comments:</p>

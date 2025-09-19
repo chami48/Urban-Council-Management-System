@@ -90,13 +90,13 @@ function Nav() {
               </button>
               <div className="absolute left-0 hidden group-hover:block bg-white text-gray-800 rounded shadow-lg mt-1 min-w-[180px] z-50">
                 <Link
-                  to="/adduser?type=playground"
+                  to="/playgroundFrom?type=playground"
                   className="block px-4 py-2 hover:bg-blue-100"
                 >
                   🏟 Playground Booking
                 </Link>
                 <Link
-                  to="/adduser?type=swimming"
+                  to="/playgroundFrom?type=swimming"
                   className="block px-4 py-2 hover:bg-blue-100"
                 >
                   🏊 Swimming Pool Booking
