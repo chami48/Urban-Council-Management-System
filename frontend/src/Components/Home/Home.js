@@ -85,6 +85,7 @@ function Home() {
       title: "Business Licenses",
       titleSinhala: "ව්‍යාපාර බලපත්‍ර",
       description: "Register new businesses and renew existing commercial licenses",
+      link: "/my-applications",
       category: "Business Services"
     },
     {

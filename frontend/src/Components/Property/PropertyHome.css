@@ -1,42 +1,130 @@
-.property-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
+/* Container */
+.home-container {
+  padding: 30px;
+  font-family: "Inter", sans-serif;
+  background: #f8faff;
+  min-height: 100vh;
 }
 
-.property-table th,
-.property-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+/* Title */
+.home-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a237e;
+  margin-bottom: 20px;
 }
 
-.property-table th {
-  background-color: #f2f2f2;
-  text-align: left;
-}
-
-.btn-view {
-  background-color: #5bc0de;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-right: 5px;
-  cursor: pointer;
-}
-
-.btn-remove {
-  background-color: #d9534f;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
+/* Add Property Button */
 .btn-add-property {
-  background-color: #4caf50;
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+  color: #fff;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin-bottom: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-add-property:hover {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 128, 0, 0.25);
+}
+
+/* Card Grid */
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* Card */
+.property-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.property-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
+/* Card Header */
+.property-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.property-no {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #283593;
+}
+.property-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0288d1;
+  background: #e1f5fe;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+/* Card Body */
+.property-body p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+  color: #444;
+}
+.property-body strong {
+  color: #000;
+}
+
+/* Card Footer (buttons) */
+.property-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 10px;
+}
+.btn-view {
+  flex: 1;
+  background: linear-gradient(135deg, #0288d1, #0277bd);
   color: white;
   border: none;
-  padding: 8px 16px;
-  margin-bottom: 10px;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-view:hover {
+  background: linear-gradient(135deg, #0277bd, #01579b);
+}
+.btn-remove {
+  flex: 1;
+  background: linear-gradient(135deg, #e53935, #c62828);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.btn-remove:hover {
+  background: linear-gradient(135deg, #c62828, #b71c1c);
+}
+
+/* Empty State */
+.no-properties {
+  font-size: 1rem;
+  color: #777;
+  margin-top: 20px;
+  text-align: center;
 }

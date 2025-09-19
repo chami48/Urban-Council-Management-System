@@ -99,6 +99,16 @@ const AdminHome = () => {
       description: 'Payment processing and financial management',
       route: '/addassessment'
     },
+
+    {
+  id: 'assessment',
+  title: 'Assessment & Shop Register',
+  titleSinhala: 'තක්සේරුව සහ වෙළඳසල ලේඛනය',
+  icon: CreditCard, // or you can change to FileText, ClipboardList, or Building2
+  color: 'orange',
+  description: 'Shop assessment and registration management',
+  route: '/officer'
+},
     {
       id: 'hr',
       title: 'HR & Salary Management',

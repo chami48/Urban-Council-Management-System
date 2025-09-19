@@ -65,7 +65,9 @@ function Home() {
   const handleRemove = async (propertyNo, index) => {
     try {
       await axios.delete(
-        `http://localhost:5000/properties/propertyNo/${encodeURIComponent(propertyNo)}`
+        `http://localhost:5000/properties/propertyNo/${encodeURIComponent(
+          propertyNo
+        )}`
       );
       setProperties((prev) => prev.filter((_, i) => i !== index));
       alert("Property removed successfully!");
@@ -94,72 +96,80 @@ function Home() {
         {properties.length === 0 ? (
           <p className="no-properties">No property to display</p>
         ) : (
-          <table className="property-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Property No</th>
-                <th>Branch / Div / Street</th>
-                <th>Owner Name</th>
-                <th>Description</th>
-                <th>Appraised Value</th>
-                <th>Annual Tax Amount</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {properties.map((prop, index) => {
-                const assessment = prop.assessment;
-                const annualTax = assessment
-                  ? ((assessment.appraisedValue * assessment.taxRate) / 100).toLocaleString()
-                  : "-";
+          <div className="property-grid">
+            {properties.map((prop, index) => {
+              const assessment = prop.assessment;
+              const annualTax = assessment
+                ? (
+                    (assessment.appraisedValue * assessment.taxRate) /
+                    100
+                  ).toLocaleString()
+                : "-";
 
-                return (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{prop.propertyNo}</td>
-                    <td>
-                      {prop.branch} <br />
-                      {prop.division} <br />
-                      {prop.street}
-                    </td>
-                    <td>{assessment?.ownerName || "-"}</td>
-                    <td>{assessment?.description || "-"}</td>
-                    <td>
+              return (
+                <div className="property-card" key={index}>
+                  <div className="property-header">
+                    <span className="property-no">
+                      Property {prop.propertyNo}
+                    </span>
+                    <span className="property-status">
+                      {assessment?.status || "UNASSESSED"}
+                    </span>
+                  </div>
+
+                  <div className="property-body">
+                    <p>
+                      <strong>Owner:</strong>{" "}
+                      {assessment?.ownerName || "-"}
+                    </p>
+                    <p>
+                      <strong>Branch/Div/Street:</strong>{" "}
+                      {prop.branch}, {prop.division}, {prop.street}
+                    </p>
+                    <p>
+                      <strong>Description:</strong>{" "}
+                      {assessment?.description || "-"}
+                    </p>
+                    <p>
+                      <strong>Appraised Value:</strong>{" "}
                       {assessment?.appraisedValue
                         ? `LKR ${assessment.appraisedValue}`
                         : "-"}
-                    </td>
-                    <td>{annualTax ? `LKR ${annualTax}` : "-"}</td>
-                    <td>{assessment?.status || "UNASSESSED"}</td>
-                    <td>
-                      <button
-                        className="btn-view"
-                        onClick={() =>
-                          navigate(`/property/${prop.propertyNo}`)
-                        }
-                        disabled={!assessment}
-                        style={{
-                          cursor: assessment ? "pointer" : "not-allowed",
-                          opacity: assessment ? 1 : 0.5,
-                        }}
-                      >
-                        View / Payment
-                      </button>
+                    </p>
+                    <p>
+                      <strong>Annual Tax:</strong>{" "}
+                      {annualTax ? `LKR ${annualTax}` : "-"}
+                    </p>
+                  </div>
 
-                      <button
-                        className="btn-remove"
-                        onClick={() => handleRemove(prop.propertyNo, index)}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                  <div className="property-actions">
+                    <button
+                      className="btn-view"
+                      onClick={() =>
+                        navigate(`/propertyTaxCalculation/${prop.propertyNo}`)
+                      }
+                      disabled={!assessment}
+                      style={{
+                        cursor: assessment ? "pointer" : "not-allowed",
+                        opacity: assessment ? 1 : 0.5,
+                      }}
+                    >
+                      View / Payment
+                    </button>
+
+                    <button
+                      className="btn-remove"
+                      onClick={() =>
+                        handleRemove(prop.propertyNo, index)
+                      }
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     </>
