@@ -692,7 +692,7 @@ function TaxCalculation() {
           flexWrap: "wrap"
         }}>
           {[
-            { text: "💳 Confirm Payment", bg: "linear-gradient(135deg, #059669 0%, #047857 100%)", shadow: "rgba(5, 150, 105, 0.4)" },
+            { text: "💳 Confirm Payment", bg: "linear-gradient(135deg, #059669 0%, #047857 100%)", shadow: "rgba(5, 150, 105, 0.4)" ,onClick: () => navigate('/payment-details')},
             { text: "📊 Payment History", bg: "linear-gradient(135deg, #ea580c 0%, #dc2626 100%)", shadow: "rgba(234, 88, 12, 0.4)" },
             { text: "← Back", bg: "linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)", shadow: "rgba(30, 58, 138, 0.4)", onClick: () => navigate(-1) }
           ].map((button, index) => (

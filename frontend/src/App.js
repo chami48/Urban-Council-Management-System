@@ -28,6 +28,8 @@ import OfficerDashboard from './Components/Shop/OfficerDashboard';
 import ShopPayment from "./Components/Shop/ShopPayment";
 import MyApplication from "./Components/Shop/MyApplication";
 import ShopRentalInstructionPage from './Components/Shop/ShopRentalInstructionPage';
+import PaymentDetailsPage from './Components/Property/PaymentDetails';
+import ShopRentPaymentPage from './Components/Shop/ShopRentPaymentPage';
 
 function App() {
   return (
@@ -68,6 +70,7 @@ function App() {
           <Route path="/contact" element={<ContactUs />} /> 
           <Route path="/propertytax" element={<PropertyTax />} />   
           <Route path="/propertyTaxCalculation/:part1/:part2" element={<PropertyTaxCalculator />} />
+          <Route path="/payment-details" element={<PaymentDetailsPage />} />
 
           {/* Shop Registration */}
           <Route path="/citizen-apply" element={<CitizenApply />} />
@@ -75,6 +78,7 @@ function App() {
           <Route path="/officer" element={<OfficerDashboard />} />
           <Route path="/pay" element={<ShopPayment />} />
           <Route path="/shop-rental-instructions" element={< ShopRentalInstructionPage/>} />
+          <Route path="/rent-pay" element={<ShopRentPaymentPage />} />
         </Routes>
       </React.Fragment>
     </div>
