@@ -4,6 +4,8 @@ const cors = require("cors");
 const path = require("path");
 const mongoose = require("mongoose");
 
+const { parseCookies, getSession } = require("./sessionLite");
+
 // Routers
 const playgroundRouter = require("./Route/PlaygroundRoute");
 const crematoriumRouter = require("./Route/CrematoriumRoute");
@@ -14,12 +16,33 @@ const announcementRouter = require("./Route/announcementRoutes");
 const paymentRouter = require("./Route/paymentRoute");
 const taxRouter = require("./Route/taxRoute");
 const shopApplicationRoutes = require("./Route/shopApplicationRoute");
+const userRouter = require("./Route/UserRoute");
+const authRouter = require("./Route/AuthRoute");
+const inventoryRouter = require("./Route/InventoryRoute");
 
 const app = express();
 
 // Middleware
 app.use(express.json());
 app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+}));
+
+app.use((req, res, next) => {
+  req.cookies = parseCookies(req);
+  next();
+});
+
+// (optional) attach current session info (not required for requireAuth)
+app.use((req, res, next) => {
+  const sid = req.cookies.sid;
+  const sess = sid ? getSession(sid) : null;
+  req.session = sess || null;
+  next();
+});
 
 // Static folder (if you need file uploads)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -34,6 +57,9 @@ app.use("/announcements", announcementRouter);
 app.use("/payments", paymentRouter);
 app.use("/calculateTax", taxRouter);
 app.use("/api/shop-applications", shopApplicationRoutes);
+app.use("/users", userRouter);
+app.use("/auth", authRouter);
+app.use("/inventory", inventoryRouter);
 
 // Database + Server
 mongoose

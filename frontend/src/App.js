@@ -1,3 +1,5 @@
+
+// App.js
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
@@ -35,6 +37,15 @@ import MyApplication from "./Components/Shop/MyApplication";
 import ShopRentalInstructionPage from './Components/Shop/ShopRentalInstructionPage';
 import PaymentDetailsPage from './Components/Property/PaymentDetails';
 import ShopRentPaymentPage from './Components/Shop/ShopRentPaymentPage';
+import UserList from "./Components/UserList/UserList";
+import UpdateUser1 from "./Components/UpdateUser/UpdateUser";
+import Register from "./Components/Register/Register";
+import Login from "./Components/Login/Login";
+import Profile from "./Components/Profile/Profile";
+import ProtectedRoute from "./Components/Auth/ProtectedRoute";
+import InventoryList from "./Components/Inventory/InventoryList";
+import InventoryAdd from "./Components/Inventory/InventoryAdd";
+import InventoryEdit from "./Components/Inventory/InventoryEdit";
 
 function App() {
   return (
@@ -75,6 +86,15 @@ function App() {
           <Route path="/rent-pay" element={<ShopRentPaymentPage />} />
           <Route path="/propertyTaxCalculation/:part1/:part2" element={<PropertyTaxCalculator />} />
           <Route path="/payment-details" element={<PaymentDetailsPage />} />
+          <Route path="/log" element={<Login />} />
+          <Route path="/regi" element={<Register />} />
+          <Route path="/viewusers" element={<UserList />} />
+          <Route path="/viewusers/:id" element={<UpdateUser1 />} />
+          <Route  path="/profile"  element={<ProtectedRoute alertMessage="Please log in to access Profile">  <Profile /></ProtectedRoute>}/>
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Admins only."onForbiddenRedirect="/log"><AdminHome /></ProtectedRoute>} />
+          <Route path="/inventory" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Admins only."onForbiddenRedirect="/mainhome"><InventoryList /></ProtectedRoute>} />
+          <Route path="/inventory/add" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Admins only."onForbiddenRedirect="/mainhome"><InventoryAdd /></ProtectedRoute>} />
+          <Route path="/inventory/:id" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Admins only."onForbiddenRedirect="/mainhome"><InventoryEdit /></ProtectedRoute>} />
         </Routes>
       </React.Fragment>
     </div>

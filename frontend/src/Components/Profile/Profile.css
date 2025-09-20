@@ -1,0 +1,103 @@
+.profile-container {
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - 80px);
+  padding: 24px;
+  background: #f7f7fb;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 720px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.role-badge {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: .06em;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #ececf3;
+  color: #444;
+}
+
+.role-badge.admin { background: #ffe8e8; color: #c03838; }
+.role-badge.user  { background: #e8f6ff; color: #2a7db8; }
+
+.notice {
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.notice.success { background: #e8fff1; color: #217a45; }
+.notice.error   { background: #ffefef; color: #a23b3b; }
+
+.profile-view .row {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #e6e6ee;
+}
+.profile-view .row:last-child { border-bottom: 0; }
+.profile-view label { font-weight: 600; color: #555; }
+.profile-view p { margin: 0; color: #222; }
+
+.profile-form .field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.profile-form label {
+  font-weight: 600;
+  color: #444;
+}
+.profile-form input {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+}
+.profile-form input:focus {
+  border-color: #2f80ed;
+  box-shadow: 0 0 0 3px rgba(47,128,237,0.15);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #dcdceb;
+  background: #f7f7fb;
+  cursor: pointer;
+}
+.btn:hover { background: #efeff9; }
+.btn.primary {
+  background: #2f80ed;
+  color: #fff;
+  border-color: #2f80ed;
+}
+.btn.primary:hover { filter: brightness(0.95); }
+.btn.danger {
+  background: #ff6f00;
+  color: #fff;
+  border-color: #ff6f00;
+}
+.btn.danger:hover { filter: brightness(0.95); }
