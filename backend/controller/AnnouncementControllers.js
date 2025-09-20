@@ -3,9 +3,9 @@ const Announcement = require("../Model/announcementModel");
 // Create new announcement
 const createAnnouncement = async (req, res) => {
   try {
-    const newAnnouncement = new Announcement(req.body);
-    await newAnnouncement.save();
-    res.status(201).json(newAnnouncement);
+    const newAnnouncement = await Announcement.create(req.body);
+    // Respond in the shape the frontend expects
+    res.status(201).json({ announcement: newAnnouncement });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -14,8 +14,9 @@ const createAnnouncement = async (req, res) => {
 // Get all announcements
 const getAnnouncements = async (req, res) => {
   try {
-    const announcements = await Announcement.find();
-    res.json(announcements);
+    const announcements = await Announcement.find().sort({ createdAt: -1 });
+    // Respond in the shape the frontend expects
+    res.json({ announcements });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -27,12 +28,11 @@ const updateAnnouncement = async (req, res) => {
     const updated = await Announcement.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true, runValidators: true }
     );
-    if (!updated) {
-      return res.status(404).json({ message: "Announcement not found" });
-    }
-    res.json(updated);
+    if (!updated) return res.status(404).json({ message: "Announcement not found" });
+    // Keep response shape consistent
+    res.json({ announcement: updated });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -42,9 +42,7 @@ const updateAnnouncement = async (req, res) => {
 const deleteAnnouncement = async (req, res) => {
   try {
     const deleted = await Announcement.findByIdAndDelete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({ message: "Announcement not found" });
-    }
+    if (!deleted) return res.status(404).json({ message: "Announcement not found" });
     res.json({ message: "Announcement deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });

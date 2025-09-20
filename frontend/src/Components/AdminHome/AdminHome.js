@@ -127,7 +127,17 @@ const AdminHome = () => {
       color: 'red',
       description: 'User roles and system administration',
       route: '/users'
-    }
+    },
+
+    {
+  id: 'assessment',
+  title: 'Assessment & Shop Register',
+  titleSinhala: 'තක්සේරුව සහ වෙළඳසල ලේඛනය',
+  icon: CreditCard, // or you can change to FileText, ClipboardList, or Building2
+  color: 'orange',
+  description: 'Shop assessment and registration management',
+  route: '/officer'
+},
   ];
 
   const slides = [

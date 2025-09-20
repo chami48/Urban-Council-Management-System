@@ -1,5 +1,6 @@
 import Nav from "../Nav/Nav";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Mail,
   MapPin,
@@ -22,11 +23,275 @@ import {
   Download,
   Search,
   ExternalLink,
+  Megaphone,
+  X,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  ArrowLeft
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+const ANNOUNCEMENT_URL = "http://localhost:5000/announcements";
+
+// Announcement Modal Component
+const AnnouncementModal = ({ announcement, isOpen, onClose }) => {
+  if (!isOpen || !announcement) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
+          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <Megaphone size={24} className="text-blue-600" />
+            Full Announcement
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {/* Announcement Meta Info */}
+          <div className="flex flex-wrap items-center gap-4 mb-6 pb-4 border-b border-gray-100">
+            {announcement.date && (
+              <div className="flex items-center text-sm text-gray-600">
+                <Calendar className="w-4 h-4 mr-2" />
+                <span>{announcement.date}</span>
+              </div>
+            )}
+            {announcement.time && (
+              <div className="flex items-center text-sm text-gray-600">
+                <Clock className="w-4 h-4 mr-2" />
+                <span>{announcement.time}</span>
+              </div>
+            )}
+            {announcement.area && (
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                <MapPin className="w-3 h-3 inline mr-1" />
+                {announcement.area}
+              </span>
+            )}
+          </div>
+
+          {/* Title */}
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
+            {announcement.title}
+          </h2>
+
+          {/* Description */}
+          <div className="prose prose-gray max-w-none">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+              {announcement.description}
+            </p>
+          </div>
+
+          {/* Additional Info */}
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between text-sm text-gray-500">
+              <span>Published by Horana Urban Council</span>
+              <span>Official Announcement</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// All Announcements View Component
+const AllAnnouncementsView = ({ announcements, isOpen, onClose, onViewFull }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  const filteredAnnouncements = announcements.filter(announcement =>
+    announcement.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    announcement.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    announcement.area?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredAnnouncements.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentAnnouncements = filteredAnnouncements.slice(startIndex, startIndex + itemsPerPage);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-200">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">All Announcements</h1>
+              <p className="text-gray-600">සියලුම නිවේදන</p>
+            </div>
+          </div>
+          <div className="text-sm text-gray-500">
+            {filteredAnnouncements.length} announcement{filteredAnnouncements.length !== 1 ? 's' : ''} found
+          </div>
+        </div>
+
+        {/* Search */}
+        <div className="mb-8">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <input
+              type="text"
+              placeholder="Search announcements..."
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Announcements Grid */}
+        {currentAnnouncements.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+              <Megaphone size={32} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No announcements found</h3>
+            <p className="text-gray-500">
+              {searchTerm ? "Try adjusting your search terms." : "No announcements available at the moment."}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {currentAnnouncements.map((announcement, index) => (
+                <div
+                  key={announcement._id || index}
+                  className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300"
+                >
+                  {/* Meta Info */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center text-xs text-gray-500">
+                      {announcement.date && (
+                        <span className="flex items-center mr-3">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {announcement.date}
+                        </span>
+                      )}
+                      {announcement.time && (
+                        <span className="flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
+                          {announcement.time}
+                        </span>
+                      )}
+                    </div>
+                    {announcement.area && (
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {announcement.area}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">
+                    {announcement.title}
+                  </h3>
+
+                  {/* Description Preview */}
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                    {announcement.description}
+                  </p>
+
+                  {/* Action Button */}
+                  <button
+                    onClick={() => onViewFull(announcement)}
+                    className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors text-sm"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Read Full Announcement
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center space-x-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-4 py-2 rounded-lg transition-colors ${
+                      page === currentPage
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-600 bg-white border border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // === Announcements state (from backend) ===
+  const [announcements, setAnnouncements] = useState([]);
+  const [annLoading, setAnnLoading] = useState(true);
+  const [annError, setAnnError] = useState(null);
+
+  // === Modal states ===
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [showAllAnnouncements, setShowAllAnnouncements] = useState(false);
+
+  useEffect(() => {
+    const getAnnouncements = async () => {
+      try {
+        setAnnLoading(true);
+        const res = await axios.get(ANNOUNCEMENT_URL);
+        // API returns { announcements: [...] }
+        setAnnouncements(res.data?.announcements || []);
+        setAnnError(null);
+      } catch (err) {
+        setAnnError("Failed to load announcements. Please check if the server is running.");
+        console.error("Fetch announcements error:", err);
+      } finally {
+        setAnnLoading(false);
+      }
+    };
+    getAnnouncements();
+  }, []);
 
   // Hero slides data
   const slides = [
@@ -34,25 +299,31 @@ function Home() {
       image:
         "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=600&fit=crop",
       title: "Welcome to Horana Urban Council",
-      subtitle: "Building a prosperous future through transparent governance and community partnership",
+      subtitle:
+        "Building a prosperous future through transparent governance and community partnership",
       titleSinhala: "හොරණ නගර සභාවට ඔබව සාදරයෙන් පිළිගනිමු",
-      subtitleSinhala: "විනිවිද පාලනය සහ ප්‍රජා සහයෝගීතාවය තුළින් සමෘද්ධිමත් අනාගතයක් ගොඩනැගීම",
+      subtitleSinhala:
+        "විනිවිද පාලනය සහ ප්‍රජා සහයෝගීතාවය තුළින් සමෘද්ධිමත් අනාගතයක් ගොඩනැගීම",
     },
     {
       image:
         "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=600&fit=crop",
       title: "Infrastructure Development Excellence",
-      subtitle: "Modern facilities and sustainable urban planning for our growing community",
+      subtitle:
+        "Modern facilities and sustainable urban planning for our growing community",
       titleSinhala: "යටිතල පහසුකම් සංවර්ධන විශිෂ්ටත්වය",
-      subtitleSinhala: "අපගේ වර්ධනය වන ප්‍රජාව සඳහා නවීන පහසුකම් සහ තිරසාර නාගරික සැලසුම්කරණය",
+      subtitleSinhala:
+        "අපගේ වර්ධනය වන ප්‍රජාව සඳහා නවීන පහසුකම් සහ තිරසාර නාගරික සැලසුම්කරණය",
     },
     {
       image:
         "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1200&h=600&fit=crop",
       title: "Digital Government Services",
-      subtitle: "Seamless online access to all municipal services and applications",
+      subtitle:
+        "Seamless online access to all municipal services and applications",
       titleSinhala: "ඩිජිටල් රජයේ සේවා",
-      subtitleSinhala: "සියලුම නාගරික සේවා සහ අයදුම්පත් සඳහා බාධාවකින් තොර අන්තර්ජාල ප්‍රවේශය",
+      subtitleSinhala:
+        "සියලුම නාගරික සේවා සහ අයදුම්පත් සඳහා බාධාවකින් තොර අන්තර්ජාල ප්‍රවේශය",
     },
   ];
 
@@ -69,46 +340,53 @@ function Home() {
       icon: FileText,
       title: "Building Permits",
       titleSinhala: "ගොඩනැගිලි බලපත්‍ර",
-      description: "Submit building permit applications and track approval status online",
+      description:
+        "Submit building permit applications and track approval status online",
       link: "/displaybooking",
-      category: "Planning & Development"
+      category: "Planning & Development",
     },
     {
       icon: Users,
       title: "Birth Certificates",
       titleSinhala: "උප්පැන්න සහතික",
-      description: "Apply for certified birth certificates with secure online verification",
-      link:"/chatbot",
-      category: "Civil Registration"
+      description:
+        "Apply for certified birth certificates with secure online verification",
+        link: "/chatbot",
+      category: "Civil Registration",
     },
     {
       icon: Award,
       title: "Business Licenses",
       titleSinhala: "ව්‍යාපාර බලපත්‍ර",
-      description: "Register new businesses and renew existing commercial licenses",
-      category: "Business Services"
+      description:
+        "Register new businesses and renew existing commercial licenses",
+      link: "/shop-rental-instructions",
+      category: "Business Services",
     },
     {
       icon: MapPin,
       title: "Property Tax",
       titleSinhala: "දේපල බද්ද",
-      description: "Calculate, pay and manage property tax assessments online",
-      link: "/propertyHome",
-      category: "Revenue Services"
+      description:
+        "Calculate, pay and manage property tax assessments online",
+      link: "/propertytax",
+      category: "Revenue Services",
     },
     {
       icon: Calendar,
       title: "Event Booking",
       titleSinhala: "උත්සව වෙන්කරවීම",
-      description: "Reserve community halls, parks and public venues for events",
-      category: "Community Services"
+      description:
+        "Reserve community halls, parks and public venues for events",
+      category: "Community Services",
     },
     {
       icon: Bell,
       title: "Waste Management",
       titleSinhala: "අපද්‍රව්‍ය කළමනාකරණය",
-      description: "Schedule waste collection, report issues and access recycling programs",
-      category: "Environmental Services"
+      description:
+        "Schedule waste collection, report issues and access recycling programs",
+      category: "Environmental Services",
     },
   ];
 
@@ -119,54 +397,36 @@ function Home() {
     { number: "24/7", label: "Online Access", labelSinhala: "අන්තර්ජාල ප්‍රවේශය" },
   ];
 
-  const news = [
-    {
-      date: "2025-08-25",
-      title: "Digital Infrastructure Modernization Project",
-      titleSinhala: "ඩිජිටල් යටිතල පහසුකම් නවීකරණ ව්‍යාපෘතිය",
-      description: "New fiber optic network installation to improve internet connectivity across all municipal services and public areas",
-      category: "Technology",
-      priority: "high"
-    },
-    {
-      date: "2025-08-23",
-      title: "Community Development Budget Allocation 2025",
-      titleSinhala: "ප්‍රජා සංවර්ධන අයවැය වෙන්කිරීම 2025",
-      description: "LKR 150 million allocated for infrastructure improvements, education programs, and healthcare initiatives",
-      category: "Finance",
-      priority: "medium"
-    },
-    {
-      date: "2025-08-20",
-      title: "Public Consultation - Urban Planning Framework",
-      titleSinhala: "මහජන උපදේශන - නාගරික සැලසුම් රාමුව",
-      description: "Community input sessions for the new 10-year urban development master plan scheduled for September",
-      category: "Planning",
-      priority: "medium"
-    },
-  ];
+  // Handle announcement actions
+  const handleViewFullAnnouncement = (announcement) => {
+    setSelectedAnnouncement(announcement);
+    setShowAnnouncementModal(true);
+  };
 
-  const getPriorityColor = (priority) => {
-    switch(priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-blue-100 text-blue-800 border-blue-200';
-    }
+  const handleViewAllAnnouncements = () => {
+    setShowAllAnnouncements(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowAnnouncementModal(false);
+    setSelectedAnnouncement(null);
+  };
+
+  const handleCloseAllAnnouncements = () => {
+    setShowAllAnnouncements(false);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Nav />
-      
+
       {/* Hero Section */}
       <section className="relative h-[500px] overflow-hidden">
         {slides.map((slide, index) => (
           <div
             key={index}
             className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-              index === currentSlide
-                ? "opacity-100 scale-100"
-                : "opacity-0 scale-105"
+              index === currentSlide ? "opacity-100 scale-100" : "opacity-0 scale-105"
             }`}
           >
             <div
@@ -215,9 +475,7 @@ function Home() {
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`w-12 h-2 rounded-full transition-all duration-300 ${
-                index === currentSlide 
-                  ? "bg-white shadow-lg" 
-                  : "bg-white/40 hover:bg-white/60"
+                index === currentSlide ? "bg-white shadow-lg" : "bg-white/40 hover:bg-white/60"
               }`}
             />
           ))}
@@ -247,15 +505,12 @@ function Home() {
               <Globe className="w-4 h-4 mr-2" />
               Government Services
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Municipal Services Portal
-            </h2>
-            <h3 className="text-2xl font-semibold text-gray-600 mb-4">
-              පළාත් සභා සේවා ද්වාරය
-            </h3>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">Municipal Services Portal</h2>
+            <h3 className="text-2xl font-semibold text-gray-600 mb-4">පළාත් සභා සේවා ද්වාරය</h3>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Access comprehensive government services through our secure digital platform. 
-              All services are available 24/7 with real-time status tracking and secure document management.
+              Access comprehensive government services through our secure digital platform. All
+              services are available 24/7 with real-time status tracking and secure document
+              management.
             </p>
           </div>
 
@@ -266,7 +521,7 @@ function Home() {
                 className="group relative p-8 border border-gray-200 rounded-xl hover:shadow-xl transition-all duration-300 hover:border-blue-300 bg-white overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-transparent rounded-bl-3xl"></div>
-                
+
                 <div className="relative">
                   <div className="flex items-start justify-between mb-6">
                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
@@ -276,16 +531,10 @@ function Home() {
                       {service.category}
                     </span>
                   </div>
-                  
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
-                    {service.titleSinhala}
-                  </h4>
-                  <h5 className="text-lg font-semibold text-gray-600 mb-3">
-                    {service.title}
-                  </h5>
-                  <p className="text-gray-600 mb-6 leading-relaxed">
-                    {service.description}
-                  </p>
+
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">{service.titleSinhala}</h4>
+                  <h5 className="text-lg font-semibold text-gray-600 mb-3">{service.title}</h5>
+                  <p className="text-gray-600 mb-6 leading-relaxed">{service.description}</p>
 
                   <Link
                     to={service.link || "/adminHome"}
@@ -306,66 +555,144 @@ function Home() {
         </div>
       </section>
 
-      {/* News & Information Section */}
+      {/* News & Information Section (Improved Announcements) */}
       <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-3 gap-12">
-            {/* News Column */}
+            {/* Announcements Column */}
             <div className="lg:col-span-2">
               <div className="flex items-center justify-between mb-10">
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+                    <Megaphone className="w-8 h-8 text-blue-600" />
                     Official Announcements
                   </h2>
-                  <h3 className="text-xl text-gray-600">
-                    නිල නිවේදන සහ ප්‍රවෘත්ති
-                  </h3>
+                  <h3 className="text-xl text-gray-600">නිල නිවේදන සහ ප්‍රවෘත්ති</h3>
                 </div>
-                <button className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+                <button 
+                  onClick={handleViewAllAnnouncements}
+                  className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg"
+                >
                   View All Announcements
                   <ExternalLink className="w-4 h-4 ml-2" />
                 </button>
               </div>
 
-              <div className="space-y-8">
-                {news.map((item, index) => (
-                  <article
-                    key={index}
-                    className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center space-x-4">
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar className="w-4 h-4 mr-2" />
-                          {new Date(item.date).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
+              {/* Loading / Error / Empty states */}
+              {annLoading ? (
+                <div className="space-y-6">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
+                      <div className="animate-pulse space-y-4">
+                        <div className="flex items-center gap-4">
+                          <div className="h-4 bg-gray-200 rounded w-20" />
+                          <div className="h-4 bg-gray-200 rounded w-16" />
+                          <div className="h-6 bg-gray-200 rounded-full w-20" />
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityColor(item.priority)}`}>
-                          {item.category}
-                        </span>
+                        <div className="h-6 bg-gray-200 rounded w-3/4" />
+                        <div className="space-y-2">
+                          <div className="h-4 bg-gray-200 rounded" />
+                          <div className="h-4 bg-gray-200 rounded w-5/6" />
+                          <div className="h-4 bg-gray-200 rounded w-4/6" />
+                        </div>
+                        <div className="h-4 bg-gray-200 rounded w-32" />
                       </div>
                     </div>
-                    
-                    <h4 className="text-2xl font-bold text-gray-900 mb-3 leading-tight">
-                      {item.titleSinhala}
-                    </h4>
-                    <h5 className="text-lg font-semibold text-gray-700 mb-4">
-                      {item.title}
-                    </h5>
-                    <p className="text-gray-600 leading-relaxed mb-4">
-                      {item.description}
-                    </p>
-                    
-                    <button className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                      Read Full Announcement
-                      <ChevronRight className="w-4 h-4 ml-1" />
-                    </button>
-                  </article>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : annError ? (
+                <div className="bg-white p-8 rounded-xl border border-red-200 shadow-sm">
+                  <div className="flex items-center gap-3 text-red-700">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <ExternalLink size={20} />
+                    </div>
+                    <p>{annError}</p>
+                  </div>
+                </div>
+              ) : announcements.length === 0 ? (
+                <div className="bg-white p-10 rounded-xl shadow-sm border border-gray-100 text-center">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-2xl flex items-center justify-center">
+                    <Megaphone size={32} className="text-gray-400" />
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-900 mb-2">No announcements yet</h4>
+                  <p className="text-gray-500">Please check back later for updates.</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Show latest 3 announcements on home page */}
+                  {announcements
+                    .slice()
+                    .reverse()
+                    .slice(0, 3)
+                    .map((announcement, index) => (
+                      <article
+                        key={announcement._id || index}
+                        className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 overflow-hidden"
+                      >
+                        <div className="p-8">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center space-x-4">
+                              {(announcement.date || announcement.time) && (
+                                <div className="flex items-center text-sm text-gray-500">
+                                  <Calendar className="w-4 h-4 mr-2" />
+                                  <span>
+                                    {announcement.date ? announcement.date : ""}
+                                    {announcement.time ? ` • ${announcement.time}` : ""}
+                                  </span>
+                                </div>
+                              )}
+                              {announcement.area && (
+                                <span className="px-3 py-1 rounded-full text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">
+                                  <MapPin className="w-3 h-3 inline mr-1" />
+                                  {announcement.area}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <h4 className="text-2xl font-bold text-gray-900 mb-3 leading-tight break-words">
+                            {announcement.title}
+                          </h4>
+                          
+                          {announcement.description && (
+                            <p className="text-gray-600 leading-relaxed mb-6 break-words">
+                              {announcement.description.length > 200
+                                ? `${announcement.description.substring(0, 200)}...`
+                                : announcement.description}
+                            </p>
+                          )}
+
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <button 
+                              onClick={() => handleViewFullAnnouncement(announcement)}
+                              className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg"
+                            >
+                              <Eye className="w-4 h-4 mr-2" />
+                              Read Full Announcement
+                              <ChevronRight className="w-4 h-4 ml-1" />
+                            </button>
+                            <span className="text-xs text-gray-400">
+                              Official • Horana Urban Council
+                            </span>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+
+                  {/* Show "View All" button if there are more than 3 announcements */}
+                  {announcements.length > 3 && (
+                    <div className="text-center pt-6">
+                      <button 
+                        onClick={handleViewAllAnnouncements}
+                        className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                      >
+                        View All {announcements.length} Announcements
+                        <ChevronRight className="w-5 h-5 ml-2" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -382,7 +709,8 @@ function Home() {
                   </div>
                 </div>
                 <p className="text-blue-50 mb-6 leading-relaxed">
-                  Secure access to administrative dashboard for authorized municipal staff and council members.
+                  Secure access to administrative dashboard for authorized municipal staff and
+                  council members.
                 </p>
                 <Link
                   to="/adminHome"
@@ -461,9 +789,7 @@ function Home() {
 
               {/* Quick Resources */}
               <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-                <h3 className="text-xl font-bold text-gray-900 mb-6">
-                  Quick Resources
-                </h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-6">Quick Resources</h3>
                 <div className="space-y-4">
                   {[
                     { title: "Mayor's Office", icon: Users },
@@ -507,17 +833,26 @@ function Home() {
                 </div>
               </div>
               <p className="text-gray-300 leading-relaxed mb-6 max-w-md">
-                Committed to serving our community with excellence, transparency, and innovation. 
+                Committed to serving our community with excellence, transparency, and innovation.
                 Building a sustainable future through responsible governance and civic engagement.
               </p>
               <div className="flex space-x-4">
-                <a href="#" className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors">
+                <a
+                  href="#"
+                  className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center hover:bg-blue-700 transition-colors"
+                >
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors">
+                <a
+                  href="#"
+                  className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors"
+                >
                   <Twitter className="w-5 h-5" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors">
+                <a
+                  href="#"
+                  className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center hover:bg-red-700 transition-colors"
+                >
                   <Youtube className="w-5 h-5" />
                 </a>
               </div>
@@ -526,7 +861,14 @@ function Home() {
             <div>
               <h4 className="text-lg font-bold mb-6">Government Services</h4>
               <ul className="space-y-3">
-                {['Building Permits', 'Business Licenses', 'Property Tax', 'Birth Certificates', 'Waste Management', 'Event Booking'].map((service) => (
+                {[
+                  "Building Permits",
+                  "Business Licenses",
+                  "Property Tax",
+                  "Birth Certificates",
+                  "Waste Management",
+                  "Event Booking",
+                ].map((service) => (
                   <li key={service}>
                     <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
                       {service}
@@ -539,13 +881,36 @@ function Home() {
             <div>
               <h4 className="text-lg font-bold mb-6">Information</h4>
               <ul className="space-y-3">
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">About Council</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Council Members</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Public Meetings</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Annual Reports</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Transparency Portal</a></li>
                 <li>
-                  <Link to="/admin-dashboard" className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
+                    About Council
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
+                    Council Members
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
+                    Public Meetings
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
+                    Annual Reports
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
+                    Transparency Portal
+                  </a>
+                </li>
+                <li>
+                  <Link
+                    to="/admin-dashboard"
+                    className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium"
+                  >
                     Staff Portal →
                   </Link>
                 </li>
@@ -568,6 +933,20 @@ function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Modals */}
+      <AnnouncementModal 
+        announcement={selectedAnnouncement}
+        isOpen={showAnnouncementModal}
+        onClose={handleCloseModal}
+      />
+
+      <AllAnnouncementsView
+        announcements={announcements}
+        isOpen={showAllAnnouncements}
+        onClose={handleCloseAllAnnouncements}
+        onViewFull={handleViewFullAnnouncement}
+      />
     </div>
   );
 }

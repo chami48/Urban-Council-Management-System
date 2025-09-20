@@ -4,10 +4,10 @@ import './App.css';
 
 import Home from './Components/Home/Home';
 
-// Playground booking pages
-import AddUser from './Components/PlaygroundForm/PlaygroundFrom';      // create form page (default export)
-import Users from './Components/PlaygroundForm/pUsers';                 // list page (this file below)
-import UpdateUser from './Components/PlaygroundForm/UpdatePlayground';  // update page
+// Playground booking pages - corrected imports to match usage
+import AddPlayground from './Components/PlaygroundForm/PlaygroundFrom';      // create form page
+import Playgrounds from './Components/PlaygroundForm/pUsers';                 // list page
+import UpdatePlayground from './Components/PlaygroundForm/UpdatePlayground';  // update page
 
 // Other features (unchanged)
 import CrematoriumForm from './Components/CrematoriumForm/CrematoriumForm';
@@ -27,6 +27,14 @@ import ComplaintsDetails from './Components/Complaint/ComplaintsDetails';
 import UpdateAssessment from './Components/Assessment/UpdateAssessment';
 import PropertyTax from './Components/Property/PropertyTax';
 import Assessments from './Components/Assessment/Assessments';
+import PropertyTaxCalculator from './Components/Property/PropertyTaxCalculator';
+import CitizenApply from './Components/Shop/CitizenApply';
+import OfficerDashboard from './Components/Shop/OfficerDashboard';
+import ShopPayment from "./Components/Shop/ShopPayment";
+import MyApplication from "./Components/Shop/MyApplication";
+import ShopRentalInstructionPage from './Components/Shop/ShopRentalInstructionPage';
+import PaymentDetailsPage from './Components/Property/PaymentDetails';
+import ShopRentPaymentPage from './Components/Shop/ShopRentPaymentPage';
 
 function App() {
   return (
@@ -36,10 +44,10 @@ function App() {
           <Route path="/" element={<HoranaCouncilLanding />} />
           <Route path="/mainhome" element={<Home />} />
 
-          {/* Playground booking */}
-          <Route path="/playgroundFrom" element={<AddUser />} />   {/* create */}
-          <Route path="/userdetails" element={<Users />} />        {/* list */}
-          <Route path="/userdetails/:id" element={<UpdateUser />} /> {/* edit */}
+          {/* Playground booking routes - now properly aligned */}
+          <Route path="/playgroundFrom" element={<AddPlayground />} />   {/* create */}
+          <Route path="/userdetails" element={<Playgrounds />} />        {/* list */}
+          <Route path="/userdetails/:id" element={<UpdatePlayground />} /> {/* edit */}
 
           {/* Other routes (unchanged) */}
           <Route path="/crematorium" element={<CrematoriumForm />} />
@@ -59,6 +67,14 @@ function App() {
           <Route path="/updateassessment/:id" element={<UpdateAssessment />} />
           <Route path="/propertytax" element={<PropertyTax />} />
           <Route path="/assessmentdetails" element={<Assessments />} />
+          <Route path="/citizen-apply" element={<CitizenApply />} />
+          <Route path="/my-applications" element={<MyApplication />} />
+          <Route path="/officer" element={<OfficerDashboard />} />
+          <Route path="/pay" element={<ShopPayment />} />
+          <Route path="/shop-rental-instructions" element={<ShopRentalInstructionPage />} />
+          <Route path="/rent-pay" element={<ShopRentPaymentPage />} />
+          <Route path="/propertyTaxCalculation/:part1/:part2" element={<PropertyTaxCalculator />} />
+          <Route path="/payment-details" element={<PaymentDetailsPage />} />
         </Routes>
       </React.Fragment>
     </div>

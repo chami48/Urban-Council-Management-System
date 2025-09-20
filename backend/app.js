@@ -11,6 +11,9 @@ const assessmentRouter = require("./Route/assessmentRoute");
 const propertyRouter = require("./Route/propertyRoute");
 const complaintRouter = require("./Route/ComplaintsRoutes");
 const announcementRouter = require("./Route/announcementRoutes");
+const paymentRouter = require("./Route/paymentRoute");
+const taxRouter = require("./Route/taxRoute");
+const shopApplicationRoutes = require("./Route/shopApplicationRoute");
 
 const app = express();
 
@@ -28,6 +31,9 @@ app.use("/assessments", assessmentRouter);
 app.use("/properties", propertyRouter);
 app.use("/complaints", complaintRouter);
 app.use("/announcements", announcementRouter);
+app.use("/payments", paymentRouter);
+app.use("/calculateTax", taxRouter);
+app.use("/api/shop-applications", shopApplicationRoutes);
 
 // Database + Server
 mongoose
