@@ -1,55 +1,99 @@
-const Payment = require("../Model/paymentModel");
-const Assessment = require("../Model/assessmentModel");
+const Payment = require("../Model/Payment");
 
+// 🔄 Map Stripe status → DB status
+function mapStripeStatus(stripeStatus) {
+  switch (stripeStatus) {
+    case "succeeded": return "completed";
+    case "processing": return "pending";
+    case "canceled": return "failed";
+    default: return "pending";
+  }
+}
 
-// ------------------ Property Tax ------------------ //
-const addPayment = async (req, res) => {
+// ✅ Unified Save Payment
+const savePayment = async (req, res) => {
   try {
-    const { propertyNo, year, quarter, amountPaid, method } = req.body;
+    const {
+      paymentIntentId,
+      amount,
+      applicantName,
+      nicNumber,
+      shopName,
+      propertyNo,
+      year,
+      quarter,
+      licenseType,
+      fineReason,
+      paymentType = "other",
+      stripeStatus = "succeeded"
+    } = req.body;
 
-    const assessment = await Assessment.findOne({ propertyNo });
-    if (!assessment) {
-      return res.status(404).json({ message: "Assessment not found for this property" });
+    // avoid duplicate Stripe payments
+    if (paymentIntentId) {
+      const existingPayment = await Payment.findOne({ paymentIntentId });
+      if (existingPayment) {
+        return res.json({ message: "Payment already recorded", payment: existingPayment });
+      }
     }
 
-    const payment = new Payment({ propertyNo, year, quarter, amountPaid, method });
+    const currentDate = new Date();
+
+    const payment = new Payment({
+      paymentIntentId,
+      amount,
+      amountPaid: amount,
+      applicantName,
+      nicNumber,
+      shopName,
+      propertyNo,
+      year,
+      quarter,
+      licenseType,
+      fineReason,
+      paymentDate: currentDate,
+      status: mapStripeStatus(stripeStatus),
+      paymentType,
+      paymentPeriod: {
+        month: currentDate.getMonth() + 1,
+        year: currentDate.getFullYear()
+      }
+    });
+
     await payment.save();
+    res.json({
+      message: "✅ Payment saved successfully",
+      payment,
+      receiptNumber: payment.receiptNumber
+    });
 
-    res.status(201).json({ message: "✅ Property tax payment recorded", payment });
   } catch (err) {
-    console.error("❌ Error adding payment:", err);
-    res.status(500).json({ message: "Server error while recording payment" });
+    console.error("❌ Error saving payment:", err);
+    res.status(500).json({ error: err.message });
   }
 };
 
-const getPaymentsByProperty = async (req, res) => {
+// Payment history by NIC
+const getHistoryByNIC = async (req, res) => {
   try {
-    const { propertyNo } = req.params;
-    const payments = await Payment.find({ propertyNo }).sort({ paymentDate: -1 });
-    res.status(200).json({ payments });
+    const payments = await Payment.findByNIC(req.params.nicNumber);
+    res.json(payments);
   } catch (err) {
-    console.error("❌ Error fetching payments:", err);
-    res.status(500).json({ message: "Server error while fetching payments" });
+    res.status(500).json({ error: err.message });
   }
 };
 
-const getTotalPaidForYear = async (req, res) => {
+// Stats
+const getStats = async (req, res) => {
   try {
-    const { propertyNo, year } = req.params;
-    const result = await Payment.aggregate([
-      { $match: { propertyNo, year: parseInt(year) } },
-      { $group: { _id: null, totalPaid: { $sum: "$amountPaid" } } }
-    ]);
-    const totalPaid = result.length > 0 ? result[0].totalPaid : 0;
-    res.status(200).json({ propertyNo, year, totalPaid });
+    const stats = await Payment.getPaymentStats();
+    res.json(stats);
   } catch (err) {
-    console.error("❌ Error calculating total paid:", err);
-    res.status(500).json({ message: "Server error while calculating total paid" });
+    res.status(500).json({ error: err.message });
   }
 };
 
 module.exports = {
-  addPayment,
-  getPaymentsByProperty,
-  getTotalPaidForYear,
+  savePayment,
+  getHistoryByNIC,
+  getStats
 };

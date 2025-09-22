@@ -1,5 +1,5 @@
 const Assessment = require("../Model/assessmentModel");
-const Payment = require("../Model/paymentModel");
+const Payment = require("../Model/Payment");
 
 const monthDiff = (from, to) =>
   (to.getFullYear() - from.getFullYear()) * 12 + (to.getMonth() - from.getMonth());

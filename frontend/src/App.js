@@ -26,11 +26,15 @@ import AddProperty from './Components/Property/AddProperty';
 import PropertyTaxCalculator from './Components/Property/PropertyTaxCalculator';
 import CitizenApply from './Components/Shop/CitizenApply';
 import OfficerDashboard from './Components/Shop/OfficerDashboard';
-import ShopPayment from "./Components/Shop/ShopPayment";
 import MyApplication from "./Components/Shop/MyApplication";
 import ShopRentalInstructionPage from './Components/Shop/ShopRentalInstructionPage';
 import PaymentDetailsPage from './Components/Property/PaymentDetails';
 import ShopRentPaymentPage from './Components/Shop/ShopRentPaymentPage';
+
+// Stripe Payment Components
+import PaymentPage from './Components/Payment/PaymentPage';
+import PaymentSuccess from './Components/Payment/PaymentSuccess';
+
 
 function App() {
   return (
@@ -77,9 +81,13 @@ function App() {
           <Route path="/citizen-apply" element={<CitizenApply />} />
           <Route path="/my-applications" element={<MyApplication />} />
           <Route path="/officer" element={<OfficerDashboard />} />
-          <Route path="/pay" element={<ShopPayment />} />
           <Route path="/shop-rental-instructions" element={< ShopRentalInstructionPage/>} />
-          <Route path="/rent-pay" element={<ShopRentPaymentPage />} />
+          <Route path="/shop-rent/:shopId" element={<ShopRentPaymentPage />} />
+
+         
+          {/* Stripe Payment Routes - Use /pay for new Stripe payment */}
+          <Route path="/payment" element={<PaymentPage />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
         </Routes>
       </React.Fragment>
     </div>

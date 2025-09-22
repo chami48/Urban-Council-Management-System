@@ -19,7 +19,7 @@ const MyApplications = () => {
   const fetchApplications = async (nic) => {
     try {
       const response = await axios.get(`http://localhost:5000/api/shop-applications?nic=${nic}`);
-      console.log("Applications response:", response.data); // 👈 Debug log
+      console.log("Applications response:", response.data);
       setApplications(response.data);
       setLoading(false);
     } catch (error) {
@@ -45,6 +45,23 @@ const MyApplications = () => {
       default: return status;
     }
   };
+
+  // Payment button click handler
+  
+const handlePaymentClick = (application) => {
+  try {
+    if (!application._id) {
+      alert("Invalid shop application ID");
+      return;
+    }
+    navigate(`/shop-rent/${application._id}`);
+  } catch (error) {
+    console.error('Payment navigation error:', error);
+    alert('Error navigating to payment page. Please try again.');
+  }
+};
+
+
 
   if (loading) {
     return <div className="loading-container"><div className="loading">Loading applications...</div></div>;
@@ -124,7 +141,7 @@ const MyApplications = () => {
                       <p>✅ Congratulations! Your application has been approved.</p>
                       <button
                         className="payrent-btn"
-                        onClick={() => navigate('/pay')}
+                        onClick={() => handlePaymentClick(application)}
                       >
                         💳 Pay Rent
                       </button>
