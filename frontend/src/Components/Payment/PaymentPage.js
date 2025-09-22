@@ -91,7 +91,7 @@ const PaymentPage = () => {
       alert('🎉 Payment successful!');
 
       if (paymentData.paymentType === 'shop_rent') {
-        navigate('/my-applications'); // 🏬 Shop Rent → My Applications
+        navigate(`/payment-success?paymentType=shop_rent`); // 🏬 Shop Rent → My Applications
       } else if (paymentData.paymentType === 'property_tax') {
         navigate(`/payment-success?paymentType=property_tax`); // 🏠 Property Tax → Success Page
       } else {
@@ -102,7 +102,7 @@ const PaymentPage = () => {
       alert('Payment completed but failed to save record.');
 
       if (paymentData.paymentType === 'shop_rent') {
-        navigate('/my-applications');
+        navigate(`/payment-success?paymentType=shop_rent`);
       } else if (paymentData.paymentType === 'property_tax') {
         navigate(`/payment-success?paymentType=property_tax`);
       } else {
