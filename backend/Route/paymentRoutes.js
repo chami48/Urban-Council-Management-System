@@ -18,18 +18,19 @@ function mapStripeStatus(stripeStatus) {
   }
 }
 
-// Create Payment Intent
 router.post('/create-payment-intent', async (req, res) => {
   try {
-    const { amount, currency = 'lkr', shopName, applicantName } = req.body;
+    const { amount, currency = 'lkr', applicantName, paymentType, shopName, propertyNo, year, quarter } = req.body;
 
+    // Create Stripe intent with dynamic metadata
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Stripe uses cents
+      amount: amount * 100, // Stripe works in cents
       currency,
       metadata: {
-        shop_name: shopName,
         applicant_name: applicantName,
-        payment_type: 'shop_rent'
+        payment_type: paymentType,
+        ...(paymentType === 'shop_rent' && { shop_name: shopName }),
+        ...(paymentType === 'property_tax' && { property_no: propertyNo, year, quarter })
       },
       automatic_payment_methods: { enabled: true }
     });
@@ -43,6 +44,7 @@ router.post('/create-payment-intent', async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 });
+
 
 // Check Payment Status
 router.get('/payment-status/:paymentIntentId', async (req, res) => {
@@ -61,20 +63,27 @@ router.get('/payment-status/:paymentIntentId', async (req, res) => {
   }
 });
 
-// Save Payment to DB
 router.post('/save-payment', async (req, res) => {
   try {
-    const { paymentIntentId, amount, shopName, applicantName, nicNumber, paymentType = 'shop_rent', stripeStatus = 'succeeded' } = req.body;
+    const {
+      paymentIntentId,
+      amount,
+      applicantName,
+      nicNumber,
+      paymentType,
+      shopName,
+      propertyNo,
+      year,
+      quarter,
+      stripeStatus = 'succeeded'
+    } = req.body;
 
     console.log('Received payment data:', req.body);
 
-    // Check if payment already exists
+    // Avoid duplicates
     const existingPayment = await Payment.findOne({ paymentIntentId });
     if (existingPayment) {
-      return res.send({
-        message: 'Payment already recorded',
-        payment: existingPayment
-      });
+      return res.send({ message: 'Payment already recorded', payment: existingPayment });
     }
 
     const currentDate = new Date();
@@ -82,23 +91,17 @@ router.post('/save-payment', async (req, res) => {
       paymentIntentId,
       amount,
       amountPaid: amount,
-      shopName,
       applicantName,
       nicNumber,
-      paymentDate: currentDate,
-      status: mapStripeStatus(stripeStatus),
       paymentType,
-      paymentPeriod: {
-        month: currentDate.getMonth() + 1,
-        year: currentDate.getFullYear()
-      }
+      status: mapStripeStatus(stripeStatus),
+      paymentDate: currentDate,
+      paymentPeriod: { month: currentDate.getMonth() + 1, year: currentDate.getFullYear() },
+      ...(paymentType === 'shop_rent' && { shopName }),
+      ...(paymentType === 'property_tax' && { propertyNo, year, quarter })
     });
 
-    console.log('Attempting to save payment:', payment);
-
     await payment.save();
-
-    console.log('Payment saved successfully:', payment);
 
     res.send({
       message: 'Payment saved successfully',
@@ -107,17 +110,13 @@ router.post('/save-payment', async (req, res) => {
     });
   } catch (error) {
     console.error('Save Payment Error:', error);
-    if (error.errors) {
-      for (const [field, err] of Object.entries(error.errors)) {
-        console.error(`Field ${field}:`, err.message);
-      }
-    }
     res.status(500).send({
       error: error.message,
       details: error.errors || 'No additional details available'
     });
   }
 });
+
 
 // Get payment history by NIC
 router.get('/history/:nicNumber', async (req, res) => {

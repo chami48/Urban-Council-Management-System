@@ -6,7 +6,7 @@ import {
 } from '@stripe/react-stripe-js';
 import './PaymentForm.css';
 
-const PaymentForm = ({ amount, onSuccess, onError }) => {
+const PaymentForm = ({ amount, shopName, applicantName, onSuccess, onError }) => {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -49,6 +49,15 @@ const PaymentForm = ({ amount, onSuccess, onError }) => {
 
   return (
     <div className="payment-form-container">
+      <div className="payment-summary">
+        <h3>💰 Payment Summary</h3>
+        <div className="summary-details">
+          <p><strong>Shop Name:</strong> {shopName}</p>
+          <p><strong>Applicant:</strong> {applicantName}</p>
+          <p><strong>Rent Amount:</strong> Rs. {amount.toLocaleString()}</p>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="payment-form">
         <PaymentElement 
           options={{
