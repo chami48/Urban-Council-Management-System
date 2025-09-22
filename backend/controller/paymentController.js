@@ -1,6 +1,6 @@
 const Payment = require("../Model/paymentModel");
 const Assessment = require("../Model/assessmentModel");
-const License = require("../Model/License");
+
 
 // ------------------ Property Tax ------------------ //
 const addPayment = async (req, res) => {
@@ -48,53 +48,8 @@ const getTotalPaidForYear = async (req, res) => {
   }
 };
 
-// ------------------ Business License ------------------ //
-const addLicensePayment = async (req, res) => {
-  try {
-    const { licenseId, amountPaid, method } = req.body;
-
-    const license = await License.findById(licenseId);
-    if (!license) return res.status(404).json({ message: "License not found" });
-
-    const payment = new Payment({
-      license: licenseId,
-      year: license.year,
-      amountPaid,
-      method,
-      status: "SUCCESS"
-    });
-
-    await payment.save();
-
-    // Mark license as ACTIVE if not already
-    if (license.status === "PENDING_PAYMENT") {
-      license.status = "ACTIVE";
-      license.issuedAt = new Date();
-      await license.save();
-    }
-
-    res.status(201).json({ message: "✅ License payment recorded", payment });
-  } catch (err) {
-    console.error("❌ Error adding license payment:", err);
-    res.status(500).json({ message: "Server error while recording license payment" });
-  }
-};
-
-const getPaymentsByLicense = async (req, res) => {
-  try {
-    const { licenseId } = req.params;
-    const payments = await Payment.find({ license: licenseId }).sort({ paymentDate: -1 });
-    res.status(200).json({ payments });
-  } catch (err) {
-    console.error("❌ Error fetching license payments:", err);
-    res.status(500).json({ message: "Server error while fetching license payments" });
-  }
-};
-
 module.exports = {
   addPayment,
   getPaymentsByProperty,
   getTotalPaidForYear,
-  addLicensePayment,
-  getPaymentsByLicense
 };

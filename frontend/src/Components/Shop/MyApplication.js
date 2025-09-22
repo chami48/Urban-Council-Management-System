@@ -94,6 +94,7 @@ const MyApplications = () => {
 
                 <div className="application-details">
                   <div className="detail-row"><strong>Shop Name:</strong><span>{application.shopName || "N/A"}</span></div>
+                  <div className="detail-row"><strong>Shop Number:</strong><span>{application.shopNo || "N/A"}</span></div>
                   <div className="detail-row"><strong>Owner Name:</strong><span>{application.applicantName || "N/A"}</span></div>
                   <div className="detail-row"><strong>NIC:</strong><span>{application.nicNumber || "N/A"}</span></div>
                   <div className="detail-row"><strong>Permanent Address:</strong><span>{application.permanentAddress || "N/A"}</span></div>
@@ -123,7 +124,7 @@ const MyApplications = () => {
                       <p>✅ Congratulations! Your application has been approved.</p>
                       <button
                         className="payrent-btn"
-                        onClick={() => navigate('/shop-rental-instructions')}
+                        onClick={() => navigate('/pay')}
                       >
                         💳 Pay Rent
                       </button>

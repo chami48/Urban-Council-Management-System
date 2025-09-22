@@ -12,7 +12,8 @@ import {
   DollarSign,
   ChevronRight,
   X,
-  ArrowRight
+  ArrowRight,
+  Package // Added Package icon for inventory
 } from 'lucide-react';
 
 const AdminHome = () => {
@@ -28,7 +29,8 @@ const AdminHome = () => {
     licenses: { total: 456, approved: 398, pending: 34, rejected: 24 },
     payments: { totalRevenue: 2450000, monthlyPayments: 892, pendingPayments: 23 },
     hr: { employees: 6, onLeave: 1, pendingLeaves: 12 },
-    users: { totalUsers: 15430, activeUsers: 12890, newRegistrations: 234 }
+    users: { totalUsers: 15430, activeUsers: 12890, newRegistrations: 234 },
+    inventory: { totalItems: 2847, lowStock: 23, pending: 45, recentOrders: 156 } // Added inventory stats
   };
 
   const serviceRequests = [
@@ -70,7 +72,7 @@ const AdminHome = () => {
     }
   ];
 
-  // Updated modules with navigation routes
+  // Updated modules with navigation routes - ADDED INVENTORY MODULE
   const modules = [
     {
       id: 'serviceRequests',
@@ -79,7 +81,7 @@ const AdminHome = () => {
       icon: MessageSquare,
       color: 'green',
       description: 'Citizen complaints and municipal announcements',
-      route: ''
+      route: '/complaintsDetails'
     },
     {
       id: 'licenses',
@@ -99,16 +101,15 @@ const AdminHome = () => {
       description: 'Payment processing and financial management',
       route: '/addassessment'
     },
-
     {
-  id: 'assessment',
-  title: 'Assessment & Shop Register',
-  titleSinhala: 'තක්සේරුව සහ වෙළඳසල ලේඛනය',
-  icon: CreditCard, // or you can change to FileText, ClipboardList, or Building2
-  color: 'orange',
-  description: 'Shop assessment and registration management',
-  route: '/officer'
-},
+      id: 'inventory',
+      title: 'Inventory & Supply Management',
+      titleSinhala: 'බඩු තොග සහ සැපයුම් කළමනාකරණය',
+      icon: Package,
+      color: 'teal',
+      description: 'Inventory tracking and supply chain management',
+      route: '/inventory'
+    },
     {
       id: 'hr',
       title: 'HR & Salary Management',
@@ -126,7 +127,17 @@ const AdminHome = () => {
       color: 'red',
       description: 'User roles and system administration',
       route: '/users'
-    }
+    },
+
+    {
+  id: 'assessment',
+  title: 'Assessment & Shop Register',
+  titleSinhala: 'තක්සේරුව සහ වෙළඳසල ලේඛනය',
+  icon: CreditCard, // or you can change to FileText, ClipboardList, or Building2
+  color: 'orange',
+  description: 'Shop assessment and registration management',
+  route: '/officer'
+},
   ];
 
   const slides = [
@@ -285,8 +296,8 @@ const AdminHome = () => {
 
         {/* Dashboard Content */}
         <div className="p-8 space-y-8">
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Key Metrics - UPDATED TO INCLUDE INVENTORY */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
               <div className="flex items-start justify-between mb-4">
@@ -326,6 +337,20 @@ const AdminHome = () => {
               <p className="text-xs text-gray-500">මාසික ආදායම</p>
             </div>
 
+            {/* NEW INVENTORY METRIC CARD */}
+            <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-teal-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Package className="w-6 h-6 text-teal-600" />
+                </div>
+                <span className="text-xs font-semibold text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full">23 Low</span>
+              </div>
+              <h3 className="text-3xl font-bold text-gray-900 mb-2">{moduleStats.inventory.totalItems.toLocaleString()}</h3>
+              <p className="text-gray-600 font-medium">Inventory Items</p>
+              <p className="text-xs text-gray-500">බඩු තොග අයිතම</p>
+            </div>
+
             <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-purple-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
               <div className="flex items-start justify-between mb-4">
@@ -340,7 +365,7 @@ const AdminHome = () => {
             </div>
           </div>
 
-          {/* Module Navigation Cards */}
+          {/* Module Navigation Cards - NOW INCLUDES INVENTORY */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {modules.map((module) => (
               <div

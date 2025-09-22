@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+import Nav from "../Nav/Nav";
+
 function ShopPayment() {
   const [shopNo, setShopNo] = useState("");
   const [shopData, setShopData] = useState(null);
+
+  
 
   const fetchShop = async () => {
     try {
@@ -28,6 +32,8 @@ function ShopPayment() {
   };
 
   return (
+    <div>
+        <Nav/>
     <div className="p-5">
       <h2>Shop Rent / Trade Tax Payment</h2>
       <input
@@ -46,6 +52,7 @@ function ShopPayment() {
           <button onClick={makePayment}>Pay Now</button>
         </div>
       )}
+    </div>
     </div>
   );
 }

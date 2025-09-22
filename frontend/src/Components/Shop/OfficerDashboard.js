@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Navigation from '../Navigation/Navigation'; // Added Navigation import
 import './OfficerDashboard.css';
 
 const OfficerDashboard = () => {
@@ -8,6 +9,7 @@ const OfficerDashboard = () => {
   const [activeTab, setActiveTab] = useState('pending');
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Added sidebar state
 
   useEffect(() => {
     fetchApplications();
@@ -92,11 +94,12 @@ const OfficerDashboard = () => {
         <table className="applications-table">
           <thead>
             <tr>
+              <th>Shop Number</th>
               <th>Shop Name</th>
               <th>Owner Name</th>
               <th>NIC</th>
               <th>Contact</th>
-              <th>Shop Type</th>
+              <th>business Category</th>
               <th>Status</th>
               <th>Submitted Date</th>
               {activeTab === 'pending' && <th>Actions</th>}
@@ -106,16 +109,17 @@ const OfficerDashboard = () => {
           <tbody>
             {applications.map((application) => (
               <tr key={application._id} className="application-row">
+                <td>{application.shopNo}</td>
                 <td className="shop-name">{application.shopName}</td>
-                <td>{application.ownerName}</td>
-                <td>{application.ownerNIC}</td>
+                <td>{application.applicantName}</td>
+                <td>{application.nicNumber}</td>
                 <td>
                   <div className="contact-info">
-                    <div>{application.contactNumber}</div>
+                    <div>{application.phone }</div>
                     <small>{application.email}</small>
                   </div>
                 </td>
-                <td>{application.shopType}</td>
+                <td>{application.businessCategory}</td>
                 <td>
                   <span 
                     className="status-badge"
@@ -183,11 +187,11 @@ const OfficerDashboard = () => {
         <body>
           <h2>Shop License Application Details</h2>
           <div class="detail-item"><span class="label">Shop Name:</span> ${application.shopName}</div>
-          <div class="detail-item"><span class="label">Owner Name:</span> ${application.ownerName}</div>
-          <div class="detail-item"><span class="label">Owner NIC:</span> ${application.ownerNIC}</div>
+          <div class="detail-item"><span class="label">Owner Name:</span> ${application.applicantName}</div>
+          <div class="detail-item"><span class="label">Owner NIC:</span> ${application.nicNumber}</div>
           <div class="detail-item"><span class="label">Address:</span> ${application.address}</div>
-          <div class="detail-item"><span class="label">Shop Type:</span> ${application.shopType}</div>
-          <div class="detail-item"><span class="label">Contact Number:</span> ${application.contactNumber}</div>
+          <div class="detail-item"><span class="label">Business Category:</span> ${application.businessCategory}</div>
+          <div class="detail-item"><span class="label">Contact Number:</span> ${application.phone}</div>
           <div class="detail-item"><span class="label">Email:</span> ${application.email}</div>
           <div class="detail-item"><span class="label">Business Registration:</span> ${application.businessRegistration || 'N/A'}</div>
           <div class="detail-item"><span class="label">Expected Opening Date:</span> ${application.expectedOpeningDate || 'N/A'}</div>
@@ -206,60 +210,81 @@ const OfficerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading">Loading applications...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Navigation Component */}
+        <Navigation 
+          sidebarCollapsed={sidebarCollapsed} 
+          setSidebarCollapsed={setSidebarCollapsed} 
+        />
+        
+        {/* Main Content with proper margin */}
+        <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+          <div className="loading-container">
+            <div className="loading">Loading applications...</div>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    
-    <div className="officer-dashboard">
-      <div className="dashboard-header">
-        <h1>📋 Officer Dashboard</h1>
-        <div className="stats-container">
-          <div className="stat-card">
-            <h3>{pendingApplications.length}</h3>
-            <p>Pending Applications</p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      {/* Navigation Component */}
+      <Navigation 
+        sidebarCollapsed={sidebarCollapsed} 
+        setSidebarCollapsed={setSidebarCollapsed} 
+      />
+      
+      {/* Main Content with proper margin */}
+      <main className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-72'}`}>
+        <div className="officer-dashboard">
+          <div className="dashboard-header">
+            <h1>📋 Officer Dashboard</h1>
+            <div className="stats-container">
+              <div className="stat-card">
+                <h3>{pendingApplications.length}</h3>
+                <p>Pending Applications</p>
+              </div>
+              <div className="stat-card">
+                <h3>{allApplications.filter(app => app.status === 'approved').length}</h3>
+                <p>Approved Applications</p>
+              </div>
+              <div className="stat-card">
+                <h3>{allApplications.filter(app => app.status === 'rejected').length}</h3>
+                <p>Rejected Applications</p>
+              </div>
+            </div>
           </div>
-          <div className="stat-card">
-            <h3>{allApplications.filter(app => app.status === 'approved').length}</h3>
-            <p>Approved Applications</p>
+
+          <div className="tabs-container">
+            <div className="tabs">
+              <button
+                className={`tab ${activeTab === 'pending' ? 'active' : ''}`}
+                onClick={() => setActiveTab('pending')}
+              >
+                Pending Applications ({pendingApplications.length})
+              </button>
+              <button
+                className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveTab('all')}
+              >
+                All Applications ({allApplications.length})
+              </button>
+            </div>
+
+            <button className="refresh-btn" onClick={fetchApplications}>
+              🔄 Refresh Data
+            </button>
           </div>
-          <div className="stat-card">
-            <h3>{allApplications.filter(app => app.status === 'rejected').length}</h3>
-            <p>Rejected Applications</p>
+
+          <div className="tab-content">
+            {activeTab === 'pending' ? 
+              renderApplicationTable(pendingApplications) : 
+              renderApplicationTable(allApplications)
+            }
           </div>
         </div>
-      </div>
-
-      <div className="tabs-container">
-        <div className="tabs">
-          <button
-            className={`tab ${activeTab === 'pending' ? 'active' : ''}`}
-            onClick={() => setActiveTab('pending')}
-          >
-            Pending Applications ({pendingApplications.length})
-          </button>
-          <button
-            className={`tab ${activeTab === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveTab('all')}
-          >
-            All Applications ({allApplications.length})
-          </button>
-        </div>
-
-        <button className="refresh-btn" onClick={fetchApplications}>
-          🔄 Refresh Data
-        </button>
-      </div>
-
-      <div className="tab-content">
-        {activeTab === 'pending' ? 
-          renderApplicationTable(pendingApplications) : 
-          renderApplicationTable(allApplications)
-        }
-      </div>
+      </main>
     </div>
   );
 };

@@ -7,8 +7,4 @@ router.post("/", paymentController.addPayment);
 router.get("/:propertyNo", paymentController.getPaymentsByProperty);
 router.get("/:propertyNo/year/:year", paymentController.getTotalPaidForYear);
 
-// -------- Business License --------
-router.post("/license", paymentController.addLicensePayment);
-router.get("/license/:licenseId", paymentController.getPaymentsByLicense);
-
 module.exports = router;

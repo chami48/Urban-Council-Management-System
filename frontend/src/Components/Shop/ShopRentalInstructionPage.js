@@ -192,7 +192,7 @@ function ShopRentalInstructionPage() {
             {/* Continue Button */}
             <div className="flex justify-center">
               <button
-                onClick={() => navigate('/rent-pay')}
+                onClick={() => navigate('/my-applications')}
                 disabled={!captchaVerified}
                 className={`px-8 py-2 rounded-lg font-medium transition-colors ${
                   captchaVerified
