@@ -3,6 +3,7 @@ const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const Payment = require('../Model/Payment');
+const Assessment = require('../Model/AssessmentModel');
 
 // 🔄 Map Stripe status → Your DB enum
 function mapStripeStatus(stripeStatus) {
@@ -14,17 +15,17 @@ function mapStripeStatus(stripeStatus) {
     case 'canceled':
       return 'failed';
     default:
-      return stripeStatus; // fallback
+      return stripeStatus;
   }
 }
 
+// Create Payment Intent
 router.post('/create-payment-intent', async (req, res) => {
   try {
     const { amount, currency = 'lkr', applicantName, paymentType, shopName, propertyNo, year, quarter } = req.body;
 
-    // Create Stripe intent with dynamic metadata
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Stripe works in cents
+      amount: amount * 100,
       currency,
       metadata: {
         applicant_name: applicantName,
@@ -45,7 +46,6 @@ router.post('/create-payment-intent', async (req, res) => {
   }
 });
 
-
 // Check Payment Status
 router.get('/payment-status/:paymentIntentId', async (req, res) => {
   try {
@@ -63,6 +63,7 @@ router.get('/payment-status/:paymentIntentId', async (req, res) => {
   }
 });
 
+// Save Payment
 router.post('/save-payment', async (req, res) => {
   try {
     const {
@@ -75,10 +76,9 @@ router.post('/save-payment', async (req, res) => {
       propertyNo,
       year,
       quarter,
-      stripeStatus = 'succeeded'
+      stripeStatus = 'succeeded',
+      applicationId
     } = req.body;
-
-    console.log('Received payment data:', req.body);
 
     // Avoid duplicates
     const existingPayment = await Payment.findOne({ paymentIntentId });
@@ -95,6 +95,7 @@ router.post('/save-payment', async (req, res) => {
       nicNumber,
       paymentType,
       status: mapStripeStatus(stripeStatus),
+      applicationId, // ✅ link to application
       paymentDate: currentDate,
       paymentPeriod: { month: currentDate.getMonth() + 1, year: currentDate.getFullYear() },
       ...(paymentType === 'shop_rent' && { shopName }),
@@ -117,6 +118,17 @@ router.post('/save-payment', async (req, res) => {
   }
 });
 
+// Get payment history by applicationId
+router.get('/history/application/:appId', async (req, res) => {
+  try {
+    const { appId } = req.params;
+    const payments = await Payment.find({ applicationId: appId }).sort({ paymentDate: -1 });
+    res.send(payments);
+  } catch (error) {
+    console.error('Payment History Error:', error);
+    res.status(500).send({ error: error.message });
+  }
+});
 
 // Get payment history by NIC
 router.get('/history/:nicNumber', async (req, res) => {
@@ -138,6 +150,34 @@ router.get('/stats', async (req, res) => {
   } catch (error) {
     console.error('Payment Stats Error:', error);
     res.status(500).send({ error: error.message });
+  }
+});
+
+// 🏠 Get quarterly property tax (handles propertyNo with "/")
+router.get('/payments/:part1/:part2/quarterly/:year/:quarter', async (req, res) => {
+  try {
+    const { part1, part2, year, quarter } = req.params;
+    const propertyNo = `${part1}/${part2}`;
+
+    const assessment = await Assessment.findOne({ propertyNo });
+    if (!assessment) {
+      return res.status(404).json({ message: "Assessment not found" });
+    }
+
+    const annualTax = (assessment.appraisedValue * assessment.taxRate) / 100;
+    const quarterlyAmount = annualTax / 4;
+
+    res.json({
+      propertyNo,
+      year,
+      quarter,
+      ownerName: assessment.ownerName,
+      ownerNIC: assessment.ownerNIC,
+      quarterlyAmount,
+    });
+  } catch (err) {
+    console.error("Quarterly payment fetch error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

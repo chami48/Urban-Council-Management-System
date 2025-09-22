@@ -8,6 +8,7 @@ const MyApplications = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [citizenNIC, setCitizenNIC] = useState('');
+  const [paymentHistory, setPaymentHistory] = useState({}); // ✅ new state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,12 +17,29 @@ const MyApplications = () => {
     fetchApplications(nic);
   }, []);
 
+  // ✅ fetch payment history for each approved application
+  const fetchPaymentHistory = async (appId) => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/payment/history/application/${appId}`);
+      setPaymentHistory((prev) => ({ ...prev, [appId]: res.data }));
+    } catch (error) {
+      console.error('Error fetching payment history:', error);
+    }
+  };
+
   const fetchApplications = async (nic) => {
     try {
       const response = await axios.get(`http://localhost:5000/api/shop-applications?nic=${nic}`);
       console.log("Applications response:", response.data);
       setApplications(response.data);
       setLoading(false);
+
+      // ✅ fetch history for approved apps
+      response.data.forEach((app) => {
+        if (app.status === 'approved') {
+          fetchPaymentHistory(app._id);
+        }
+      });
     } catch (error) {
       console.error('Error fetching applications:', error);
       setLoading(false);
@@ -47,21 +65,18 @@ const MyApplications = () => {
   };
 
   // Payment button click handler
-  
-const handlePaymentClick = (application) => {
-  try {
-    if (!application._id) {
-      alert("Invalid shop application ID");
-      return;
+  const handlePaymentClick = (application) => {
+    try {
+      if (!application._id) {
+        alert("Invalid shop application ID");
+        return;
+      }
+      navigate(`/shop-rent/${application._id}`);
+    } catch (error) {
+      console.error('Payment navigation error:', error);
+      alert('Error navigating to payment page. Please try again.');
     }
-    navigate(`/shop-rent/${application._id}`);
-  } catch (error) {
-    console.error('Payment navigation error:', error);
-    alert('Error navigating to payment page. Please try again.');
-  }
-};
-
-
+  };
 
   if (loading) {
     return <div className="loading-container"><div className="loading">Loading applications...</div></div>;
@@ -139,12 +154,28 @@ const handlePaymentClick = (application) => {
                   {application.status === 'approved' && (
                     <div className="approved-message">
                       <p>✅ Congratulations! Your application has been approved.</p>
-                      <button
-                        className="payrent-btn"
-                        onClick={() => handlePaymentClick(application)}
-                      >
-                        💳 Pay Rent
-                      </button>
+
+                      {/* ✅ hide Pay button if history exists */}
+                      {(!paymentHistory[application._id] || paymentHistory[application._id].length === 0) ? (
+                        <button
+                          className="payrent-btn"
+                          onClick={() => handlePaymentClick(application)}
+                        >
+                          💳 Pay Rent
+                        </button>
+                      ) : (
+                        <div className="payment-history">
+                          <p className="text-green-600 font-semibold">💰 Rent already paid</p>
+                          <h4>Payment History:</h4>
+                          <ul>
+                            {paymentHistory[application._id].map((p) => (
+                              <li key={p._id}>
+                                Rs. {p.amount} – {new Date(p.paymentDate).toLocaleDateString('en-GB')}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   )}
 

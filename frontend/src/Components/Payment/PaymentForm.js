@@ -1,89 +1,106 @@
-import React, { useState } from 'react';
-import {
-  PaymentElement,
-  useStripe,
-  useElements
-} from '@stripe/react-stripe-js';
-import './PaymentForm.css';
+// src/Components/Payment/PaymentForm.js
+import React, { useState } from "react";
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-const PaymentForm = ({ amount, shopName, applicantName, onSuccess, onError }) => {
+const PaymentForm = ({ payment, onSuccess, onError }) => {
   const stripe = useStripe();
   const elements = useElements();
-
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!stripe || !elements) return;
 
     setIsLoading(true);
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {},
+        redirect: "if_required",
+      });
 
-    const { error } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        return_url: `${window.location.origin}/payment-success`,
-      },
-      redirect: 'if_required'
-    });
-
-    if (error) {
-      if (error.type === 'card_error' || error.type === 'validation_error') {
-        setMessage(error.message);
+      if (error) {
+        setMessage(error.message || "An unexpected error occurred.");
         onError && onError(error.message);
-      } else {
-        setMessage('An unexpected error occurred.');
-        onError && onError('An unexpected error occurred.');
+      } else if (paymentIntent && paymentIntent.status === "succeeded") {
+        setMessage("Payment succeeded!");
+        onSuccess && onSuccess(paymentIntent.id);
       }
-    } else {
-      // Payment succeeded
-      setMessage('Payment succeeded!');
-      onSuccess && onSuccess();
+    } catch (err) {
+      console.error(err);
+      setMessage("An unexpected error occurred.");
+      onError && onError("An unexpected error occurred.");
     }
-
     setIsLoading(false);
   };
 
-  return (
-    <div className="payment-form-container">
-      <div className="payment-summary">
-        <h3>💰 Payment Summary</h3>
-        <div className="summary-details">
-          <p><strong>Shop Name:</strong> {shopName}</p>
-          <p><strong>Applicant:</strong> {applicantName}</p>
-          <p><strong>Rent Amount:</strong> Rs. {amount.toLocaleString()}</p>
-        </div>
-      </div>
+  const {
+    amount = 0,
+    applicantName = "",
+    paymentType = "",
+    shopName = "",
+    shopNo = "",
+    propertyNo = "",
+    year = "",
+    quarter = ""
+  } = payment || {};
 
-      <form onSubmit={handleSubmit} className="payment-form">
-        <PaymentElement 
-          options={{
-            layout: 'tabs'
-          }}
-        />
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
         
-        <button 
-          disabled={isLoading || !stripe || !elements} 
-          className="pay-button"
-        >
-          <span>
-            {isLoading ? (
-              <div className="spinner"></div>
-            ) : (
-              `💳 Pay Rs. ${amount.toLocaleString()}`
-            )}
-          </span>
-        </button>
-        
-        {message && (
-          <div className={`payment-message ${message.includes('succeeded') ? 'success' : 'error'}`}>
-            {message}
+        {/* =====================
+            Dynamic Header Info
+        ====================== */}
+        {paymentType === "property_tax" && (
+          <div className="mb-6 bg-blue-600 text-white rounded-xl p-5 shadow-md">
+            <h3 className="text-lg font-semibold mb-2">🏠 Property Tax Payment</h3>
+            <p><strong>Applicant:</strong> {applicantName}</p>
+            <p><strong>Property No:</strong> {propertyNo}</p>
+            <p><strong>Year:</strong> {year} | <strong>Quarter:</strong> {quarter}</p>
           </div>
         )}
-      </form>
+
+        {paymentType === "shop_rent" && (
+          <div className="mb-6 bg-blue-600 text-white rounded-xl p-5 shadow-md">
+            <h3 className="text-lg font-semibold mb-2">🏬 Shop Rent Payment</h3>
+            <p><strong>Applicant:</strong> {applicantName}</p>
+            <p><strong>Shop Name:</strong> {shopName}</p>
+            <p><strong>Shop Number:</strong> {shopNo}</p>
+          </div>
+        )}
+
+        {/* =====================
+            Stripe Payment Form
+        ====================== */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-gray-50 rounded-xl p-4 shadow-inner border border-gray-200">
+            <PaymentElement options={{ layout: "tabs" }} />
+          </div>
+
+          <button
+            disabled={isLoading || !stripe || !elements}
+            className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 text-white py-3 rounded-xl font-semibold shadow-lg transform transition hover:scale-[1.02] flex items-center justify-center"
+          >
+            {isLoading ? (
+              <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+            ) : (
+              `💳 Pay Rs. ${amount?.toLocaleString()}`
+            )}
+          </button>
+
+          {message && (
+            <div
+              className={`mt-3 text-center font-medium ${
+                message.includes("succeeded") ? "text-green-600" : "text-red-500"
+              }`}
+            >
+              {message}
+            </div>
+          )}
+        </form>
+      </div>
     </div>
   );
 };

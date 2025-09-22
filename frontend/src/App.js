@@ -75,7 +75,7 @@ function App() {
           <Route path="/contact" element={<ContactUs />} /> 
           <Route path="/propertytax" element={<PropertyTax />} />   
           <Route path="/propertyTaxCalculation/:part1/:part2" element={<PropertyTaxCalculator />} />
-          <Route path="/payment-details" element={<PaymentDetailsPage />} />
+          <Route path="/payment-details/:propertyNo/:year/:quarter" element={<PaymentDetailsPage />} />
 
           {/* Shop Registration */}
           <Route path="/citizen-apply" element={<CitizenApply />} />

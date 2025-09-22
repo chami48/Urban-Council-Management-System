@@ -1,3 +1,4 @@
+// src/Components/Payment/PaymentPage.js
 import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -5,14 +6,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import PaymentForm from './PaymentForm';
 import Nav from '../Nav/Nav';
-import './PaymentPage.css';
 
-// Stripe initialize
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const PaymentPage = () => {
   const [clientSecret, setClientSecret] = useState('');
-  const [paymentIntentId, setPaymentIntentId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [paymentData, setPaymentData] = useState(null);
@@ -20,105 +18,104 @@ const PaymentPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Default data (real app should fetch this from backend or application state)
-  const defaultPaymentData = {
-    amount: 5000,
-    shopName: 'Sample Shop',
-    applicantName: 'John Doe',
-    nicNumber: '123456789V'
-  };
-
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
-    const shopName = urlParams.get('shopName') || defaultPaymentData.shopName;
-    const applicantName = urlParams.get('applicantName') || defaultPaymentData.applicantName;
-    const amount = parseInt(urlParams.get('amount')) || defaultPaymentData.amount;
-    const nicNumber = urlParams.get('nicNumber') || defaultPaymentData.nicNumber;
+    const paymentType = urlParams.get('paymentType');
+    const shopId = urlParams.get('shopId');
+    const propertyNo = urlParams.get('propertyNo');
+    const year = urlParams.get('year');
+    const quarter = urlParams.get('quarter');
 
-    const data = { amount, shopName, applicantName, nicNumber };
-    setPaymentData(data);
-    createPaymentIntent(data);
+    const fetchData = async () => {
+      try {
+        let data;
+
+        // 🏬 Shop Rent Payment
+        if (paymentType === 'shop_rent' && shopId) {
+          const res = await axios.get(`http://localhost:5000/api/shop-payment/${shopId}`);
+          data = {
+            ...res.data,
+            paymentType,
+            amount: res.data.requestedRent,
+            applicationId: shopId
+          };
+        }
+
+        // 🏠 Property Tax Payment
+        if (paymentType === 'property_tax' && propertyNo && year && quarter) {
+          const res = await axios.get(
+            `http://localhost:5000/api/payment/payments/${propertyNo}/quarterly/${year}/${quarter}`
+          );
+          data = {
+            paymentType,
+            amount: res.data.quarterlyAmount,
+            applicantName: res.data.ownerName,
+            nicNumber: res.data.ownerNIC,
+            propertyNo,
+            year,
+            quarter
+          };
+        }
+
+        if (!data) throw new Error('Invalid payment request');
+
+        setPaymentData(data);
+
+        const response = await axios.post('http://localhost:5000/api/payment/create-payment-intent', {
+          amount: data.amount,
+          currency: 'lkr',
+          shopName: data.shopName,
+          applicantName: data.applicantName
+        });
+
+        setClientSecret(response.data.clientSecret);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching details:', err);
+        setError('Failed to fetch payment details');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [location]);
 
-  const createPaymentIntent = async (data) => {
+  // ✅ Handle Payment Success
+  const handlePaymentSuccess = async (intentId) => {
     try {
-      setLoading(true);
-
-      const response = await axios.post('http://localhost:5000/api/payment/create-payment-intent', {
-        amount: data.amount,
-        currency: 'lkr',
-        shopName: data.shopName,
-        applicantName: data.applicantName
-      });
-
-      setClientSecret(response.data.clientSecret);
-      setPaymentIntentId(response.data.paymentIntentId);
-      setLoading(false);
-    } catch (error) {
-      console.error('Payment Intent Error:', error);
-      setError('Failed to initialize payment. Please try again.');
-      setLoading(false);
-    }
-  };
-
-  const handlePaymentSuccess = async () => {
-    try {
-      console.log('Saving payment with data:', {
-        paymentIntentId,
+      await axios.post('http://localhost:5000/api/payment/save-payment', {
+        paymentIntentId: intentId,
         ...paymentData
       });
 
-      // ✅ Let backend set status & paymentPeriod
-      const saveResponse = await axios.post('http://localhost:5000/api/payment/save-payment', {
-        paymentIntentId,
-        amount: paymentData.amount,
-        shopName: paymentData.shopName,
-        applicantName: paymentData.applicantName,
-        nicNumber: paymentData.nicNumber
-      });
+      alert('🎉 Payment successful!');
 
-      console.log('Payment save response:', saveResponse.data);
-
-      alert('🎉 Payment successful! Your rent has been paid.');
-      navigate('/my-applications');
+      if (paymentData.paymentType === 'shop_rent') {
+        navigate('/my-applications'); // 🏬 Shop Rent → My Applications
+      } else if (paymentData.paymentType === 'property_tax') {
+        navigate(`/payment-success?paymentType=property_tax`); // 🏠 Property Tax → Success Page
+      } else {
+        navigate('/'); // fallback
+      }
     } catch (error) {
       console.error('Save payment error:', error);
-      console.error('Error details:', error.response?.data);
+      alert('Payment completed but failed to save record.');
 
-      const errorMessage = error.response?.data?.error || error.message || 'Unknown error occurred';
-      alert(`Payment completed but failed to save record: ${errorMessage}. Please contact support.`);
-
-      navigate('/my-applications');
+      if (paymentData.paymentType === 'shop_rent') {
+        navigate('/my-applications');
+      } else if (paymentData.paymentType === 'property_tax') {
+        navigate(`/payment-success?paymentType=property_tax`);
+      } else {
+        navigate('/');
+      }
     }
   };
-
-  const handlePaymentError = (errorMessage) => {
-    setError(errorMessage);
-  };
-
-  const appearance = {
-    theme: 'stripe',
-    variables: {
-      colorPrimary: '#007bff',
-      colorBackground: '#ffffff',
-      colorText: '#30313d',
-      colorDanger: '#df1b41',
-      fontFamily: 'Ideal Sans, system-ui, sans-serif',
-      spacingUnit: '2px',
-      borderRadius: '4px'
-    }
-  };
-
-  const options = { clientSecret, appearance };
 
   if (loading) {
     return (
       <div>
         <Nav />
-        <div className="payment-loading">
-          <div className="loading-spinner"></div>
-          <p>Payment setup කරමින්...</p>
-        </div>
+        <p style={{ textAlign: 'center', padding: '3rem' }}>Payment setup කරමින්...</p>
       </div>
     );
   }
@@ -127,15 +124,7 @@ const PaymentPage = () => {
     return (
       <div>
         <Nav />
-        <div className="payment-error">
-          <div className="error-container">
-            <h2>⚠️ Payment Error</h2>
-            <p>{error}</p>
-            <button onClick={() => navigate('/my-applications')} className="back-btn">
-              Back to Applications
-            </button>
-          </div>
-        </div>
+        <p style={{ textAlign: 'center', padding: '3rem', color: 'red' }}>{error}</p>
       </div>
     );
   }
@@ -143,33 +132,15 @@ const PaymentPage = () => {
   return (
     <div>
       <Nav />
-      <div className="payment-page">
-        <div className="payment-header">
-          <h1>💳 Shop Rent Payment</h1>
-          <p>ඔබේ shop එකේ rent payment කරන්න</p>
-        </div>
-
-        {clientSecret && paymentData && (
-          <Elements options={options} stripe={stripePromise}>
-            <PaymentForm
-              amount={paymentData.amount}
-              shopName={paymentData.shopName}
-              applicantName={paymentData.applicantName}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
-            />
-          </Elements>
-        )}
-
-        <div className="payment-footer">
-          <button 
-            onClick={() => navigate('/my-applications')} 
-            className="cancel-btn"
-          >
-            ← Cancel Payment
-          </button>
-        </div>
-      </div>
+      {clientSecret && paymentData && (
+        <Elements options={{ clientSecret }} stripe={stripePromise}>
+          <PaymentForm
+            payment={paymentData}
+            onSuccess={handlePaymentSuccess}
+            onError={setError}
+          />
+        </Elements>
+      )}
     </div>
   );
 };

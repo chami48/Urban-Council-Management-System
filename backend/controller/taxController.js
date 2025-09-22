@@ -118,6 +118,10 @@ const calculateTax = async (req, res) => {
       lastPaidDate,
       nextDueDate,
       quarters,
+
+      ownerName: assessment.ownerName,
+      ownerNIC: assessment.ownerNIC,
+      contactNo: assessment.contactNo
     });
   } catch (err) {
     console.error("❌ Error calculating tax:", err);

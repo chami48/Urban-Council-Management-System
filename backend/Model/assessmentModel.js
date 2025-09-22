@@ -16,4 +16,4 @@ const assessmentSchema = new mongoose.Schema({
     status: { type: String, enum: ["Active", "Inactive"], default: "Active" } // තත්ත්වය
 });
 
-module.exports = mongoose.model("Assessment", assessmentSchema);
+module.exports = mongoose.models.Assessment || mongoose.model("Assessment", assessmentSchema);

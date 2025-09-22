@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../middleware/upload"); // ✅ new
+const upload = require("../middleware/upload"); 
 const {
   applyForShop,
   getAllApplications,
@@ -10,7 +10,7 @@ const {
 } = require("../controller/shopApplicationController");
 
 // Citizen applies with file upload
-router.post("/apply", upload.array("documents", 5), applyForShop); // ✅ max 5 files
+router.post("/apply", upload.array("documents", 5), applyForShop); // max 5 files
 
 // Officer views applications
 router.get("/", getAllApplications);
