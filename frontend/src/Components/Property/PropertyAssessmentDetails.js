@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./PropertyAssessmentDetails.css";
+import Nav from '../Nav/Nav';
 
 function PropertyAssessmentDetails() {
   const { part1, part2 } = useParams();
@@ -112,6 +113,8 @@ function PropertyAssessmentDetails() {
   }
 
   return (
+    <div>
+      <Nav/>
     <div className="details-container">
       <div className="header-section">
         <h2>Property and Assessment Details</h2>
@@ -177,6 +180,7 @@ function PropertyAssessmentDetails() {
           </div>
         </>
       )}
+    </div>
     </div>
   );
 }
