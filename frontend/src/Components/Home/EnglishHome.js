@@ -133,12 +133,12 @@ const AllAnnouncementsView = ({ announcements, isOpen, onClose, onViewFull }) =>
               <ArrowLeft size={20} />
             </button>
             <div>
-              
-              <p className="text-gray-600">සියලුම නිවේදන</p>
+              <h1 className="text-3xl font-bold text-gray-900">All Announcements</h1>
+              <p className="text-gray-600">All official notices</p>
             </div>
           </div>
           <div className="text-sm text-gray-500">
-            {filteredAnnouncements.length} announcement{filteredAnnouncements.length !== 1 ? 's' : ''} found
+            {filteredAnnouncements.length} announcement{filteredAnnouncements.length !== 1 ? "s" : ""} found
           </div>
         </div>
 
@@ -296,34 +296,28 @@ function Home() {
   // Hero slides data
   const slides = [
     {
-      image:"/horanaUrban/home.png",
+      image: "/horanaUrban/home.png",
       title: "Welcome to Horana Urban Council",
       subtitle:
         "Building a prosperous future through transparent governance and community partnership",
-      titleSinhala: "හොරණ නගර සභාවට ඔබව සාදරයෙන් පිළිගනිමු",
+      titleSinhala: "Welcome to Horana Urban Council",
       subtitleSinhala:
-        "විනිවිද පාලනය සහ ප්‍රජා සහයෝගීතාවය තුළින් සමෘද්ධිමත් අනාගතයක් ගොඩනැගීම",
+        "Building a prosperous future through transparent governance and community partnership",
     },
     {
-      image:
-        "/horanaUrban/Servise.png",
-      
-  "title": "Community Progress Through Service",
-  "subtitle": "Education, industry, healthcare, and a cleaner environment for all",
-  "titleSinhala": "සමාජ ප්‍රගතිය සේවය මගින්",
-  "subtitleSinhala": "සියලු දෙනා සඳහා අධ්‍යාපනය, කාර්මිකය, සෞඛ්‍යය සහ පිරිසිදු පරිසරය"
-
-
+      image: "/horanaUrban/Servise.png",
+      title: "Community Progress Through Service",
+      subtitle: "Education, industry, healthcare, and a cleaner environment for all",
+      titleSinhala: "Community Progress Through Service",
+      subtitleSinhala: "Education, industry, healthcare, and a cleaner environment for all"
     },
     {
       image:
         "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1200&h=600&fit=crop",
       title: "Digital Government Services",
-      subtitle:
-        "Seamless online access to all municipal services and applications",
-      titleSinhala: "ඩිජිටල් රජයේ සේවා",
-      subtitleSinhala:
-        "සියලුම නාගරික සේවා සහ අයදුම්පත් සඳහා බාධාවකින් තොර අන්තර්ජාල ප්‍රවේශය",
+      subtitle: "Seamless online access to all municipal services and applications",
+      titleSinhala: "Digital Government Services",
+      subtitleSinhala: "Seamless online access to all municipal services and applications",
     },
   ];
 
@@ -339,7 +333,7 @@ function Home() {
     {
       icon: FileText,
       title: "Building Permits",
-      titleSinhala: "ගොඩනැගිලි බලපත්‍ර",
+      titleSinhala: "Building Permits",
       description:
         "Submit building permit applications and track approval status online",
       link: "/displaybooking",
@@ -347,17 +341,17 @@ function Home() {
     },
     {
       icon: Users,
-      title: "service bot ",
-      titleSinhala: "සේවා බොට්",
+      title: "Service Bot",
+      titleSinhala: "Service Bot",
       description:
         "Let’s make government service bookings simple",
-        link: "/chatbot",
+      link: "/chatbot",
       category: "Civil Registration",
     },
     {
       icon: Award,
       title: "Business Licenses",
-      titleSinhala: "ව්‍යාපාර බලපත්‍ර",
+      titleSinhala: "Business Licenses",
       description:
         "Register new businesses and renew existing commercial licenses",
       link: "/shop-rental-instructions",
@@ -366,7 +360,7 @@ function Home() {
     {
       icon: MapPin,
       title: "Property Tax",
-      titleSinhala: "දේපල බද්ද",
+      titleSinhala: "Property Tax",
       description:
         "Calculate, pay and manage property tax assessments online",
       link: "/propertytax",
@@ -375,7 +369,7 @@ function Home() {
     {
       icon: Calendar,
       title: "Event Booking",
-      titleSinhala: "උත්සව වෙන්කරවීම",
+      titleSinhala: "Event Booking",
       description:
         "Reserve community halls, parks and public venues for events",
       category: "Community Services",
@@ -383,7 +377,7 @@ function Home() {
     {
       icon: Bell,
       title: "Waste Management",
-      titleSinhala: "අපද්‍රව්‍ය කළමනාකරණය",
+      titleSinhala: "Waste Management",
       description:
         "Schedule waste collection, report issues and access recycling programs",
       category: "Environmental Services",
@@ -391,10 +385,10 @@ function Home() {
   ];
 
   const quickStats = [
-    { number: "50,000+", label: "Citizens Served", labelSinhala: "සේවය ලබන පුරවැසියන්" },
-    { number: "1,200+", label: "Monthly Applications", labelSinhala: "මාසික අයදුම්පත්" },
-    { number: "95%", label: "Service Satisfaction", labelSinhala: "සේවා තෘප්තිය" },
-    { number: "24/7", label: "Online Access", labelSinhala: "අන්තර්ජාල ප්‍රවේශය" },
+    { number: "50,000+", label: "Citizens Served", labelSinhala: "Citizens Served" },
+    { number: "1,200+", label: "Monthly Applications", labelSinhala: "Monthly Applications" },
+    { number: "95%", label: "Service Satisfaction", labelSinhala: "Service Satisfaction" },
+    { number: "24/7", label: "Online Access", labelSinhala: "Online Access" },
   ];
 
   // Handle announcement actions
@@ -430,14 +424,14 @@ function Home() {
             }`}
           >
             <div
-  className="w-full h-full relative"
-  style={{ 
-    backgroundImage: `url(${slide.image})`,
-    backgroundSize: index === 1 ? '90%' : 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat'
-  }}
->
+              className="w-full h-full relative"
+              style={{
+                backgroundImage: `url(${slide.image})`,
+                backgroundSize: index === 1 ? "90%" : "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat"
+              }}
+            >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 via-blue-800/70 to-transparent"></div>
               <div className="relative container mx-auto px-4 h-full flex items-center">
                 <div className="text-white max-w-3xl">
@@ -511,7 +505,7 @@ function Home() {
               Government Services
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">Urban Services Portal</h2>
-            <h3 className="text-2xl font-semibold text-gray-600 mb-4">නගර සභා සේවා ද්වාරය</h3>
+            <h3 className="text-2xl font-semibold text-gray-600 mb-4">Municipal Services Gateway</h3>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               Access comprehensive government services through our secure digital platform. All
               services are available 24/7 with real-time status tracking and secure document
@@ -572,9 +566,9 @@ function Home() {
                     <Megaphone className="w-8 h-8 text-blue-600" />
                     Official Announcements
                   </h2>
-                  <h3 className="text-xl text-gray-600">නිල නිවේදන සහ ප්‍රවෘත්ති</h3>
+                  <h3 className="text-xl text-gray-600">Official news and notices</h3>
                 </div>
-                <button 
+                <button
                   onClick={handleViewAllAnnouncements}
                   className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg"
                 >
@@ -658,7 +652,7 @@ function Home() {
                           <h4 className="text-2xl font-bold text-gray-900 mb-3 leading-tight break-words">
                             {announcement.title}
                           </h4>
-                          
+
                           {announcement.description && (
                             <p className="text-gray-600 leading-relaxed mb-6 break-words">
                               {announcement.description.length > 200
@@ -668,7 +662,7 @@ function Home() {
                           )}
 
                           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <button 
+                            <button
                               onClick={() => handleViewFullAnnouncement(announcement)}
                               className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg"
                             >
@@ -687,7 +681,7 @@ function Home() {
                   {/* Show "View All" button if there are more than 3 announcements */}
                   {announcements.length > 3 && (
                     <div className="text-center pt-6">
-                      <button 
+                      <button
                         onClick={handleViewAllAnnouncements}
                         className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                       >
@@ -710,7 +704,7 @@ function Home() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">Administration Portal</h3>
-                    <p className="text-blue-100 text-sm">පරිපාලන ද්වාරය</p>
+                    <p className="text-blue-100 text-sm">Administration Gateway</p>
                   </div>
                 </div>
                 <p className="text-blue-50 mb-6 leading-relaxed">
@@ -833,7 +827,7 @@ function Home() {
                 </div>
                 <div>
                   <h4 className="text-2xl font-bold">Horana Urban Council</h4>
-                  <p className="text-gray-300">හොරණ නගර සභාව</p>
+                  <p className="text-gray-300">Horana Urban Council</p>
                   <p className="text-sm text-gray-400 mt-1">Established 1987</p>
                 </div>
               </div>
@@ -870,7 +864,7 @@ function Home() {
                   "Building Permits",
                   "Business Licenses",
                   "Property Tax",
-                  "booking keeper",
+                  "Booking Keeper",
                   "Waste Management",
                   "Event Booking",
                 ].map((service) => (
@@ -915,23 +909,14 @@ function Home() {
                   <Link to="/profile" className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
                     Staff Portal →
                   </Link>
-                  
                   <br />
                   <Link to="/log" className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
                     Login
                   </Link>
-
                   <br />
-                  
-
                   <Link to="/regi" className="text-blue-400 hover:text-blue-300 transition-colors text-sm font-medium">
                     Register
                   </Link>
-
-
-
-
-
                 </li>
               </ul>
             </div>
@@ -954,7 +939,7 @@ function Home() {
       </footer>
 
       {/* Modals */}
-      <AnnouncementModal 
+      <AnnouncementModal
         announcement={selectedAnnouncement}
         isOpen={showAnnouncementModal}
         onClose={handleCloseModal}

@@ -110,7 +110,7 @@ const HoranaCouncilLanding = () => {
               
               {/* Button */}
               <div className="text-center mt-8">
-                 <a href="/mainhome">
+                 <a href="/englishHome">
                 <button className="bg-blue-800 hover:bg-blue-900 text-white px-16 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 border-2 border-blue-600">
                   ENGLISH
                 </button>
@@ -174,9 +174,11 @@ const HoranaCouncilLanding = () => {
               </div>
               
               <div className="text-center mt-8">
+                 <a href="/tamilhome">
                 <button className="bg-blue-800 hover:bg-blue-900 text-white px-16 py-4 rounded-full font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:scale-105 border-2 border-blue-600">
                   தமிழ்
                 </button>
+                </a>
               </div>
             </div>
 

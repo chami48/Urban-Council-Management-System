@@ -91,17 +91,19 @@ const InfoCard = ({ icon, label, children, className = "" }) => (
   </div>
 );
 
-// Message Modal Component
-const MessageModal = ({ isOpen, onClose, phoneNumber, onSend }) => {
+// Email Modal Component
+const EmailModal = ({ isOpen, onClose, email, onSend }) => {
+  const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
   const handleSend = async () => {
-    if (!message.trim()) return;
+    if (!subject.trim() || !message.trim()) return;
 
     setSending(true);
     try {
-      await onSend(phoneNumber, message);
+      await onSend(email, subject, message);
+      setSubject("");
       setMessage("");
       onClose();
     } catch (error) {
@@ -119,12 +121,12 @@ const MessageModal = ({ isOpen, onClose, phoneNumber, onSend }) => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-md"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg"
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <MessageSquare size={20} className="text-blue-600" />
-            Send SMS Message
+            <Mail size={20} className="text-blue-600" />
+            Send Email
           </h3>
           <button
             onClick={onClose}
@@ -137,14 +139,33 @@ const MessageModal = ({ isOpen, onClose, phoneNumber, onSend }) => {
         <div className="p-6">
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Send to: {phoneNumber}
+              Send to: {email}
+            </label>
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Subject <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder="Enter email subject"
+              className="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Message <span className="text-red-500">*</span>
             </label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Type your message here..."
               className="w-full p-3 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none"
-              rows={4}
+              rows={5}
             />
           </div>
 
@@ -157,7 +178,7 @@ const MessageModal = ({ isOpen, onClose, phoneNumber, onSend }) => {
             </button>
             <button
               onClick={handleSend}
-              disabled={!message.trim() || sending}
+              disabled={!subject.trim() || !message.trim() || sending}
               className="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2"
             >
               {sending ? (
@@ -165,7 +186,7 @@ const MessageModal = ({ isOpen, onClose, phoneNumber, onSend }) => {
               ) : (
                 <Send size={16} />
               )}
-              {sending ? "Sending..." : "Send Message"}
+              {sending ? "Sending..." : "Send Email"}
             </button>
           </div>
         </div>
@@ -175,8 +196,18 @@ const MessageModal = ({ isOpen, onClose, phoneNumber, onSend }) => {
 };
 
 // Complaint Card Component
-const ComplaintCard = ({ complaint, onDelete, onSendMessage, isExpanded, onToggleExpand }) => {
+const ComplaintCard = ({ complaint, onReject, onDelete, onSendEmail, isExpanded, onToggleExpand }) => {
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleReject = async () => {
+    try {
+      await onReject(complaint._id);
+      setShowRejectConfirm(false);
+    } catch (error) {
+      console.error("Reject error:", error);
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -296,34 +327,64 @@ const ComplaintCard = ({ complaint, onDelete, onSendMessage, isExpanded, onToggl
             {isExpanded ? "Hide Details" : "View Details"}
           </button>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2 flex-wrap">
+            {/* Send Email Button */}
             <button
-              onClick={() => onSendMessage(complaint.Phone_Number)}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+              onClick={() => onSendEmail(complaint.Email)}
+              disabled={!complaint.Email}
+              className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors"
             >
-              <MessageSquare size={16} />
-              Send Message
+              <Mail size={16} />
+              Send Email
             </button>
 
+            {/* Reject Button */}
+            {!showRejectConfirm ? (
+              <button
+                onClick={() => setShowRejectConfirm(true)}
+                disabled={complaint.status === 'rejected'}
+                className="inline-flex items-center gap-2 px-3 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors"
+              >
+                <XCircle size={16} />
+                {complaint.status === 'rejected' ? 'Rejected' : 'Reject'}
+              </button>
+            ) : (
+              <div className="flex gap-1">
+                <button
+                  onClick={handleReject}
+                  className="px-2 py-2 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-lg transition-colors"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setShowRejectConfirm(false)}
+                  className="px-2 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 text-xs font-medium rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            {/* Delete Button */}
             {!showDeleteConfirm ? (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                className="inline-flex items-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
               >
                 <Trash2 size={16} />
                 Delete
               </button>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex gap-1">
                 <button
                   onClick={handleDelete}
-                  className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                  className="px-2 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-colors"
                 >
                   Confirm
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="px-3 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 text-sm font-medium rounded-lg transition-colors"
+                  className="px-2 py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 text-xs font-medium rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -337,7 +398,7 @@ const ComplaintCard = ({ complaint, onDelete, onSendMessage, isExpanded, onToggl
 };
 
 // Complaints Tab Component
-const ComplaintsTab = ({ complaints, loading, error, onDelete, onSendMessage, onGenerateReport }) => {
+const ComplaintsTab = ({ complaints, loading, error, onReject, onDelete, onSendEmail, onGenerateReport }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [expandedComplaints, setExpandedComplaints] = useState({});
@@ -468,8 +529,9 @@ const ComplaintsTab = ({ complaints, loading, error, onDelete, onSendMessage, on
               <ComplaintCard
                 key={complaint._id}
                 complaint={complaint}
+                onReject={onReject}
                 onDelete={onDelete}
-                onSendMessage={onSendMessage}
+                onSendEmail={onSendEmail}
                 isExpanded={!!expandedComplaints[complaint._id]}
                 onToggleExpand={toggleExpanded}
               />
@@ -621,18 +683,6 @@ const AnnouncementsTab = ({ announcements, loading, error, onSubmit, onEdit, onD
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Enter announcement title"
-              className="w-full p-4 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Enter detailed announcement description"
               className="w-full p-4 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none"
               rows={4}
             />
@@ -814,7 +864,7 @@ function ComplaintsAndAnnouncements() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [messageModal, setMessageModal] = useState({ isOpen: false, phoneNumber: "" });
+  const [emailModal, setEmailModal] = useState({ isOpen: false, email: "" });
 
   useEffect(() => {
     const loadData = async () => {
@@ -848,24 +898,42 @@ function ComplaintsAndAnnouncements() {
     }
   };
 
-  const handleSendMessage = async (phoneNumber, message) => {
+  const handleRejectComplaint = async (id) => {
     try {
-      await axios.post("http://localhost:5000/send-sms", {
-        phone: phoneNumber,
-        text: message
-      });
+      // Status එක "rejected" කරනවා
+      await axios.put(`${URL}/${id}`, { status: 'rejected' });
+      setComplaints(prev => 
+        prev.map(complaint => 
+          complaint._id === id 
+            ? { ...complaint, status: 'rejected' }
+            : complaint
+        )
+      );
     } catch (err) {
-      console.error("Error sending message:", err);
+      console.error("Error updating complaint status:", err);
       throw err;
     }
   };
 
-  const openMessageModal = (phoneNumber) => {
-    setMessageModal({ isOpen: true, phoneNumber });
+  const handleSendEmail = async (email, subject, message) => {
+    try {
+      await axios.post("http://localhost:5000/complaints/send-email", {
+        to: email,
+        subject: subject,
+        text: message
+      });
+    } catch (err) {
+      console.error("Error sending email:", err);
+      throw err;
+    }
   };
 
-  const closeMessageModal = () => {
-    setMessageModal({ isOpen: false, phoneNumber: "" });
+  const openEmailModal = (email) => {
+    setEmailModal({ isOpen: true, email });
+  };
+
+  const closeEmailModal = () => {
+    setEmailModal({ isOpen: false, email: "" });
   };
 
   const generateComplaintsReport = () => {
@@ -924,14 +992,14 @@ function ComplaintsAndAnnouncements() {
     const complaintsData = complaints.map(complaint => [
       complaint.Name || 'N/A',
       complaint.NatureofComplaint || 'N/A',
-      complaint.Phone_Number || 'N/A',
+      complaint.Email || 'N/A',
       complaint.Location || 'N/A',
       complaint.status || 'Pending',
       new Date(complaint.createdAt || Date.now()).toLocaleDateString()
     ]);
 
     autoTable(doc, {
-      head: [['Name', 'Nature of Complaint', 'Phone', 'Location', 'Status', 'Date']],
+      head: [['Name', 'Nature of Complaint', 'Email', 'Location', 'Status', 'Date']],
       body: complaintsData,
       startY: yPosition,
       styles: {
@@ -944,10 +1012,10 @@ function ComplaintsAndAnnouncements() {
       columnStyles: {
         0: { cellWidth: 25 },
         1: { cellWidth: 35 },
-        2: { cellWidth: 25 },
+        2: { cellWidth: 30 },
         3: { cellWidth: 25 },
         4: { cellWidth: 20 },
-        5: { cellWidth: 20 }
+        5: { cellWidth: 15 }
       }
     });
 
@@ -1057,8 +1125,9 @@ function ComplaintsAndAnnouncements() {
                   complaints={complaints}
                   loading={loading}
                   error={error}
+                  onReject={handleRejectComplaint}
                   onDelete={handleDeleteComplaint}
-                  onSendMessage={openMessageModal}
+                  onSendEmail={openEmailModal}
                   onGenerateReport={generateComplaintsReport}
                 />
               </motion.div>
@@ -1084,15 +1153,15 @@ function ComplaintsAndAnnouncements() {
         </div>
       </main>
 
-      {/* Message Modal */}
-      <MessageModal
-        isOpen={messageModal.isOpen}
-        onClose={closeMessageModal}
-        phoneNumber={messageModal.phoneNumber}
-        onSend={handleSendMessage}
+      {/* Email Modal */}
+      <EmailModal
+        isOpen={emailModal.isOpen}
+        onClose={closeEmailModal}
+        email={emailModal.email}
+        onSend={handleSendEmail}
       />
     </div>
   );
 }
 
-export default ComplaintsAndAnnouncements;
+export default ComplaintsAndAnnouncements; 

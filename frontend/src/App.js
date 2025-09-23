@@ -5,6 +5,9 @@ import { Routes, Route } from 'react-router-dom';
 import './App.css';
 
 import Home from './Components/Home/Home';
+import EnglishHome from './Components/Home/EnglishHome.js';
+import TamilHome from './Components/Home/TamilHome.js';
+
 
 // Playground booking pages - corrected imports to match usage
 import AddPlayground from './Components/PlaygroundForm/PlaygroundFrom';      // create form page
@@ -58,6 +61,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HoranaCouncilLanding />} />
           <Route path="/mainhome" element={<Home />} />
+          <Route path="/tamilHome" element={<TamilHome />} />
+          <Route path="/englishHome" element={<EnglishHome />} />
 
           {/* Playground booking routes - now properly aligned */}
 
