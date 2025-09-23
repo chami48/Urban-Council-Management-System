@@ -161,6 +161,8 @@ const addItem = async (req, res) => {
       quantity,
     });
     await item.save();
+    await item.save();
+    await logChange(req, "create", item);
     return res.status(201).json({ item });
   } catch (err) {
     console.log(err);
@@ -184,11 +186,13 @@ const updateItem = async (req, res) => {
   if (quantity     !== undefined) update.quantity = quantity;
 
   try {
+     const before = await InventoryItem.findById(req.params.id).lean();
     const item = await InventoryItem.findByIdAndUpdate(req.params.id, update, {
       new: true,
       runValidators: true,
     });
     if (!item) return res.status(404).json({ message: "Unable to update item" });
+    await logChange(req, "update", item, { before, after: item?.toObject?.() || item });
     return res.status(200).json({ item });
   } catch (err) {
     console.log(err);
@@ -204,12 +208,90 @@ const deleteItem = async (req, res) => {
   try {
     const item = await InventoryItem.findByIdAndDelete(req.params.id);
     if (!item) return res.status(404).json({ message: "Unable to delete item" });
+    await logChange(req, "delete", item);
     return res.status(200).json({ item });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: "Failed to delete item" });
   }
 };
+
+
+
+
+
+//quntity change
+// PATCH /inventory/:id/quantity  (delta can be + or -; never drop below 0)
+const adjustQuantity = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const delta = Number(req.body?.delta);
+
+    if (!Number.isFinite(delta)) {
+      return res.status(400).json({ message: "delta must be a number" });
+    }
+
+    // If decreasing, ensure current quantity >= |delta| (atomic guard)
+    const query = { _id: id };
+    if (delta < 0) {
+      query.quantity = { $gte: Math.abs(delta) };
+    }
+
+    const item = await InventoryItem.findOneAndUpdate(
+      query,
+      { $inc: { quantity: delta } },
+      { new: true }
+    );
+
+    if (!item) {
+      // Either not found OR insufficient stock for the requested decrease
+      if (delta < 0) {
+        return res.status(400).json({ message: "Insufficient quantity. Cannot go below 0." });
+      }
+      return res.status(404).json({ message: "Item not found" });
+    }
+    await logChange(req, "adjust", item, { deltaQuantity: delta });
+    return res.status(200).json({ item });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Failed to adjust quantity" });
+  }
+};
+
+const InventoryLog = require("../Model/InventoryLogModel");
+
+// helper: write a log entry
+async function logChange(req, action, itemSnapshot, extra = {}) {
+  const user = req.user || {};
+  const doc = {
+    action,
+    itemId: itemSnapshot?._id || undefined,
+    itemCode: itemSnapshot?.itemCode,
+    name: itemSnapshot?.name,
+    description: itemSnapshot?.description,
+    unitsCount: itemSnapshot?.unitsCount,
+    unitPrice: itemSnapshot?.unitPrice,
+    reorderLevel: itemSnapshot?.reorderLevel,
+    quantity: itemSnapshot?.quantity,
+    changedBy: user ? { _id: String(user._id || ""), name: user.name, email: user.email, role: user.role } : undefined,
+    ...extra,
+    changedAt: new Date(),
+  };
+  try { await InventoryLog.create(doc); } catch (e) { console.log("log write failed:", e); }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ✅ Export ONCE, at the bottom (after all definitions)
 module.exports = {
@@ -219,4 +301,5 @@ module.exports = {
   addItem,
   updateItem,
   deleteItem,
+  adjustQuantity,
 };

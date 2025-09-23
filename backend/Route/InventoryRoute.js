@@ -14,4 +14,9 @@ router.post("/",    allowRoles("admin", "inventoryOfficer"), Inv.addItem);
 router.put("/:id",  allowRoles("admin", "inventoryOfficer"), Inv.updateItem);
 router.delete("/:id", allowRoles("admin", "inventoryOfficer"), Inv.deleteItem);
 
+router.patch("/:id/quantity", allowRoles("admin", "inventoryOfficer"), Inv.adjustQuantity);
+
+
+
+
 module.exports = router;

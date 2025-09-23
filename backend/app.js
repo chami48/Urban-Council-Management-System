@@ -19,6 +19,7 @@ const shopApplicationRoutes = require("./Route/shopApplicationRoute");
 const userRouter = require("./Route/UserRoute");
 const authRouter = require("./Route/AuthRoute");
 const inventoryRouter = require("./Route/InventoryRoute");
+const inventoryLogRouter = require("./Route/InventoryLogRoute");
 
 const app = express();
 
@@ -60,6 +61,8 @@ app.use("/api/shop-applications", shopApplicationRoutes);
 app.use("/users", userRouter);
 app.use("/auth", authRouter);
 app.use("/inventory", inventoryRouter);
+app.use("/inventory-logs", inventoryLogRouter); 
+
 
 // Database + Server
 mongoose

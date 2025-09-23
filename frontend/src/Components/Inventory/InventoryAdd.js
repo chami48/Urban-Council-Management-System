@@ -23,7 +23,6 @@ export default function InventoryAdd() {
         reorderLevel: Number(values.reorderLevel),
         quantity: Number(values.quantity),
       };
-      //await axios.post("http://localhost:5000/inventory", payload);
       await axios.post("http://localhost:5000/inventory", payload, { withCredentials: true });
       navigate("/inventory");
     } catch (err) {
@@ -33,18 +32,19 @@ export default function InventoryAdd() {
   };
 
   return (
-
     <>
-        <Nav />  {/* Full  width nav */}
-
-
-
-    <div className="inv-wrap">
-      <div className="inv-header"><h2>Add Inventory Item</h2></div>
-      {error && <div className="notice error">{error}</div>}
-      <InventoryForm values={values} setValues={setValues} onSubmit={onSubmit} submitLabel="Create" />
-    </div>
-    {/* check */}
+      <Nav />
+      <div className="inv-wrap">
+        <div className="inv-header"><h2>Add Inventory Item</h2></div>
+        {error && <div className="notice error">{error}</div>}
+        <InventoryForm
+          values={values}
+          setValues={setValues}
+          onSubmit={onSubmit}
+          submitLabel="Create"
+          enforceAboveReorder={true}   // ⬅️ keep strict on Add
+        />
+      </div>
     </>
   );
 }
