@@ -69,10 +69,10 @@ router.patch("/update-status/:id", controller.updateBookingStatus);
  * PUT    /playgrounds/:id
  * DELETE /playgrounds/:id
  */
-router.get("/",requireAuth, controller.getAllPlaygrounds);
+router.get("/", controller.getAllPlaygrounds);
 router.post("/",requireAuth, controller.createPlayground);
-router.get("/:id",requireAuth, controller.getPlaygroundById);
-router.put("/:id",requireAuth, controller.updatePlayground);
-router.delete("/:id",requireAuth, controller.deletePlayground);
+router.get("/:id", controller.getPlaygroundById);
+router.put("/:id", requireAuth,controller.updatePlayground);
+router.delete("/:id", controller.deletePlayground);
 
 module.exports = router;

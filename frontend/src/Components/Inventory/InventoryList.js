@@ -1,3 +1,4 @@
+// src/Components/Inventory/InventoryList.js
 import React, { useEffect, useMemo, useState } from "react";
 import Nav from '../Nav/Nav.js';
 import axios from "axios";
@@ -154,7 +155,7 @@ export default function InventoryList() {
             <button className="btn" onClick={resetFilters}>Reset</button>
           </div>
 
-          {/* Advanced per-field filters (all optional) */}
+          {/* Advanced per-field filters (all optional)
           <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8 }}>
             <input placeholder="Code" value={itemCode} onChange={(e) => { setItemCode(e.target.value); setPage(1); }} />
             <input placeholder="Name" value={name} onChange={(e) => { setName(e.target.value); setPage(1); }} />
@@ -167,7 +168,7 @@ export default function InventoryList() {
             <input placeholder="Min Qty" type="number" value={minQty} onChange={(e) => { setMinQty(e.target.value); setPage(1); }} />
             <input placeholder="Max Qty" type="number" value={maxQty} onChange={(e) => { setMaxQty(e.target.value); setPage(1); }} />
           </div>
-
+             */}
           <div style={{ fontSize: 13, color: "#555" }}>
             {loading ? "Loading…" : `Showing ${items.length} of ${meta.total} item(s)`} · Page {meta.page} / {meta.pages}
           </div>
@@ -198,6 +199,7 @@ export default function InventoryList() {
               <div>{i.reorderLevel}</div>
               <div>{i.quantity}</div>
               <div className="actions">
+                <Link className="btn" to={`/inventory/${i._id}/qty`}>Adjust&nbsp;Qty</Link>              
                 <Link className="btn" to={`/inventory/${i._id}`}>Edit</Link>
                 <button className="btn danger" onClick={() => remove(i._id)}>Delete</button>
               </div>

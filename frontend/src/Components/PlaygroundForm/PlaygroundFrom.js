@@ -48,16 +48,39 @@ function AddUser() {
       }, 2000);
       
     } catch (error) {
+
+
+      // If backend says "Unauthenticated", send user to login
+     if (error?.response?.status === 401) {
+       history('/log', { state: { alert: 'Please log in to continue.' } });
+       return;
+     }
+
       setSubmitStatus('error');
       setIsSubmitting(false);
     }
   };
 
   const sendRequest = async () => {
-    const response = await axios.post(API_BASE, {
-      ...inputs,
-      expectedAttendees: Number(inputs.expectedAttendees),
-    });
+    
+
+
+      const response = await axios.post(
+     API_BASE,
+     {
+       ...inputs,
+       expectedAttendees: Number(inputs.expectedAttendees),
+     },
+     {
+       // IMPORTANT when the route uses requireAuth
+       withCredentials: true,
+     }
+  );
+
+
+
+
+
     return response;
   };
 

@@ -211,6 +211,61 @@ const deleteItem = async (req, res) => {
   }
 };
 
+
+
+
+
+//quntity change
+// PATCH /inventory/:id/quantity  (delta can be + or -; never drop below 0)
+const adjustQuantity = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const delta = Number(req.body?.delta);
+
+    if (!Number.isFinite(delta)) {
+      return res.status(400).json({ message: "delta must be a number" });
+    }
+
+    // If decreasing, ensure current quantity >= |delta| (atomic guard)
+    const query = { _id: id };
+    if (delta < 0) {
+      query.quantity = { $gte: Math.abs(delta) };
+    }
+
+    const item = await InventoryItem.findOneAndUpdate(
+      query,
+      { $inc: { quantity: delta } },
+      { new: true }
+    );
+
+    if (!item) {
+      // Either not found OR insufficient stock for the requested decrease
+      if (delta < 0) {
+        return res.status(400).json({ message: "Insufficient quantity. Cannot go below 0." });
+      }
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    return res.status(200).json({ item });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Failed to adjust quantity" });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ✅ Export ONCE, at the bottom (after all definitions)
 module.exports = {
   getAllItems,
@@ -219,4 +274,5 @@ module.exports = {
   addItem,
   updateItem,
   deleteItem,
+  adjustQuantity,
 };

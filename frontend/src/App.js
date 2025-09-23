@@ -47,6 +47,15 @@ import InventoryList from "./Components/Inventory/InventoryList";
 import InventoryAdd from "./Components/Inventory/InventoryAdd";
 import InventoryEdit from "./Components/Inventory/InventoryEdit";
 
+
+
+//new
+import InventoryQuanEdit from "./Components/Inventory/InventoryQuanEdit";
+
+
+
+
+
 function App() {
   return (
     <div className="App">
@@ -65,7 +74,7 @@ function App() {
           <Route path="/userdetails/:id" element={<UpdatePlayground />} /> {/* edit */}
 
           {/* Other routes (unchanged) */}
-          <Route path="/crematorium" element={<CrematoriumForm />} />
+          <Route path="/crematorium" element={<ProtectedRoute alertMessage="Please log in to access this form"><CrematoriumForm /></ProtectedRoute>} />
           <Route path="/admincheck" element={<Adminbooking />} />
           <Route path="/displaybooking" element={<Displaybooking />} />
 
@@ -111,6 +120,13 @@ function App() {
           <Route path="/inventory" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Log as Inventory Officer."onForbiddenRedirect="/mainhome"><InventoryList /></ProtectedRoute>} />
           <Route path="/inventory/add" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Log as Inventory Officer."onForbiddenRedirect="/mainhome"><InventoryAdd /></ProtectedRoute>} />
           <Route path="/inventory/:id" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Log as Inventory Officer."onForbiddenRedirect="/mainhome"><InventoryEdit /></ProtectedRoute>} />
+
+          {/* quntity chnage */}
+          
+          <Route path="/inventory/:id/qty" element={<ProtectedRoute allowedRoles={["admin","inventoryOfficer"]}unauthorizedMessage="Log as Inventory Officer."onForbiddenRedirect="/mainhome"><InventoryQuanEdit /></ProtectedRoute> }/>
+
+
+
         </Routes>
       </React.Fragment>
     </div>

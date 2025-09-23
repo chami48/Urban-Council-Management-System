@@ -109,10 +109,23 @@ export default function Profile() {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+  try {
+    // destroy server session + expire the HttpOnly "sid" cookie
+    await axios.post("http://localhost:5000/auth/logout", null, {
+      withCredentials: true,
+    });
+  } catch (e) {
+    // optional: console.error(e);
+  } finally {
+    // clear client-side state and go to login
     localStorage.removeItem("user");
-    navigate("/log");
-  };
+    navigate("/log", {
+      replace: true,
+      state: { alert: "You’ve been logged out." },
+    });
+  }
+};
 
   if (loading) {
     return (

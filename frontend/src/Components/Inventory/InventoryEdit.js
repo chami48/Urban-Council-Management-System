@@ -17,9 +17,7 @@ export default function InventoryEdit() {
   useEffect(() => {
     const load = async () => {
       try {
-        //const res = await axios.get(`http://localhost:5000/inventory/${id}`);
         const res = await axios.get(`http://localhost:5000/inventory/${id}`, { withCredentials: true });
-
         const i = res.data.item;
         setValues({
           itemCode: i.itemCode || "",
@@ -40,14 +38,68 @@ export default function InventoryEdit() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // --- sanitize ---
+    const itemCode = (values.itemCode || "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]/g, "");               // A–Z / 0–9 only
+
+    const name = (values.name || "")
+      .replace(/[^A-Za-z ]/g, "");              // letters + space
+
+    const description = (values.description || "")
+      .replace(/[^A-Za-z0-9,.\s]/g, "");        // letters, numbers, comma, dot, space
+
+    const unitsCount = (values.unitsCount || "")
+      .replace(/[^A-Za-z]/g, "");               // letters only
+
+    const unitPrice    = Number(values.unitPrice);
+    const reorderLevel = parseInt(values.reorderLevel, 10);
+    const quantity     = parseInt(values.quantity, 10);
+
+    // --- validate ---
+    if (!itemCode || !/^[A-Z0-9]+$/.test(itemCode)) {
+      setError("Item Code must contain only A–Z and 0–9.");
+      return;
+    }
+    if (!name || !/^[A-Za-z ]+$/.test(name)) {
+      setError("Name must contain letters only.");
+      return;
+    }
+    if (!/^[A-Za-z0-9,.\s]*$/.test(description)) {
+      setError("Description allows letters, numbers, comma and period only.");
+      return;
+    }
+    if (!unitsCount || !/^[A-Za-z]+$/.test(unitsCount)) {
+      setError("Units Count must contain letters only.");
+      return;
+    }
+    if (!Number.isFinite(unitPrice) || unitPrice < 0) {
+      setError("Unit Price must be a number ≥ 0.");
+      return;
+    }
+    // (optional) allow 0 for reorderLevel; keep your original rule if you want > 0
+    if (!Number.isInteger(reorderLevel) || reorderLevel < 0) {
+      setError("Reorder Level must be an integer ≥ 0.");
+      return;
+    }
+
+    // ✅ Edit: quantity can be >= 0 (no compare to reorder)
+    if (!Number.isInteger(quantity) || quantity < 0) {
+      setError("Quantity must be an integer ≥ 0.");
+      return;
+    }
+
     try {
       const payload = {
-        ...values,
-        unitPrice: Number(values.unitPrice),
-        reorderLevel: Number(values.reorderLevel),
-        quantity: Number(values.quantity),
+        itemCode,
+        name,
+        description,
+        unitsCount,
+        unitPrice,
+        reorderLevel,
+        quantity,
       };
-      //await axios.put(`http://localhost:5000/inventory/${id}`, payload);
       await axios.put(`http://localhost:5000/inventory/${id}`, payload, { withCredentials: true });
       navigate("/inventory");
     } catch (err) {
@@ -57,15 +109,19 @@ export default function InventoryEdit() {
   };
 
   return (
-
     <>
-        <Nav />  {/* Full  width nav */}
-    
-    <div className="inv-wrap">
-      <div className="inv-header"><h2>Edit Inventory Item</h2></div>
-      {error && <div className="notice error">{error}</div>}
-      <InventoryForm values={values} setValues={setValues} onSubmit={onSubmit} submitLabel="Update" />
-    </div>
+      <Nav />
+      <div className="inv-wrap">
+        <div className="inv-header"><h2>Edit Inventory Item</h2></div>
+        {error && <div className="notice error">{error}</div>}
+        <InventoryForm
+          values={values}
+          setValues={setValues}
+          onSubmit={onSubmit}
+          submitLabel="Update"
+          enforceAboveReorder={false}  // ⬅️ relax on Edit
+        />
+      </div>
     </>
   );
 }
