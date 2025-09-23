@@ -1,0 +1,389 @@
+/* -------- Layout that respects your fixed sidebar/header -------- */
+.inventory-page-with-nav {
+  padding-top: 96px;     /* clear sticky top header */
+  margin-left: 288px;    /* clear fixed w-72 sidebar */
+  min-height: 100vh;
+  background: #f8fafc;
+}
+@media (max-width: 1024px) {
+  .inventory-page-with-nav { margin-left: 80px; }   /* collapsed width */
+}
+@media (max-width: 768px) {
+  .inventory-page-with-nav { margin-left: 0; padding-top: 88px; }
+}
+
+/* -------- Page container -------- */
+.inv-wrap { max-width: 1100px; margin: 24px auto; padding: 0 16px; }
+
+/* -------- Header -------- */
+.inv-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.inv-header h2 { font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* -------- Filters -------- */
+.inv-filters { display: grid; gap: 8px; margin-bottom: 12px; }
+.inv-filters-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.inv-filters-row input, .inv-filters-row select {
+  padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 10px; outline: none; background: #f8fafc;
+}
+.inv-filters-row input:focus, .inv-filters-row select:focus {
+  border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, .15);
+}
+.inv-meta { font-size: 13px; color: #6b7280; }
+
+/* -------- Table: SCROLL WRAP + FIXED GRID -------- */
+.table-scroll { overflow-x: auto; /* allows horizontal scroll on smaller screens */ }
+.table { border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background: #fff; min-width: 920px; }
+
+.thead, .trow {
+  display: grid;
+  /* OLD: 140px 1fr 120px 120px 120px 100px minmax(260px, 1fr); */
+  grid-template-columns: 140px 1fr 120px 120px 120px 100px minmax(360px, 1fr);
+}
+
+.thead {
+  background: #eef2ff; /* indigo-100 */
+  font-weight: 700;
+  color: #1f2937;
+}
+.thead > div, .trow > div { padding: 10px 12px; border-bottom: 1px solid #eef2ff; }
+.trow:last-child > div { border-bottom: 0; }
+
+/* numeric cells a bit centered/right for readability */
+.trow .num { text-align: center; }
+
+.trow.low { background: #fadcdc; } /* orange-50 as a soft warning */
+
+/* actions */
+.actions { display: flex; gap: 8px; flex-wrap: nowrap; }
+
+/* -------- Buttons -------- */
+/* -------- Buttons -------- */
+/* -------- Buttons (outline style, aligned with nav theme) -------- */
+/* -------- Buttons (outline style, aligned with nav theme) -------- */
+/* -------- Base Button -------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+
+
+/* Primary = blue→indigo (Dashboard theme) */
+.btn.primary {
+  background: linear-gradient(to right, #eff6ff, #eef2ff); /* light tint */
+  color: #2563eb;  /* blue-600 text */
+  border-color: #2563eb;
+}
+.btn.primary:hover {
+  background: linear-gradient(to right, #2563eb, #4f46e5); /* solid gradient */
+  color: #fff;
+}
+
+/* Success = green */
+.btn.success {
+  background: #ecfdf5;  /* light green tint */
+  color: #16a34a;
+  border-color: #16a34a;
+}
+.btn.success:hover {
+  background: #16a34a;
+  color: #fff;
+}
+
+/* -------- Back Button (same as Create but softer) -------- */
+.btn.back {
+  background: linear-gradient(to right, #2563eb, #4f46e5); /* blue-600 → indigo-600 */
+  color: #fff;
+  border: none;
+}
+.btn.back:hover {
+  background: linear-gradient(to right, #1e40af, #3730a3); /* darker blue-800 → indigo-800 */
+  color: #fff;
+}
+
+
+/* Warning = amber */
+.btn.warning {
+  background: #fffbeb;  /* light amber tint */
+  color: #d97706;
+  border-color: #d97706;
+}
+.btn.warning:hover {
+  background: #d97706;
+  color: #fff;
+}
+
+/* Danger = red */
+.btn.danger {
+  background: #fef2f2;  /* light red tint */
+  color: #dc2626;
+  border-color: #dc2626;
+}
+.btn.danger:hover {
+  background: #dc2626;
+  color: #fff;
+}
+
+/* Subtle = neutral (good for Back / Close) */
+.btn.subtle {
+  background: #f9fafb;  /* light gray tint */
+  color: #374151;       /* gray-700 */
+  border-color: #d1d5db; /* gray-300 */
+}
+.btn.subtle:hover {
+  background: #e5e7eb;  /* darker gray */
+  color: #111827;       /* gray-900 */
+}
+
+/* Pill style */
+.btn.pill {
+  border-radius: 9999px;
+  padding: 8px 18px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+/* -------- Primary (Create / main action) -------- */
+.btn.primary {
+  background: linear-gradient(to right, #2563eb, #4f46e5); /* blue-600 → indigo-600 */
+  color: #fff;
+  border: none; /* solid fill, no border needed */
+}
+.btn.primary:hover {
+  background: linear-gradient(to right, #1e40af, #3730a3); /* blue-800 → indigo-800 */
+  color: #fff;
+}
+
+
+
+
+/* -------- Pager -------- */
+.pager { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+
+/* InventoryForm grid helpers */
+.inv-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px 14px;
+}
+
+.inv-form .form-row.two-cols {
+  grid-template-columns: 1fr 1fr;
+}
+
+.inv-form .form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inv-form .form-field label {
+  font-weight: 600;
+  color: #374151; /* gray-700 */
+}
+
+.inv-form .form-field input,
+.inv-form .form-field textarea {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+}
+
+.inv-form .form-field input:focus,
+.inv-form .form-field textarea:focus {
+  border-color: #3b82f6; /* blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.inv-form .form-field .three-lines {
+  min-height: 3.25em; /* roughly 3 lines */
+  resize: vertical;   /* allow user to expand if needed */
+}
+
+.inv-form .form-field.readonly,
+.inv-form .form-field input.readonly {
+  background: #f8fafc;        /* slate-50 */
+  color: #6b7280;             /* gray-500 */
+}
+
+.inv-form .form-field.span-2 {
+  grid-column: 1 / -1; /* span both columns */
+}
+
+/* keep column alignment even if the second col is empty */
+.inv-form .placeholder-col::after {
+  content: "";
+  display: block;
+  min-height: 1px;
+}
+
+/* Responsive: stack two-col rows on small screens */
+@media (max-width: 640px) {
+  .inv-form .form-row.two-cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+
+/* =========================
+   Inventory Log – table grid
+   ========================= */
+.table.log { min-width: 980px; } /* sensible base width for 7 cols */
+
+.thead.log,
+.trow.log {
+  display: grid;
+  /* Date | Action | Code | Name | Qty | Δ Qty | User */
+  grid-template-columns: 200px 120px 140px 1fr 100px 100px 220px;
+}
+
+.thead.log {
+  background: #eef2ff;               /* indigo-100 to match theme */
+  font-weight: 700;
+  color: #1f2937;                     /* gray-800 */
+}
+
+.thead.log > div,
+.trow.log > div {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef2ff;   /* keep consistent separators */
+}
+
+/* numeric cells centered */
+.trow.log .num { text-align: center; }
+
+/* let the log table scroll horizontally on narrow screens (uses existing .table-scroll) */
+/* nothing else needed – it inherits .table-scroll { overflow-x: auto } */
+
+/* Back button already defined earlier:
+   .btn.back { gradient … } .btn.back:hover { darker gradient … } */
+
+
+
+/* =========================
+   Contrast & visibility upgrades
+   ========================= */
+
+/* 1) Make the filter/search bar stand out like a card */
+.inv-filters {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;            /* slate-300 */
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 12px rgba(2, 6, 23, 0.06); /* subtle shadow */
+}
+
+/* Inputs/selects: darker text, borders, clearer placeholders */
+.inv-filters-row input,
+.inv-filters-row select,
+.inv-form .form-field input,
+.inv-form .form-field textarea {
+  background: #ffffff;
+  color: #0f172a;              /* slate-900 */
+  border: 1.5px solid #94a3b8; /* slate-400 */
+}
+
+.inv-filters-row input::placeholder,
+.inv-form .form-field input::placeholder,
+.inv-form .form-field textarea::placeholder {
+  color: #64748b;              /* slate-500 */
+}
+
+.inv-filters-row input:focus,
+.inv-filters-row select:focus,
+.inv-form .form-field input:focus,
+.inv-form .form-field textarea:focus {
+  border-color: #1d4ed8;       /* blue-700 */
+  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.15);
+}
+
+/* 2) Darker table header for better separation */
+.thead {
+  background: #e0e7ff;         /* indigo-200 */
+  color: #111827;              /* gray-900 */
+  border-bottom: 1px solid #c7d2fe; /* indigo-300 */
+}
+
+/* 3) Buttons – darker by default, stronger hover
+   (Delete .btn.danger stays as you already like it) */
+.btn {
+  border-width: 2px;
+}
+
+/* Header action buttons (Export, Log) */
+.header-actions .btn {
+  background: #e5e7eb;         /* gray-200 */
+  color: #111827;              /* gray-900 */
+  border-color: #426da9;       /* slate-400 */
+}
+.header-actions .btn:hover {
+  background: #cbd5e1;         /* slate-300 */
+}
+
+/* Reset in filter row should be clearly visible */
+.inv-filters-row .btn.subtle {
+  background: #e2e8f0;         /* slate-200 */
+  color: #0f172a;              /* slate-900 */
+  border-color: #94a3b8;       /* slate-400 */
+}
+.inv-filters-row .btn.subtle:hover {
+  background: #cbd5e1;         /* slate-300 */
+  color: #0b1220;
+}
+
+/* Primary (Create / + Add Item): dark by default, darker on hover */
+.btn.primary {
+  background: linear-gradient(to right, #2563eb, #4f46e5); /* blue-600 → indigo-600 */
+  color: #fff;
+  border: none;
+}
+.btn.primary:hover {
+  background: linear-gradient(to right, #1e40af, #3730a3); /* blue-800 → indigo-800 */
+}
+
+/* Back button: same family, dark by default, darker on hover */
+.btn.back {
+  background: linear-gradient(to right, #2563eb, #4f46e5);
+  color: #fff;
+  border: none;
+}
+.btn.back:hover {
+  background: linear-gradient(to right, #1e40af, #3730a3);
+}
+
+/* Row action buttons (Adjust Qty, Edit) — darker, but keep Delete as-is */
+.actions .btn:not(.danger) {
+  background: #e0e7ff;         /* indigo-100/200 range */
+  color: #1d4ed8;              /* blue-700 text */
+  border-color: #6366f1;       /* indigo-500 */
+}
+.actions .btn:not(.danger):hover {
+  background: #1d4ed8;         /* blue-700 */
+  color: #fff;
+  border-color: #1d4ed8;
+}
+
+/* Keep your Delete button untouched (you said you like it) */
+/* .btn.danger — already defined above */
+
+/* Pager buttons a bit stronger too */
+.pager .btn.subtle {
+  background: #e5e7eb;         /* gray-200 */
+  color: #111827;              /* gray-900 */
+  border-color: #94a3b8;       /* slate-400 */
+}
+.pager .btn.subtle:hover {
+  background: #d1d5db;         /* gray-300 */
+}
+
