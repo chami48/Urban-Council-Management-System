@@ -3,6 +3,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import Nav from "../Navigation/Navigation";
 import axios from "axios";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import Swal from "sweetalert2";
+
 
 // PDF deps
 import { jsPDF } from "jspdf";
@@ -299,6 +301,21 @@ export default function InventoryList() {
 
       setItems(all);
       setLowItems(low);
+
+      if (low.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Low stock alert",
+          text: `${low.length} item(s) need reordering`,
+          toast: true,
+          position: "top-end",
+          timer: 3000,
+          showConfirmButton: false,
+          timerProgressBar: true,
+        });
+      }
+
+
       setMeta({
         total: allRes?.data?.total ?? all.length,
         page: allRes?.data?.page ?? 1,
@@ -307,16 +324,22 @@ export default function InventoryList() {
 
       setSearchParams(queryObj);
 
-      if ("Notification" in window) {
-        if (Notification.permission === "default") {
-          try {
-            await Notification.requestPermission();
-          } catch {}
-        }
-        if (Notification.permission === "granted" && low.length > 0) {
-          new Notification("Low stock alert", { body: `${low.length} item(s) need reordering` });
-        }
-      }
+      // if ("Notification" in window) {
+      //   if (Notification.permission === "default") {
+      //     try {
+      //       await Notification.requestPermission();
+      //     } catch {}
+      //   }
+      //   if (Notification.permission === "granted" && low.length > 0) {
+      //     new Notification("Low stock alert", { body: `${low.length} item(s) need reordering` });
+      //   }
+      // }
+
+
+      
+
+
+
     } catch (err) {
       console.error("Failed to load inventory:", err);
     } finally {
@@ -330,10 +353,25 @@ export default function InventoryList() {
   }, [queryObj]); // reload whenever filters change
 
   const remove = async (id) => {
-    if (!window.confirm("Delete this item?")) return;
-    await axios.delete(`http://localhost:5000/inventory/${id}`, { withCredentials: true });
-    load();
-  };
+   const confirm = await Swal.fire({
+     icon: "warning",
+     title: "Delete this item?",
+     text: "This action cannot be undone.",
+     showCancelButton: true,
+     confirmButtonText: "Yes, delete",
+     cancelButtonText: "Cancel",
+   });
+   if (!confirm.isConfirmed) return;
+
+   try {
+     await axios.delete(`http://localhost:5000/inventory/${id}`, { withCredentials: true });
+     await Swal.fire({ icon: "success", title: "Deleted", timer: 1200, showConfirmButton: false });
+     load();
+   } catch (err) {
+     const msg = err?.response?.data?.message || "Failed to delete item";
+     Swal.fire({ icon: "error", title: "Delete failed", text: msg });
+   }
+ };
 
   const resetFilters = () => {
     setQ("");

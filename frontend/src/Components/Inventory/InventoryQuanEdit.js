@@ -4,6 +4,9 @@ import Nav from "../Navigation/Navigation";
 import axios from "axios";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import "./inventory.css";
+import Swal from "sweetalert2";
+// (optional) prettier default theme
+// import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function InventoryQuanEdit() {
   const { id } = useParams();
@@ -37,17 +40,26 @@ export default function InventoryQuanEdit() {
       return;
     }
 
-    try {
-      await axios.patch(
+   try {
+    const { data } = await axios.patch(
         `http://localhost:5000/inventory/${id}/quantity`,
         { delta: d },
         { withCredentials: true }
       );
-      navigate("/inventory");
+      await Swal.fire({
+      icon: "success",
+      title: "Quantity adjusted",
+      text: `Δ ${d > 0 ? "+" : ""}${d} • New Qty: ${data?.item?.quantity ?? "updated"}`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+    navigate("/inventory");
     } catch (err) {
       const msg =
         err?.response?.data?.message || "Failed to adjust quantity";
       setError(msg);
+      Swal.fire({ icon: "error", title: "Adjustment failed", text: msg });
+   
     }
   };
 

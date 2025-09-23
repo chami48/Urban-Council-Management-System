@@ -1,10 +1,16 @@
 // src/Components/Inventory/InventoryAdd.js
+
 import React, { useState } from "react";
 import Nav from "../Navigation/Navigation";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import InventoryForm from "./InventoryForm";
 import "./inventory.css";
+
+import Swal from "sweetalert2";
+// (optional) prettier default theme
+// import "sweetalert2/dist/sweetalert2.min.css";
+
 
 export default function InventoryAdd() {
   const [values, setValues] = useState({
@@ -29,13 +35,23 @@ export default function InventoryAdd() {
         reorderLevel: Number(values.reorderLevel),
         quantity: Number(values.quantity),
       };
-      await axios.post("http://localhost:5000/inventory", payload, {
-        withCredentials: true,
+      
+
+      const { data } = await axios.post("http://localhost:5000/inventory", payload, { withCredentials: true });
+      await Swal.fire({
+        icon: "success",
+        title: "Item created",
+        text: `${data?.item?.itemCode || payload.itemCode} — ${data?.item?.name || payload.name}`,
+        timer: 1600,
+        showConfirmButton: false,
       });
       navigate("/inventory");
+
+
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to add item";
       setError(msg);
+      Swal.fire({ icon: "error", title: "Create failed", text: msg });
     }
   };
 

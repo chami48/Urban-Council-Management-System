@@ -5,6 +5,9 @@ import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import InventoryForm from "./InventoryForm";
 import "./inventory.css";
+import Swal from "sweetalert2";
+// (optional) prettier default theme
+// import "sweetalert2/dist/sweetalert2.min.css";
 
 export default function InventoryEdit() {
   const { id } = useParams();
@@ -106,13 +109,24 @@ export default function InventoryEdit() {
         reorderLevel,
         quantity,
       };
-      await axios.put(`http://localhost:5000/inventory/${id}`, payload, {
-        withCredentials: true,
+      
+
+      const { data } = await axios.put(`http://localhost:5000/inventory/${id}`, payload, { withCredentials: true });
+      await Swal.fire({
+        icon: "success",
+        title: "Item updated",
+        text: `${data?.item?.itemCode || itemCode} — ${data?.item?.name || name}`,
+        timer: 1500,
+        showConfirmButton: false,
       });
-      navigate("/inventory");
+     navigate("/inventory");
+
+
+
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to update item";
       setError(msg);
+      Swal.fire({ icon: "error", title: "Update failed", text: msg });
     }
   };
 
