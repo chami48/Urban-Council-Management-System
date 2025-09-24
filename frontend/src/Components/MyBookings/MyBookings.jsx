@@ -253,7 +253,8 @@ pdf.text("Urban Council - Horana", pageWidth - 75, signatureBaselineY + 3);
     const fileName = `${type === "playground" ? "Playground" : "Crematorium"}_Permit_${eventNameSafe}_${certNumber}.pdf`;
 
     pdf.save(fileName);
-    alert("Certificate generated successfully!");
+await Swal.fire("Success", "Certificate generated successfully!", "success");
+
     return true;
   } catch (error) {
     console.error("Error generating PDF:", error);
