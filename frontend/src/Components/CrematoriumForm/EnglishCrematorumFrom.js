@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import Nav from "../Nav/Nav";
 import { useNavigate } from "react-router-dom";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const API_BASE = "http://localhost:5000/crematorium";
 
@@ -55,171 +55,169 @@ export default function CrematoriumForm() {
     }));
   }, [storedUser]);
 
-  // SweetAlert2 Configuration Functions
+  // SweetAlert2 Configuration (English)
   const showSuccessAlert = (title, text, onConfirm) => {
     Swal.fire({
-      title: title,
-      text: text,
-      icon: 'success',
-      confirmButtonText: 'හරි',
-      confirmButtonColor: '#10B981',
-      background: '#F0FDF4',
-      color: '#166534',
+      title,
+      text,
+      icon: "success",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#10B981",
+      background: "#F0FDF4",
+      color: "#166534",
       customClass: {
-        popup: 'rounded-lg shadow-xl',
-        title: 'text-lg font-bold mb-2',
-        content: 'text-sm leading-relaxed',
-        confirmButton: 'px-6 py-2 rounded-lg font-semibold'
+        popup: "rounded-lg shadow-xl",
+        title: "text-lg font-bold mb-2",
+        content: "text-sm leading-relaxed",
+        confirmButton: "px-6 py-2 rounded-lg font-semibold",
       },
-      buttonsStyling: false
+      buttonsStyling: false,
     }).then((result) => {
-      if (result.isConfirmed && onConfirm) {
-        onConfirm();
-      }
+      if (result.isConfirmed && onConfirm) onConfirm();
     });
   };
 
   const showErrorAlert = (title, text) => {
     Swal.fire({
-      title: title,
-      text: text,
-      icon: 'error',
-      confirmButtonText: 'හරි',
-      confirmButtonColor: '#EF4444',
-      background: '#FEF2F2',
-      color: '#991B1B',
+      title,
+      text,
+      icon: "error",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#EF4444",
+      background: "#FEF2F2",
+      color: "#991B1B",
       customClass: {
-        popup: 'rounded-lg shadow-xl',
-        title: 'text-lg font-bold mb-2',
-        content: 'text-sm leading-relaxed',
-        confirmButton: 'px-6 py-2 rounded-lg font-semibold'
+        popup: "rounded-lg shadow-xl",
+        title: "text-lg font-bold mb-2",
+        content: "text-sm leading-relaxed",
+        confirmButton: "px-6 py-2 rounded-lg font-semibold",
       },
-      buttonsStyling: false
+      buttonsStyling: false,
     });
   };
 
   const showWarningAlert = (title, text) => {
     Swal.fire({
-      title: title,
-      text: text,
-      icon: 'warning',
-      confirmButtonText: 'හරි',
-      confirmButtonColor: '#F59E0B',
-      background: '#FFFBEB',
-      color: '#92400E',
+      title,
+      text,
+      icon: "warning",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#F59E0B",
+      background: "#FFFBEB",
+      color: "#92400E",
       customClass: {
-        popup: 'rounded-lg shadow-xl',
-        title: 'text-lg font-bold mb-2',
-        content: 'text-sm leading-relaxed',
-        confirmButton: 'px-6 py-2 rounded-lg font-semibold'
+        popup: "rounded-lg shadow-xl",
+        title: "text-lg font-bold mb-2",
+        content: "text-sm leading-relaxed",
+        confirmButton: "px-6 py-2 rounded-lg font-semibold",
       },
-      buttonsStyling: false
+      buttonsStyling: false,
     });
   };
 
   const showInfoAlert = (title, text) => {
     Swal.fire({
-      title: title,
-      text: text,
-      icon: 'info',
-      confirmButtonText: 'හරි',
-      confirmButtonColor: '#3B82F6',
-      background: '#EFF6FF',
-      color: '#1E40AF',
+      title,
+      text,
+      icon: "info",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#3B82F6",
+      background: "#EFF6FF",
+      color: "#1E40AF",
       customClass: {
-        popup: 'rounded-lg shadow-xl',
-        title: 'text-lg font-bold mb-2',
-        content: 'text-sm leading-relaxed',
-        confirmButton: 'px-6 py-2 rounded-lg font-semibold'
+        popup: "rounded-lg shadow-xl",
+        title: "text-lg font-bold mb-2",
+        content: "text-sm leading-relaxed",
+        confirmButton: "px-6 py-2 rounded-lg font-semibold",
       },
-      buttonsStyling: false
+      buttonsStyling: false,
     });
   };
 
   const showLoadingAlert = () => {
     Swal.fire({
-      title: 'කරුණාකර රැඳී සිටින්න...',
-      text: 'ඔබගේ ඇනවුම ඉදිරිපත් කරමින්',
-      icon: 'info',
+      title: "Please wait...",
+      text: "Submitting your request",
+      icon: "info",
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
-      background: '#EFF6FF',
-      color: '#1E40AF',
+      background: "#EFF6FF",
+      color: "#1E40AF",
       customClass: {
-        popup: 'rounded-lg shadow-xl',
-        title: 'text-lg font-bold mb-2',
-        content: 'text-sm leading-relaxed'
+        popup: "rounded-lg shadow-xl",
+        title: "text-lg font-bold mb-2",
+        content: "text-sm leading-relaxed",
       },
       didOpen: () => {
         Swal.showLoading();
-      }
+      },
     });
   };
 
-  // Helper functions for name sanitization
-  const NAME_ALLOWED_REGEX = /[a-zA-ZÀ-ÿ\u0D80-\u0DFF\s.'-]/;
+  // Name sanitization (Latin + Sinhala + Tamil)
+  const NAME_ALLOWED_REGEX = /[a-zA-ZÀ-ÿ\u0D80-\u0DFF\u0B80-\u0BFF\s.'-]/;
   const sanitizeName = (raw) => {
     if (!raw) return "";
     const cleaned = [...raw].filter((ch) => NAME_ALLOWED_REGEX.test(ch)).join("");
     return cleaned.replace(/\s{2,}/g, " ").trimStart();
   };
 
-  // Validation functions
+  // Validation (English messages)
   const validateName = (name) => {
-    if (!name.trim()) return "නම අවශ්‍යයි";
-    if (name.trim().length < 2) return "නම අක්ෂර 2 කට වඩා විය යුතුය";
-    if (name.trim().length > 100) return "නම අක්ෂර 100 කට වඩා විය නොහැක";
-    if (/\d/.test(name)) return "නමේ අංක ඇතුළත් කළ නොහැක";
-    if (!/^[a-zA-ZÀ-ÿ\u0D80-\u0DFF\s.'-]+$/.test(name)) return "නම වලංගු නොවේ";
+    if (!name.trim()) return "Name is required";
+    if (name.trim().length < 2) return "Name must be at least 2 characters";
+    if (name.trim().length > 100) return "Name cannot exceed 100 characters";
+    if (/\d/.test(name)) return "Numbers are not allowed in the name";
+    if (!/^[a-zA-ZÀ-ÿ\u0D80-\u0DFF\u0B80-\u0BFF\s.'-]+$/.test(name)) return "Invalid name";
     return "";
   };
 
   const validateNIC = (nic) => {
-    if (!nic.trim()) return "ජාතික හැඳුනුම්පත් අංකය අවශ්‍යයි";
+    if (!nic.trim()) return "NIC is required";
     const cleanNIC = nic.replace(/\s/g, "");
-    if (cleanNIC.length > 12) return "ජාතික හැඳුනුම්පත් අංකය අධික";
+    if (cleanNIC.length > 12) return "NIC is too long";
     const oldFormat = /^[0-9]{9}[vVxX]$/;
     const newFormat = /^[0-9]{12}$/;
     if (!oldFormat.test(cleanNIC) && !newFormat.test(cleanNIC)) {
-      return "ජාතික හැඳුනුම්පත් අංකය වලංගු නොවේ (9 අංක + V/X හෝ 12 අංක)";
+      return "Invalid NIC (9 digits + V/X or 12 digits)";
     }
     return "";
   };
 
   const validateAddress = (address) => {
-    if (!address.trim()) return "ලිපිනය අවශ්‍යයි";
-    if (address.trim().length < 5) return "ලිපිනය විස්තරාත්මක විය යුතුය";
-    if (address.trim().length > 200) return "ලිපිනය අක්ෂර 200 කට වඩා විය නොහැක";
+    if (!address.trim()) return "Address is required";
+    if (address.trim().length < 5) return "Please provide a more detailed address";
+    if (address.trim().length > 200) return "Address cannot exceed 200 characters";
     return "";
   };
 
   const validateEmail = (email) => {
-    if (!email.trim()) return "ඊමේල් අවශ්‍යයි";
+    if (!email.trim()) return "Email is required";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return "වලංගු ඊ මේල් ලිපිනයක් ඇතුළත් කරන්න";
+    if (!emailRegex.test(email)) return "Enter a valid email address";
     return "";
   };
 
-  const validateDate = (date, fieldName = "දිනය") => {
-    if (!date) return `${fieldName} අවශ්‍යයි`;
+  const validateDate = (date, fieldName = "Date") => {
+    if (!date) return `${fieldName} is required`;
     const selectedDate = new Date(date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (fieldName === "මරණය වූ දිනය" && selectedDate > today) {
-      return "මරණය වූ දිනය අද දිනයට පසු විය නොහැක";
+    if (fieldName === "Date of Death" && selectedDate > today) {
+      return "Date of Death cannot be in the future";
     }
-    if (fieldName === "දහන දිනය" && selectedDate < today) {
-      return "දහන දිනය අද දිනයට පෙර විය නොහැක";
+    if (fieldName === "Cremation Date" && selectedDate < today) {
+      return "Cremation Date cannot be in the past";
     }
     return "";
   };
 
   const validateTime = (startTime, endTime) => {
     const errors = {};
-    if (!startTime) errors.startTime = "ආරම්භ වේලාව අවශ්‍යයි";
-    if (!endTime) errors.endTime = "අවසන් වේලාව අවශ්‍යයි";
+    if (!startTime) errors.startTime = "Start time is required";
+    if (!endTime) errors.endTime = "End time is required";
 
     if (startTime && endTime) {
       const toMin = (t) => {
@@ -228,11 +226,11 @@ export default function CrematoriumForm() {
       };
 
       if (toMin(startTime) >= toMin(endTime)) {
-        errors.endTime = "අවසන් වේලාව ආරම්භ වේලාවට පසු විය යුතුය";
+        errors.endTime = "End time must be after start time";
       }
 
       if (toMin(endTime) - toMin(startTime) < 60) {
-        errors.endTime = "අවම වශයෙන් පැය 1ක් කාල සීමාවක් අවශ්‍යයි";
+        errors.endTime = "A minimum duration of 1 hour is required";
       }
     }
     return errors;
@@ -255,10 +253,10 @@ export default function CrematoriumForm() {
         error = validateAddress(value);
         break;
       case "dateOfDeath":
-        error = validateDate(value, "මරණය වූ දිනය");
+        error = validateDate(value, "Date of Death");
         break;
       case "cremationDate":
-        error = validateDate(value, "දහන දිනය");
+        error = validateDate(value, "Cremation Date");
         break;
       default:
         break;
@@ -270,13 +268,13 @@ export default function CrematoriumForm() {
     const { name, value, type, checked } = e.target;
     let newValue = type === "checkbox" ? checked : value;
 
-    // Prevent numbers and disallowed chars for name fields
+    // Sanitize name fields and enforce length
     if (name === "applicantFullName" || name === "deceasedFullName") {
       newValue = sanitizeName(newValue);
       if (newValue.length > 100) return;
     }
 
-    // Prevent typing beyond max length for specific fields
+    // Enforce max lengths
     if (name === "address" && newValue.length > 200) return;
     if (name === "nic" && newValue.length > 12) return;
     if (name === "registrationNumber" && newValue.length > 50) return;
@@ -290,9 +288,7 @@ export default function CrematoriumForm() {
 
     if (name !== "declarationAgreement" && type !== "checkbox") {
       const fieldError = validateField(name, newValue);
-      if (fieldError) {
-        setErrors((prev) => ({ ...prev, [name]: fieldError }));
-      }
+      if (fieldError) setErrors((prev) => ({ ...prev, [name]: fieldError }));
     }
 
     if (name === "startTime" || name === "endTime") {
@@ -327,12 +323,15 @@ export default function CrematoriumForm() {
 
   const checkAvailability = async () => {
     if (!formData.cremationDate) {
-      showWarningAlert("අවධානය!", "කරුණාකර දහන දිනය තෝරන්න.");
-      return setAvailability({ available: false, message: "දහන දිනය තෝරන්න" });
+      showWarningAlert("Attention!", "Please select a cremation date.");
+      return setAvailability({ available: false, message: "Select a cremation date" });
     }
     if (!formData.startTime || !formData.endTime) {
-      showWarningAlert("අවධානය!", "කරුණාකර ආරම්භ සහ අවසන් වේලාවන් දෙකම ඇතුළත් කරන්න.");
-      return setAvailability({ available: false, message: "ආරම්භ/අවසන් වේලාවන් දෙකම අවශ්‍යයි" });
+      showWarningAlert("Attention!", "Please provide both start and end times.");
+      return setAvailability({
+        available: false,
+        message: "Both start and end times are required",
+      });
     }
 
     try {
@@ -346,18 +345,18 @@ export default function CrematoriumForm() {
         },
         { withCredentials: true }
       );
-      
+
       setAvailability(res.data);
-      
+
       if (res.data.available) {
-        showSuccessAlert("සාර්ථකයි!", "තෝරාගත් වේලාව ලබා ගත හැක.");
+        showSuccessAlert("Success!", "The selected time is available.");
       } else {
-        showErrorAlert("කණගාටුයි!", "තෝරාගත් වේලාව ලබා ගත නොහැක. කරුණාකර වෙනත් වේලාවක් තෝරන්න.");
+        showErrorAlert("Unavailable!", "The selected time is not available. Please choose another.");
       }
     } catch (e) {
       console.error(e);
       setAvailability({ available: false, message: "Server error checking availability" });
-      showErrorAlert("දෝෂයක්!", "වේලාව පරීක්ෂා කිරීමේදී දෝෂයක් සිදු විය. කරුණාකර නැවත උත්සාහ කරන්න.");
+      showErrorAlert("Error!", "An error occurred while checking availability. Please try again.");
     } finally {
       setCheckingAvail(false);
     }
@@ -370,18 +369,18 @@ export default function CrematoriumForm() {
     newErrors.applicantEmail = validateEmail(formData.applicantEmail);
     newErrors.nic = validateNIC(formData.nic);
     newErrors.deceasedFullName = validateName(formData.deceasedFullName);
-    newErrors.dateOfDeath = validateDate(formData.dateOfDeath, "මරණය වූ දිනය");
-    newErrors.cremationDate = validateDate(formData.cremationDate, "දහන දිනය");
+    newErrors.dateOfDeath = validateDate(formData.dateOfDeath, "Date of Death");
+    newErrors.cremationDate = validateDate(formData.cremationDate, "Cremation Date");
 
     const timeErrors = validateTime(formData.startTime, formData.endTime);
     Object.assign(newErrors, timeErrors);
 
     if (!deathCertificateFile) {
-      newErrors.deathCertificateFile = "මරණ සහතිකය අවශ්‍යයි";
+      newErrors.deathCertificateFile = "Death certificate is required";
     }
 
     if (!formData.declarationAgreement) {
-      newErrors.declarationAgreement = "ප්‍රකාශයට එකඟ විය යුතුය";
+      newErrors.declarationAgreement = "You must agree to the declaration";
     }
 
     Object.keys(newErrors).forEach((key) => {
@@ -397,8 +396,8 @@ export default function CrematoriumForm() {
 
     if (!validateForm()) {
       showWarningAlert(
-        "පෝරමය සම්පූර්ණ නොවේ!", 
-        "කරුණාකර සියලු අවශ්‍ය ක්ෂේත්‍ර සම්පූර්ණ කර දෝෂ නිවැරදි කරන්න."
+        "Form incomplete!",
+        "Please complete all required fields and fix the errors."
       );
       return;
     }
@@ -421,17 +420,15 @@ export default function CrematoriumForm() {
       });
 
       showSuccessAlert(
-        "සාර්ථකව ඉදිරිපත් විය!", 
-        "ඔබගේ ආදහනාගාර ඇනවුම සාර්ථකව ඉදිරිපත් කරන ලදී. ඔබව මගේ ඇනවුම් පිටුවට යොමු කරමින්...",
-        () => {
-          navigate("/my-bookings");
-        }
+        "Submitted successfully!",
+        "Your crematorium application was submitted. Redirecting to My Bookings...",
+        () => navigate("/my-bookings")
       );
-
     } catch (err) {
       console.error(err?.response?.data || err);
-      const errorMessage = err?.response?.data?.message || "ඇනවුම ඉදිරිපත් කිරීමේදී දෝෂයක් සිදු විය.";
-      showErrorAlert("ඇනවුම අසාර්ථකයි!", errorMessage);
+      const errorMessage =
+        err?.response?.data?.message || "An error occurred while submitting the application.";
+      showErrorAlert("Submission failed!", errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -459,19 +456,19 @@ export default function CrematoriumForm() {
           <div className="bg-white rounded-lg shadow-lg p-8">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                ආදහනාගාර පහසුකම් ලබා ගැනීම සදහා ඉල්ලුම් පත්‍රය
+                Application for Crematorium Facilities
               </h1>
-              <p className="text-gray-600">කරුණාකර සියලු අවශ්‍ය තොරතුරු සම්පූර්ණ කරන්න</p>
+              <p className="text-gray-600">Please complete all required information</p>
             </div>
 
             <form onSubmit={handleSubmit} encType="multipart/form-data" className="space-y-6">
               {/* Applicant Section */}
               <div className="bg-blue-50 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold text-blue-800 mb-4">අයදුම්කරුගේ තොරතුරු</h2>
+                <h2 className="text-xl font-semibold text-blue-800 mb-4">Applicant Information</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      අයදුම්කරුගේ සම්පූර්ණ නම *
+                      Applicant Full Name *
                     </label>
                     <input
                       type="text"
@@ -483,7 +480,7 @@ export default function CrematoriumForm() {
                       className={`w-full px-4 py-3 border rounded-lg ${
                         errors.applicantFullName ? "border-red-500 bg-red-50" : "border-gray-300"
                       }`}
-                      placeholder="අයදුම්කරුගේ සම්පූර්ණ නම"
+                      placeholder="Applicant Full Name"
                     />
                     <div className="flex justify-between items-center mt-1">
                       {errors.applicantFullName ? (
@@ -496,9 +493,9 @@ export default function CrematoriumForm() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">ලිපිනය *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Address *</label>
                     <input
                       type="text"
                       name="address"
@@ -509,7 +506,7 @@ export default function CrematoriumForm() {
                       className={`w-full px-4 py-3 border rounded-lg ${
                         errors.address ? "border-red-500 bg-red-50" : "border-gray-300"
                       }`}
-                      placeholder="ලිපිනය"
+                      placeholder="Address"
                     />
                     <div className="flex justify-between items-center mt-1">
                       {errors.address ? (
@@ -520,9 +517,9 @@ export default function CrematoriumForm() {
                       <span className="text-xs text-gray-500">{formData.address.length}/200</span>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">ඊමේල් *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                     <input
                       type="email"
                       name="applicantEmail"
@@ -538,10 +535,10 @@ export default function CrematoriumForm() {
                       <p className="mt-1 text-sm text-red-600">{errors.applicantEmail}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ජාතික හැඳුනුම්පත් අංකය *
+                      NIC (National ID) *
                     </label>
                     <input
                       type="text"
@@ -553,7 +550,7 @@ export default function CrematoriumForm() {
                       className={`w-full px-4 py-3 border rounded-lg ${
                         errors.nic ? "border-red-500 bg-red-50" : "border-gray-300"
                       }`}
-                      placeholder="200012345678 හෝ 881234567V"
+                      placeholder="200012345678 or 881234567V"
                     />
                     <div className="flex justify-between items-center mt-1">
                       {errors.nic ? (
@@ -569,11 +566,11 @@ export default function CrematoriumForm() {
 
               {/* Deceased Section */}
               <div className="bg-gray-50 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">මියගිය පුද්ගලයාගේ තොරතුරු</h2>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Deceased Person Details</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      මියගිය පුද්ගලයාගේ සම්පූර්ණ නම *
+                      Deceased Full Name *
                     </label>
                     <input
                       type="text"
@@ -585,7 +582,7 @@ export default function CrematoriumForm() {
                       className={`w-full px-4 py-3 border rounded-lg ${
                         errors.deceasedFullName ? "border-red-500 bg-red-50" : "border-gray-300"
                       }`}
-                      placeholder="මියගිය පුද්ගලයාගේ සම්පූර්ණ නම"
+                      placeholder="Deceased Full Name"
                     />
                     <div className="flex justify-between items-center mt-1">
                       {errors.deceasedFullName ? (
@@ -598,10 +595,10 @@ export default function CrematoriumForm() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      මරණය වූ දිනය *
+                      Date of Death *
                     </label>
                     <input
                       type="date"
@@ -618,10 +615,10 @@ export default function CrematoriumForm() {
                       <p className="mt-1 text-sm text-red-600">{errors.dateOfDeath}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      නේවාසික ප්‍රදේශය
+                      Residence Area
                     </label>
                     <select
                       name="residenceArea"
@@ -629,14 +626,14 @@ export default function CrematoriumForm() {
                       onChange={handleChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                     >
-                      <option value="within">නගර සීමා ඇතුළත</option>
-                      <option value="outside">නගර සීමා පිටත</option>
+                      <option value="within">Within municipal limits</option>
+                      <option value="outside">Outside municipal limits</option>
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      (ඇත්නම්) ලියාපදිංචි අංකය
+                      Registration Number (if any)
                     </label>
                     <input
                       type="text"
@@ -645,7 +642,7 @@ export default function CrematoriumForm() {
                       onChange={handleChange}
                       maxLength={50}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg"
-                      placeholder="ලියාපදිංචි අංකය"
+                      placeholder="Registration Number"
                     />
                     <div className="text-right mt-1">
                       <span className="text-xs text-gray-500">
@@ -658,11 +655,11 @@ export default function CrematoriumForm() {
 
               {/* Documents Section */}
               <div className="bg-yellow-50 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold text-yellow-800 mb-4">ලේඛන</h2>
+                <h2 className="text-xl font-semibold text-yellow-800 mb-4">Documents</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ස්වභාවික මරණයක් නම් ග්‍රාම නිලධාරී සහතිකය (ඡායාරූප/ PDF)
+                      For natural death: Grama Niladhari Certificate (Image/PDF)
                     </label>
                     <input
                       type="file"
@@ -677,7 +674,7 @@ export default function CrematoriumForm() {
                       value={formData.naturalDeathCertificate}
                       onChange={handleChange}
                       maxLength={300}
-                      placeholder="සටහනක් (විකල්ප)"
+                      placeholder="Note (optional)"
                       className="mt-3 w-full px-4 py-3 border border-gray-300 rounded-lg"
                     />
                     <div className="text-right mt-1">
@@ -686,10 +683,10 @@ export default function CrematoriumForm() {
                       </span>
                     </div>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      මරණ සහතිකය (ඡායාරූප/ PDF) *
+                      Death Certificate (Image/PDF) *
                     </label>
                     <input
                       type="file"
@@ -710,11 +707,11 @@ export default function CrematoriumForm() {
 
               {/* Cremation Details Section */}
               <div className="bg-green-50 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold text-green-800 mb-4">දහන විස්තර</h2>
+                <h2 className="text-xl font-semibold text-green-800 mb-4">Cremation Details</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="md:col-span-1">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      දහන දිනය *
+                      Cremation Date *
                     </label>
                     <input
                       type="date"
@@ -731,10 +728,10 @@ export default function CrematoriumForm() {
                       <p className="mt-1 text-sm text-red-600">{errors.cremationDate}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      ආරම්භ වේලාව *
+                      Start Time *
                     </label>
                     <input
                       type="time"
@@ -750,10 +747,10 @@ export default function CrematoriumForm() {
                       <p className="mt-1 text-sm text-red-600">{errors.startTime}</p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      අවසන් වේලාව *
+                      End Time *
                     </label>
                     <input
                       type="time"
@@ -786,7 +783,7 @@ export default function CrematoriumForm() {
                     }
                     className="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {checkingAvail ? "පිරික්සමින්..." : "ඇත/නැත පිරික්සන්න"}
+                    {checkingAvail ? "Checking..." : "Check Availability"}
                   </button>
                   {availability && (
                     <span
@@ -802,7 +799,7 @@ export default function CrematoriumForm() {
 
               {/* Declaration Section */}
               <div className="bg-red-50 p-6 rounded-lg">
-                <h2 className="text-xl font-semibold text-red-800 mb-4">ප්‍රකාශය</h2>
+                <h2 className="text-xl font-semibold text-red-800 mb-4">Declaration</h2>
                 <div className="flex items-start space-x-3">
                   <input
                     type="checkbox"
@@ -812,7 +809,7 @@ export default function CrematoriumForm() {
                     className="mt-1 h-5 w-5 text-blue-600 border-gray-300 rounded"
                   />
                   <label className="text-gray-700">
-                    සපයන ලද සියලු තොරතුරු නිවැරදි සහ සම්පූර්ණ බවට මම එකඟ වෙමි.
+                    I confirm that all the information provided is true and complete.
                   </label>
                 </div>
                 {errors.declarationAgreement && (
@@ -827,11 +824,11 @@ export default function CrematoriumForm() {
                   disabled={submitting || hasErrors || isFormIncomplete}
                   className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-4 px-12 rounded-lg transition-colors"
                 >
-                  {submitting ? "යැවෙමින්..." : "ඇනවුම යවන්න"}
+                  {submitting ? "Submitting..." : "Submit Application"}
                 </button>
                 {(hasErrors || isFormIncomplete) && (
                   <p className="mt-2 text-sm text-gray-600">
-                    කරුණාකර සියලු අවශ්‍ය ක්ෂේත්‍ර සම්පූර්ණ කර දෝෂ නිවැරදි කරන්න
+                    Please complete all required fields and fix the errors
                   </p>
                 )}
               </div>
@@ -843,7 +840,7 @@ export default function CrematoriumForm() {
               onClick={() => navigate("/my-bookings")}
               className="text-sm text-gray-600 hover:text-gray-800 underline"
             >
-              මාගේ ඇනවුම් පිටුවට යන්න
+              Go to My Bookings
             </button>
           </div>
         </div>
