@@ -116,8 +116,17 @@ const AdminHome = () => {
       icon: Users,
       color: 'indigo',
       description: 'Employee management and payroll',
-      route: '/hr'
+      route: '/hrofficerpage'
     },
+    {
+          id: 'userManagement',
+          title: 'Leave apply',
+          titleSinhala: 'නිවාඩු ඉල්ලුම් කිරීම',
+          icon: Settings,
+          color: 'red',
+          description: 'User roles and system administration',
+          route: '/leaveform'
+        },
     {
       id: 'userManagement',
       title: 'User & Admin Management',

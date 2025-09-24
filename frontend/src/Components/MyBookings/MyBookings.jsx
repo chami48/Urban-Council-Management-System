@@ -4,6 +4,8 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import Nav from "../Nav/Nav";
 import jsPDF from "jspdf";
+import Swal from "sweetalert2";
+
 
 // endpoints
 const PLAYGROUND_URL = "http://localhost:5000/playgrounds";
@@ -251,7 +253,8 @@ pdf.text("Urban Council - Horana", pageWidth - 75, signatureBaselineY + 3);
     const fileName = `${type === "playground" ? "Playground" : "Crematorium"}_Permit_${eventNameSafe}_${certNumber}.pdf`;
 
     pdf.save(fileName);
-    alert("Certificate generated successfully!");
+await Swal.fire("Success", "Certificate generated successfully!", "success");
+
     return true;
   } catch (error) {
     console.error("Error generating PDF:", error);

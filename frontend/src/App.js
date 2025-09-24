@@ -62,6 +62,18 @@ import HomeTamil from './Components/Property/tPropertyHome';
 import OfficerDisplayPage from './Components/Shop/OfficerDisplayPage';
 import Financial from './Components/Financial/Financial';
 
+ {/* chira */}
+import Leaveform from "./Components/HR/Leaveform";
+import Dashboard from "./Components/HR/Dashboard";
+import SalaryForm from "./Components/HR/SalaryForm";
+import SalaryTable from "./Components/HR/SalaryTable";
+import UpdateSalary from "./Components/HR/UpdateSalary";
+import Leavestatus from "./Components/HR/Leavestatus";
+import ViewSalary from "./Components/HR/ViewSalary";
+import AdminDashboard from "./Components/HR/AdminDashboard";
+import "./Components/HR/sweetalert-custom.css";
+import HROfficerDashboard from "./Components/HR/HROfficerDashboard"
+
 function App() {
   return (
     <div className="App">
@@ -309,7 +321,24 @@ function App() {
           <Route path="/officerdisplaypage" element={<OfficerDisplayPage />} />
           <Route path="/officer" element={<OfficerDashboard />} />
           <Route path="/financial" element={<Financial />} />
+
+            {/* chira */}
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/leaveform" element={<Leaveform />} />
+          <Route path="/leavestatus" element={<Leavestatus />} />
+          <Route path="/leave" element={<Leavestatus />} />
+          <Route path="/salary" element={<SalaryForm />} />
+          <Route path="/salary-table" element={<SalaryTable />} />
+          <Route path="/salary/update/:id" element={<UpdateSalary />} />
+          <Route path="/salary/view/:id" element={<ViewSalary />} />
+          <Route path="/hrofficerpage" element={<HROfficerDashboard />} />
+
+          
+
         </Routes>
+             
+
       </React.Fragment>
     </div>
   );

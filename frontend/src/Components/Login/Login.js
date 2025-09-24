@@ -60,19 +60,57 @@ function Login() {
     setCanSubmit(ok);
   }, [inputs]);
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   if (!canSubmit) return;
+
+  //   try {
+  //     const res = await axios.post("http://localhost:5000/auth/login", inputs, {
+  //       withCredentials: true,
+  //     });
+
+  //     localStorage.setItem("user", JSON.stringify(res.data.user));
+
+  //     await Swal.fire({
+  //     icon: "success",
+  //     title: "Welcome",
+  //     text: `Hello, ${res.data.user.name}`,
+  //     timer: 2000,
+  //     showConfirmButton: false
+  //   });
+
+
+  //     if (["admin","inventoryOfficer","financeAssesmentOfficer","hrManager","permitLicence","announcementService"].includes(res.data.user.role)) {
+  //       navigate("/admin");
+  //     } else {
+  //       navigate("/mainhome");
+  //     }
+  //   } catch (err) {
+  //     const msg = err?.response?.data?.message || "Login failed";
+  //     setError(msg);
+  //      Swal.fire({
+  //       icon: "error",
+  //       title: "Login Failed",
+  //       text: msg,
+  //       confirmButtonText: "Try Again"
+  //     });
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    if (!canSubmit) return;
+  e.preventDefault();
+  setError("");
+  if (!canSubmit) return;
 
-    try {
-      const res = await axios.post("http://localhost:5000/auth/login", inputs, {
-        withCredentials: true,
-      });
+  try {
+    const res = await axios.post("http://localhost:5000/auth/login", inputs, {
+      withCredentials: true,
+    });
 
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+    localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      await Swal.fire({
+    await Swal.fire({
       icon: "success",
       title: "Welcome",
       text: `Hello, ${res.data.user.name}`,
@@ -80,23 +118,52 @@ function Login() {
       showConfirmButton: false
     });
 
-
-      if (["admin","inventoryOfficer","financeAssesmentOfficer","hrManager","permitLicence","announcementService"].includes(res.data.user.role)) {
-        navigate("/admin");
+    // ✅ NEW: prioritize redirects from instruction pages
+    if (location.state?.fromPropertyTax) {
+      const lang = location.state?.language;
+      if (lang === "en") {
+        navigate("/propertyHome", { replace: true, state: {} });
+      } else if (lang === "ta") {
+        navigate("/tpropertyHome", { replace: true, state: {} });
       } else {
-        navigate("/mainhome");
+        navigate("/propertyHome", { replace: true, state: {} });
       }
-    } catch (err) {
-      const msg = err?.response?.data?.message || "Login failed";
-      setError(msg);
-       Swal.fire({
-        icon: "error",
-        title: "Login Failed",
-        text: msg,
-        confirmButtonText: "Try Again"
-      });
+      return; // prevent falling through to normal redirects
     }
-  };
+
+    if (location.state?.fromShopRent) {
+      navigate("/my-applications", { replace: true, state: {} });
+      return; // prevent falling through
+    }
+
+    // Normal login redirects (your existing logic)
+    const role = res.data.user.role;
+    if (
+      [
+        "admin",
+        "inventoryOfficer",
+        "financeAssesmentOfficer",
+        "hrManager",
+        "permitLicence",
+        "announcementService",
+      ].includes(role)
+    ) {
+      navigate("/admin");
+    } else {
+      navigate("/mainhome");
+    }
+  } catch (err) {
+    const msg = err?.response?.data?.message || "Login failed";
+    setError(msg);
+    Swal.fire({
+      icon: "error",
+      title: "Login Failed",
+      text: msg,
+      confirmButtonText: "Try Again"
+    });
+  }
+};
+
 
   return (
     <>

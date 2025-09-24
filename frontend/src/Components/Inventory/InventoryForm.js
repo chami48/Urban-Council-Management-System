@@ -9,10 +9,22 @@ export default function InventoryForm({
 }) {
   const [localError, setLocalError] = useState("");
 
-  const totalStock = useMemo(() => {
-    const q = Number(values.quantity || 0);
-    return Number.isFinite(q) ? q : 0;
-  }, [values.quantity]);
+  // const totalStock = useMemo(() => {
+  //   const q = Number(values.quantity || 0);
+  //   return Number.isFinite(q) ? q : 0;
+  // }, [values.quantity]);
+
+   const totalStockPrice = useMemo(() => {
+    const qty = Number(values.quantity);
+    const price = Number(values.unitPrice);
+    if (!Number.isFinite(qty) || !Number.isFinite(price)) return 0;
+    // round to 2 decimals
+    return Math.round((qty * price + Number.EPSILON) * 100) / 100;
+  }, [values.quantity, values.unitPrice]);
+
+
+
+
 
   const handleChange = (field) => (e) => {
     const v = e.target.value;
@@ -89,17 +101,15 @@ export default function InventoryForm({
       {/* --- Row 3: Units Count & Unit Price --- */}
       <div className="form-row two-cols">
         <div className="form-field">
-          <label htmlFor="unitsCount">Units Count</label>
+          <label htmlFor="unitsCount">Units</label>
           <input
             id="unitsCount"
-            type="number"
-            inputMode="numeric"
-            placeholder="e.g. 1, 5, 12"
+            type="text"
+            placeholder="e.g. pcs, kg, box"
             value={values.unitsCount}
-            onChange={handleNumberChange("unitsCount")}
+            onChange={handleChange("unitsCount")}
           />
         </div>
-
         <div className="form-field">
           <label htmlFor="unitPrice">Unit Price</label>
           <input
@@ -141,18 +151,21 @@ export default function InventoryForm({
         </div>
       </div>
 
-      {/* --- Row 5: Total Stock (aligned under Reorder Level column) --- */}
-      <div className="form-row two-cols">
+{/* --- Row 5: Total Stock Price (Quantity × Unit Price) --- */}
+       <div className="form-row two-cols">
         <div className="form-field">
-          <label htmlFor="totalStock">Total Stock</label>
+          <label htmlFor="totalStockPrice">Total Stock Price</label>
+          
           <input
-            id="totalStock"
+           id="totalStockPrice"
             type="number"
-            value={totalStock}
+            step="0.01"
+            value={totalStockPrice.toFixed(2)}
+
             readOnly
             className="readonly"
-            title="Total Stock equals current Quantity"
-          />
+           title="Total Stock Price = Quantity × Unit Price"
+           />
         </div>
         {/* keep the right column empty so Total Stock sits under Reorder Level */}
         <div className="form-field placeholder-col" />

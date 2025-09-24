@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Swal from "sweetalert2";   // ✅ added
+import Swal from "sweetalert2";   
 import "./AddProperty.css";
 import Nav from "../Nav/Nav";
 
@@ -76,6 +76,13 @@ function AddPropertyEnglish() {
             <option value="">Select Branch</option>
             <option value="Horana Town">Horana Town</option>
             <option value="Munagama">Munagama</option>
+            <option value="Horana East">Horana East</option>
+            <option value="Horana West">Horana West</option>
+            <option value="Nagoda">Nagoda</option>
+            <option value="Mawilmada">Mawilmada</option>
+            <option value="Wewala">Wewala</option>
+            <option value="Halthotiyawatta">Halthotiyawatta</option>
+            <option value="Urugala">Urugala</option>
           </select>
 
           <label>Division</label>
@@ -88,6 +95,21 @@ function AddPropertyEnglish() {
             <option value="">Select Division</option>
             <option value="Halapitiya">Halapitiya</option>
             <option value="Godigamuwa">Godigamuwa</option>
+            <option value="Palannoruwa">Palannoruwa</option>
+            <option value="Oluboduwa">Oluboduwa</option>
+            <option value="Thalagala">Thalagala</option>
+            <option value="Kahatapitiya">Kahatapitiya</option>
+            <option value="Millewa">Millewa</option>
+            <option value="Kotigamgoda">Kotigamgoda</option>
+            <option value="Kindelpitiya">Kindelpitiya</option>
+            <option value="Pelpitigoda">Pelpitigoda</option>
+            <option value="Handapangoda">Handapangoda</option>
+            <option value="Arakawila">Arakawila</option>
+            <option value="Kurana">Kurana</option>
+            <option value="Maha Ingiriya">Maha Ingiriya</option>
+            <option value="Wagawatte">Wagawatte</option>
+            <option value="Gurugoda">Gurugoda</option>
+            <option value="Uduwa">Uduwa</option>
           </select>
 
           <label>Street</label>
@@ -100,6 +122,19 @@ function AddPropertyEnglish() {
             <option value="">Select Street</option>
             <option value="Hospital Road">Hospital Road</option>
             <option value="Galkaduwa Road">Galkaduwa Road</option>
+            <option value="Anguruwathota Road">Anguruwathota Road</option>
+            <option value="Udawaththa Road">Udawaththa Road</option>
+            <option value="Sri Somananda Mawatha">Sri Somananda Mawatha</option>
+            <option value="Main Street">Main Street</option>
+            <option value="Albet Peiris Mawatha">Albet Peiris Mawatha</option>
+            <option value="B D L Gunasekara Mawatha">B D L Gunasekara Mawatha</option>
+            <option value="Dhammarathana Mawatha">Dhammarathana Mawatha</option>
+            <option value="Seelarathana Mawatha">Seelarathana Mawatha</option>
+            <option value="Suderis Silva Mawatha">Suderis Silva Mawatha</option>
+            <option value="1st Lane">1st Lane</option>
+            <option value="Housing Scheme">Housing Scheme</option>
+            <option value="National Housing Scheme - 1st Lane">National Housing Scheme - 1st Lane</option>
+            <option value="National Housing Scheme - 3rd Lane">National Housing Scheme - 3rd Lane</option>
           </select>
 
           <label>Property No</label>
