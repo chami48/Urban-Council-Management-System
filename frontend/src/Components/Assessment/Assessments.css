@@ -1,0 +1,53 @@
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.assessment-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.assessment-table th,
+.assessment-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.assessment-table th {
+  background-color: #f2f2f2;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.status-active {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.btn-update {
+  background-color: #5bc0de;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  margin-right: 4px;
+  cursor: pointer;
+}
+
+.btn-delete {
+  background-color: #d9534f;
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  cursor: pointer;
+}
