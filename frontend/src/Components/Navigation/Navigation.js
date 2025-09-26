@@ -132,7 +132,7 @@ const Navigation = ({ sidebarCollapsed, setSidebarCollapsed }) => {
                   <span className="text-white text-sm font-bold">AD</span>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">Admin User</p>
+                  <p className="text-sm font-semibold text-gray-900">officer</p>
                   <p className="text-xs text-gray-500">System Administrator</p>
                 </div>
               </div>

@@ -443,8 +443,8 @@ export default function InventoryList() {
           <div className="inv-header">
             <h2>Inventory</h2>
             <div className="header-actions">
-              <button className="btn" onClick={downloadInventoryPdfPage}>Export PDF (Page)</button>
-              <button className="btn" onClick={downloadInventoryPdfAll}>Export PDF (All)</button>
+              {/*<button className="btn" onClick={downloadInventoryPdfPage}>Export PDF (Page)</button>*/}
+              <button className="btn" onClick={downloadInventoryPdfAll}>Export PDF </button>
               <button className="btn" onClick={() => navigate("/inventory/logs")}>Inventory Log</button>
               <button className="btn primary" onClick={() => navigate("/inventory/add")}>+ Add Item</button>
             </div>

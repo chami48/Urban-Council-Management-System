@@ -16,7 +16,7 @@ function AddAssessment() {
     description: "",
     contactNo: "",
     propertyType: "Bussiness",
-    appraisedValue: "",
+    appraisedValue: "100000", // ✅ Default raw value (backend safe)
     taxRate: "",
     lat: "",
     lng: "",
@@ -28,7 +28,6 @@ function AddAssessment() {
     const { name, value } = e.target;
 
     if (name === "ownerName") {
-      // Only letters + spaces
       if (/^[A-Za-z\s]*$/.test(value)) {
         setInputs((prev) => ({ ...prev, [name]: value }));
       }
@@ -36,9 +35,6 @@ function AddAssessment() {
     }
 
     if (name === "ownerNIC") {
-      // Allow typing NIC in two formats:
-      // - up to 9 digits + optional V/v
-      // - up to 12 digits
       if (/^[0-9]{0,9}[Vv]?$/.test(value) || /^[0-9]{0,12}$/.test(value)) {
         setInputs((prev) => ({ ...prev, [name]: value }));
       }
@@ -46,7 +42,6 @@ function AddAssessment() {
     }
 
     if (name === "contactNo") {
-      // Only digits, max 10
       if (/^[0-9]*$/.test(value) && value.length <= 10) {
         setInputs((prev) => ({ ...prev, [name]: value }));
       }
@@ -54,9 +49,9 @@ function AddAssessment() {
     }
 
     if (name === "appraisedValue") {
-      // Must be number >= 1
-      if (value === "" || Number(value) >= 1) {
-        setInputs((prev) => ({ ...prev, [name]: value }));
+      const raw = value.replace(/Rs\s?/g, "").replace(/,/g, "");
+      if (raw === "" || !isNaN(raw)) {
+        setInputs((prev) => ({ ...prev, appraisedValue: raw }));
       }
       return;
     }
@@ -66,7 +61,6 @@ function AddAssessment() {
 
   const handleSubmit = async () => {
     try {
-      // Mock API call - replace with axios/fetch in real app
       console.log('Submitting:', {
         assessmentNo: inputs.assessmentNo,
         division: inputs.division,
@@ -77,7 +71,7 @@ function AddAssessment() {
         contactNo: inputs.contactNo,
         description: inputs.description,
         propertyType: inputs.propertyType,
-        appraisedValue: Number(inputs.appraisedValue),
+        appraisedValue: Number(inputs.appraisedValue), // ✅ raw number
         taxRate: Number(inputs.taxRate),
         status: inputs.status
       });
@@ -251,22 +245,27 @@ function AddAssessment() {
                     </select>
                   </div>
 
-                  {/* Appraised Value */}
+                  {/* Appraised Value (formatted Rs) */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-slate-700">
                       Appraised Value <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-3 text-slate-500">Rs.</span>
                       <input 
-                        type="number" 
+                        type="text" 
                         name="appraisedValue" 
-                        value={inputs.appraisedValue} 
-                        onChange={handleChange} 
-                        required 
-                        min={1}
+                        value={
+                          inputs.appraisedValue
+                            ? `Rs ${Number(inputs.appraisedValue).toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })}`
+                            : ""
+                        }
+                        onChange={handleChange}
+                        required
                         className="w-full pl-12 pr-4 py-3 border border-slate-300 rounded-lg"
-                        placeholder="0.00"
+                        placeholder="Rs 0.00"
                       />
                     </div>
                   </div>
