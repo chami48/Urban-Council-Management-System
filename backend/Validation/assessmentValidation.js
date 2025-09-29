@@ -52,7 +52,7 @@ const assessmentValidation = Joi.object({
 
   description: Joi.string().min(5).max(500).required(),
 
-  propertyType: Joi.string().valid("Bussiness", "House").required(),
+  propertyType: Joi.string().valid("Business", "House").required(),
 
   appraisedValue: Joi.number().positive().required(),
 

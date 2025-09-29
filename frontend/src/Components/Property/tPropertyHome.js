@@ -109,12 +109,16 @@ function HomeTamil() {
       </div>
     );
 
-  // 🔑 Helper: pick Tamil text, fallback to English if missing
+  //Helper: pick Tamil text, fallback to English if missing
   const getField = (field) => {
-    if (!field) return "-";
-    if (typeof field === "string") return field;
-    return field.ta || field.en || "-";
-  };
+  if (!field) return "-";
+  if (typeof field === "string") return field;
+
+  // Tamil first, then Sinhala, then English
+  return field.ta || field.si || field.en || "-";
+};
+
+
 
   return (
     <>

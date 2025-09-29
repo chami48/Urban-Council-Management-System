@@ -46,9 +46,9 @@ function AddPropertyEnglish() {
 
       const parts = inputs.propertyNo.split("/");
       if (parts.length === 2) {
-        navigate(`/propertyassessmentdetails/${parts[0]}/${parts[1]}`);
+        navigate(`/propertyassessmentdetails/${parts[0]}/${parts[1]}`, { state: { lang: "en" } });
       } else {
-        navigate(`/propertyassessmentdetails/${inputs.propertyNo}/`);
+        navigate(`/propertyassessmentdetails/${inputs.propertyNo}/`, { state: { lang: "en" } });
       }
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);

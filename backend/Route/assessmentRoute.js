@@ -10,7 +10,7 @@ router.get("/", assessmentController.getAllAssessments);
 router.post("/", assessmentController.addAssessment);
 router.post("/", validate(assessmentValidation), assessmentController.addAssessment);
 router.get("/:id", assessmentController.getAssessmentById);
-router.put("/:id", validate(assessmentValidation), assessmentController.updateAssessment);
+router.put("/assessments/:id", validate(assessmentValidation), assessmentController.updateAssessment);
 router.put("/:id", assessmentController.updateAssessment);
 router.delete("/:id", assessmentController.deleteAssessment);
 

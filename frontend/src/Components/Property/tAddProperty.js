@@ -46,10 +46,11 @@ function AddPropertyTamil() {
 
       const parts = inputs.propertyNo.split("/");
       if (parts.length === 2) {
-        navigate(`/propertyassessmentdetails/${parts[0]}/${parts[1]}`);
-      } else {
-        navigate(`/propertyassessmentdetails/${inputs.propertyNo}/`);
-      }
+  navigate(`/propertyassessmentdetails/${parts[0]}/${parts[1]}`, { state: { lang: "ta" } });
+} else {
+  navigate(`/propertyassessmentdetails/${inputs.propertyNo}/`, { state: { lang: "ta" } });
+}
+
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
       Swal.fire({

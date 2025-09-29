@@ -1,4 +1,4 @@
-const Assessment = require("../Model/AssessmentModel");
+const Assessment = require("../Model/assessmentModel");
 
 // Get all assessments
 const getAllAssessments = async (req, res) => {
@@ -49,19 +49,30 @@ const getAssessmentById = async (req, res) => {
 
 // Update assessment
 const updateAssessment = async (req, res) => {
-    try {
-        const assessment = await Assessment.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true }
-        );
-        if (!assessment) return res.status(404).json({ message: "Unable to update assessment" });
-        res.status(200).json({ assessment });
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: "Error updating assessment" });
+  try {
+    const assessment = await Assessment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,   // ✅ enforce schema rules
+      }
+    );
+
+    if (!assessment) {
+      return res.status(404).json({ message: "Assessment not found" });
     }
+
+    res.status(200).json({
+      message: "Assessment updated successfully",
+      assessment,
+    });
+  } catch (err) {
+    console.error("Update error:", err);
+    res.status(400).json({ message: err.message });
+  }
 };
+
 
 // Delete assessment
 const deleteAssessment = async (req, res) => {

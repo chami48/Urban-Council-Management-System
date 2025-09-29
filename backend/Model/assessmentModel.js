@@ -6,9 +6,10 @@ const assessmentSchema = new mongoose.Schema({
     street: { type: String, required: true },                       
     propertyNo: { type: String, required: true },                  
     ownerName: { type: String, required: true },                   
-    ownerNIC: { type: String, required: true },                    
+    ownerNIC: { type: String, required: true }, 
+    contactNo: { type: String, required: true },                   
     description:{type:String, required: true},                   
-    propertyType: { type: String, enum: ["Bussiness", "House"], required: true }, 
+    propertyType: { type: String, enum: ["Business", "House"], required: true },
     appraisedValue: { type: Number, required: true },                 
     taxRate: { type: Number, required: true },                      
     

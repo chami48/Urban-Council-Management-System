@@ -14,7 +14,7 @@ function Login() {
   const [error, setError] = useState("");
   const [canSubmit, setCanSubmit] = useState(false);
 
-  // 🔔 Show alert if ProtectedRoute sent one via state
+  // Show alert if ProtectedRoute sent one via state
   useEffect(() => {
     const msg = location.state?.alert;
     if (msg && !shownRef.current) {
@@ -118,18 +118,23 @@ function Login() {
       showConfirmButton: false
     });
 
-    // ✅ NEW: prioritize redirects from instruction pages
+    //NEW: prioritize redirects from instruction pages
     if (location.state?.fromPropertyTax) {
-      const lang = location.state?.language;
-      if (lang === "en") {
-        navigate("/propertyHome", { replace: true, state: {} });
-      } else if (lang === "ta") {
-        navigate("/tpropertyHome", { replace: true, state: {} });
-      } else {
-        navigate("/propertyHome", { replace: true, state: {} });
-      }
-      return; // prevent falling through to normal redirects
-    }
+  const lang = location.state?.language;
+
+  if (lang === "english") {
+    navigate("/propertyHome", { replace: true, state: {} });
+  } else if (lang === "tamil") {
+    navigate("/tpropertyHome", { replace: true, state: {} });
+  } else if (lang === "sinhala") {
+    navigate("/spropertyHome", { replace: true, state: {} });
+  } else {
+    // fallback
+    navigate("/propertyHome", { replace: true, state: {} });
+  }
+  return;
+}
+
 
     if (location.state?.fromShopRent) {
       navigate("/my-applications", { replace: true, state: {} });
