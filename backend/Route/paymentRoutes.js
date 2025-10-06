@@ -3,7 +3,7 @@ const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const Payment = require('../Model/Payment');
-const Assessment = require('../Model/AssessmentModel');
+const Assessment = require('../Model/assessmentModel');
 
 // 🔄 Map Stripe status → Your DB enum
 function mapStripeStatus(stripeStatus) {

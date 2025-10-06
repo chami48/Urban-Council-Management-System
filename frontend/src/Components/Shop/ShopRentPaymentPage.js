@@ -17,302 +17,80 @@ export default function ShopRentPaymentPage() {
   }, [shopId]);
 
   const handleProceedToPay = () => {
-    // Navigate using paymentType + shopId
     navigate(`/payment?paymentType=shop_rent&shopId=${shopId}`);
   };
 
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e7f3ff 75%, #f0f9ff 100%)',
-      backgroundSize: '400% 400%',
-      animation: 'gradientShift 15s ease infinite',
-      position: 'relative',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: '2rem 1rem'
-    },
-    backgroundOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `
-        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 50%)
-      `,
-      pointerEvents: 'none'
-    },
-    pageContent: {
-      position: 'relative',
-      zIndex: 1,
-      maxWidth: '800px',
-      margin: '0 auto'
-    },
-    header: {
-      fontSize: 'clamp(2rem, 4vw, 3rem)',
-      fontWeight: '800',
-      color: '#1e293b',
-      textAlign: 'center',
-      marginBottom: '3rem',
-      textShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-      letterSpacing: '-0.02em',
-      animation: 'slideInDown 0.8s ease-out'
-    },
-    paymentContainer: {
-      background: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '24px',
-      border: '1px solid rgba(226, 232, 240, 0.8)',
-      padding: '3rem',
-      boxShadow: `
-        0 20px 40px rgba(0, 0, 0, 0.08),
-        0 1px 0px rgba(255, 255, 255, 0.9) inset
-      `,
-      animation: 'slideInUp 0.8s ease-out 0.2s both',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    shimmerOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: '-100%',
-      width: '100%',
-      height: '100%',
-      background: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.05), transparent)',
-      animation: 'shimmer 3s infinite'
-    },
-    detailsBox: {
-      background: 'rgba(248, 250, 252, 0.8)',
-      borderRadius: '16px',
-      padding: '2rem',
-      marginBottom: '2rem',
-      border: '1px solid rgba(226, 232, 240, 0.6)',
-      animation: 'fadeIn 1s ease-out 0.4s both'
-    },
-    detailItem: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '0.75rem 0',
-      borderBottom: '1px solid rgba(226, 232, 240, 0.4)',
-      fontSize: '1rem',
-      color: '#475569'
-    },
-    detailItemLast: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '0.75rem 0',
-      fontSize: '1rem',
-      color: '#475569'
-    },
-    detailLabel: {
-      fontWeight: '600',
-      color: '#334155'
-    },
-    detailValue: {
-      fontWeight: '500',
-      color: '#1e293b'
-    },
-    summary: {
-      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-      borderRadius: '16px',
-      padding: '1.5rem 2rem',
-      marginBottom: '2rem',
-      color: 'white',
-      textAlign: 'center',
-      boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
-      animation: 'fadeIn 1s ease-out 0.6s both'
-    },
-    summaryText: {
-      fontSize: '1.2rem',
-      fontWeight: '700',
-      margin: 0
-    },
-    payBtn: {
-      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-      border: 'none',
-      borderRadius: '16px',
-      padding: '1.25rem 3rem',
-      color: 'white',
-      fontSize: '1.1rem',
-      fontWeight: '700',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)',
-      width: '100%',
-      textTransform: 'uppercase',
-      letterSpacing: '0.05em',
-      animation: 'fadeIn 1s ease-out 0.8s both',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    payBtnHover: {
-      transform: 'translateY(-2px)',
-      boxShadow: '0 12px 35px rgba(16, 185, 129, 0.5)'
-    },
-    loadingContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '60vh',
-      color: '#1e293b'
-    },
-    loadingSpinner: {
-      width: '60px',
-      height: '60px',
-      border: '4px solid rgba(59, 130, 246, 0.2)',
-      borderTop: '4px solid #3b82f6',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite',
-      marginBottom: '1rem'
-    },
-    loadingText: {
-      fontSize: '1.2rem',
-      fontWeight: '500',
-      textAlign: 'center'
-    },
-    icon: {
-      fontSize: '1.5rem',
-      marginRight: '0.5rem'
-    }
-  };
-
-  const keyframes = `
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    
-    @keyframes slideInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes slideInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-    }
-  `;
-
   if (!shopData) {
     return (
-      <div style={styles.container}>
-        <style>{keyframes}</style>
-        <div style={styles.backgroundOverlay}></div>
-        <div style={styles.pageContent}>
-          <div style={styles.loadingContainer}>
-            <div style={styles.loadingSpinner}></div>
-            <p style={styles.loadingText}>Loading shop details...</p>
-          </div>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-100 to-purple-200 dark:from-gray-900 dark:to-gray-800">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-indigo-600"></div>
       </div>
     );
   }
 
   return (
-    <div>
-      <Nav/>
-    <div style={styles.container}>
-      <style>{keyframes}</style>
-      <div style={styles.backgroundOverlay}></div>
-      <div style={styles.pageContent}>
-        <h2 style={styles.header}>
-          <span style={styles.icon}>🏪</span>
-          Shop Rent Payment
-        </h2>
-
-        <div style={styles.paymentContainer}>
-          <div style={styles.shimmerOverlay}></div>
-          
-          <div style={styles.detailsBox}>
-            <div style={styles.detailItem}>
-              <span style={styles.detailLabel}>🏷️ Shop Name:</span>
-              <span style={styles.detailValue}>{shopData.shopName}</span>
-            </div>
-            <div style={styles.detailItem}>
-              <span style={styles.detailLabel}>🔢 Shop No:</span>
-              <span style={styles.detailValue}>{shopData.shopNo}</span>
-            </div>
-            <div style={styles.detailItem}>
-              <span style={styles.detailLabel}>📍 Address:</span>
-              <span style={styles.detailValue}>{shopData.shopAddress}</span>
-            </div>
-            <div style={styles.detailItem}>
-              <span style={styles.detailLabel}>📅 Lease Duration:</span>
-              <span style={styles.detailValue}>{shopData.leaseDuration}</span>
-            </div>
-            <div style={styles.detailItemLast}>
-              <span style={styles.detailLabel}>💰 Monthly Rent:</span>
-              <span style={styles.detailValue}>LKR {shopData.requestedRent}</span>
-            </div>
-          </div>
-
-          <div style={styles.summary}>
-            <p style={styles.summaryText}>
-              Total Amount: LKR {shopData.requestedRent}
-            </p>
-          </div>
-
-          <button 
-            style={styles.payBtn} 
-            onClick={handleProceedToPay}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 12px 35px rgba(16, 185, 129, 0.5)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.4)';
-            }}
-          >
-            🚀 Proceed to Pay
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-pink-100 to-yellow-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700">
+      <Nav />
+      <div className="max-w-3xl mx-auto px-6 py-10">
+        
+        {/* Page Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold text-indigo-700 dark:text-white drop-shadow-md mb-2">
+            🏪 Shop Rent Payment
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300">
+            Review your shop details and proceed with payment.
+          </p>
         </div>
+
+        {/* Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 relative">
+          {/* Gradient top bar */}
+          <div className="h-2 bg-gradient-to-r from-indigo-500 via-pink-500 to-yellow-400"></div>
+
+          <div className="p-8 space-y-6">
+            {/* Shop Info */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Shop Name</p>
+                <p className="font-semibold text-lg text-gray-800 dark:text-gray-100">{shopData.shopName}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Shop No</p>
+                <p className="font-semibold text-lg text-gray-800 dark:text-gray-100">{shopData.shopNo}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                <p className="font-semibold text-lg text-gray-800 dark:text-gray-100">{shopData.shopAddress}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Lease Duration</p>
+                <p className="font-semibold text-lg text-gray-800 dark:text-gray-100">{shopData.leaseDuration}</p>
+              </div>
+            </div>
+
+            {/* Rent Section */}
+            <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-2xl shadow-lg p-6 text-center">
+              <p className="text-xl font-bold">💰 Monthly Rent</p>
+              <p className="text-3xl font-extrabold mt-2">LKR {shopData.requestedRent}</p>
+            </div>
+
+            {/* Total + Pay Button */}
+            <div className="flex flex-col items-center gap-4 mt-6">
+              <p className="text-xl font-semibold text-gray-700 dark:text-gray-200">
+                Total Amount: <span className="text-indigo-600 dark:text-indigo-400">LKR {shopData.requestedRent}</span>
+              </p>
+              <button
+                onClick={handleProceedToPay}
+                className="px-8 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white text-lg font-bold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300"
+              >
+                🚀 Proceed to Pay
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
     </div>
   );
 }

@@ -159,9 +159,44 @@ const MyApplications = () => {
                 {/* Actions */}
                 <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl space-y-4">
                   {application.status === 'pending' && (
-                    <p className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-center font-medium shadow-inner">
-                      ⏳ Your application is being reviewed by our officers.
-                    </p>
+                    <div className="flex flex-col items-center gap-3">
+                      <p className="bg-yellow-100 text-yellow-800 px-4 py-2 rounded-lg text-center font-medium shadow-inner">
+                        ⏳ Your application is being reviewed by our officers.
+                      </p>
+                      <div className="flex gap-3">
+                        <button 
+                          onClick={() => navigate(`/update-application/${application._id}`)}
+                          className="px-6 py-2 rounded-full bg-blue-500 text-white font-bold shadow-md hover:bg-blue-600 transition"
+                        >
+                          ✏️ Update
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            const confirm = await Swal.fire({
+                              title: "Are you sure?",
+                              text: "This will permanently delete your application.",
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonColor: "#d33",
+                              cancelButtonColor: "#3085d6",
+                              confirmButtonText: "Yes, delete it!"
+                            });
+                            if (confirm.isConfirmed) {
+                              try {
+                                await axios.delete(`http://localhost:5000/api/shop-applications/${application._id}`);
+                                Swal.fire("Deleted!", "Your application has been deleted.", "success");
+                                fetchApplications(citizenNIC);
+                              } catch (error) {
+                                Swal.fire("Error", "Failed to delete application.", "error");
+                              }
+                            }
+                          }}
+                          className="px-6 py-2 rounded-full bg-red-500 text-white font-bold shadow-md hover:bg-red-600 transition"
+                        >
+                          🗑️ Delete
+                        </button>
+                      </div>
+                    </div>
                   )}
 
                   {application.status === 'approved' && (

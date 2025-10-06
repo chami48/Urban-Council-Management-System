@@ -61,6 +61,7 @@ import TaxCalculationTamil from './Components/Property/tPropertyTaxCalculator';
 import HomeTamil from './Components/Property/tPropertyHome';
 import OfficerDisplayPage from './Components/Shop/OfficerDisplayPage';
 import Financial from './Components/Financial/Financial';
+import UpdateApplication from './Components/Shop/updateShop.js';
 
  {/* chira */}
 import Leaveform from "./Components/HR/Leaveform";
@@ -148,7 +149,8 @@ function App() {
           <Route path="/propertytax" element={<PropertyTax />} />
           <Route path="/assessmentdetails" element={<Assessments />} />
           <Route path="/propertyTaxCalculation/:part1/:part2" element={<PropertyTaxCalculator />} />
-          <Route path="/payment-details" element={<PaymentDetailsPage />} />
+          <Route path="/payment-details/:part1/:part2" element={<PaymentDetailsPage />} />
+          <Route path="/update-application/:id" element={<UpdateApplication/>}/>
 
           {/* Complaints */}
           <Route
