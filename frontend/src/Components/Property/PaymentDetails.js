@@ -8,6 +8,7 @@ export default function PaymentDetailsPage() {
   const [propertyData, setPropertyData] = useState(null);
   const [assessmentData, setAssessmentData] = useState(null);
   const [taxData, setTaxData] = useState(null);
+  const [paymentAmount, setPaymentAmount] = useState(""); // user input
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -31,6 +32,9 @@ export default function PaymentDetailsPage() {
           `http://localhost:5000/calculateTax/${encodedNo}`
         );
         setTaxData(taxRes.data || null);
+
+        // pre-fill payment amount with backend payable
+        setPaymentAmount(taxRes.data?.payableAmount || "");
       } catch (err) {
         console.error("Error fetching payment details:", err);
         setError("Failed to load payment details");
@@ -42,14 +46,15 @@ export default function PaymentDetailsPage() {
     if (propertyNo) fetchData();
   }, [propertyNo]);
 
-  if (loading) return <p className="text-center text-gray-500">⏳ Loading...</p>;
+  if (loading)
+    return <p className="text-center text-gray-500">⏳ Loading...</p>;
   if (error) return <p className="text-center text-red-500">❌ {error}</p>;
 
   const handleProceedToPay = () => {
     navigate(
       `/payment?paymentType=property_tax&propertyNo=${encodeURIComponent(
         propertyNo
-      )}&year=${year}&quarter=${quarter}`
+      )}&year=${year}&quarter=${quarter}&amount=${paymentAmount}`
     );
   };
 
@@ -63,6 +68,7 @@ export default function PaymentDetailsPage() {
           </h2>
 
           {/* Property Info */}
+          {/* Property Info */}
           {propertyData && (
             <div className="bg-white shadow-lg rounded-2xl p-6 mb-6 border border-gray-200">
               <h3 className="text-xl font-semibold text-indigo-600 mb-4">
@@ -71,11 +77,19 @@ export default function PaymentDetailsPage() {
               <p>
                 <b>Property No:</b> {propertyData.propertyNo}
               </p>
+
               <p>
-                <b>Division:</b> {propertyData.division?.en || "-"}
+                <b>Division:</b>
+                <br /> {propertyData.division?.en}
+                {propertyData.division?.si||"-"}
+                {propertyData.division?.ta}
               </p>
+
               <p>
-                <b>Street:</b> {propertyData.street?.en || "-"}
+                <b>Street:</b>
+                <br /> {propertyData.street?.en}
+                {propertyData.street?.si}
+                {propertyData.street?.ta}
               </p>
             </div>
           )}
@@ -86,63 +100,58 @@ export default function PaymentDetailsPage() {
               <h3 className="text-xl font-semibold text-indigo-600 mb-4">
                 Owner & Assessment
               </h3>
-              <p><b>Owner:</b> {assessmentData.ownerName}</p>
-              <p><b>NIC:</b> {assessmentData.ownerNIC}</p>
-              <p><b>Contact:</b> {assessmentData.contactNo}</p>
-              <p><b>Type:</b> {assessmentData.propertyType}</p>
-            </div>
-          )}
-
-          {/* Tax Summary */}
-          {taxData && (
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl shadow-lg p-6 mb-6">
-              <h3 className="text-lg font-semibold mb-2">Payment Summary</h3>
-              <p>Annual Tax: LKR {taxData.annualTax.toLocaleString()}</p>
-              <p>Discount: -LKR {taxData.discount.toLocaleString()}</p>
-              <p>Fine: +LKR {taxData.fine.toLocaleString()}</p>
-              <p className="text-2xl font-bold mt-3">
-                Total Payable: LKR {taxData.payableAmount.toLocaleString()}
+              <p>
+                <b>Owner:</b> {assessmentData.ownerName}
+              </p>
+              <p>
+                <b>NIC:</b> {assessmentData.ownerNIC}
+              </p>
+              <p>
+                <b>Contact:</b> {assessmentData.contactNo}
+              </p>
+              <p>
+                <b>Type:</b> {assessmentData.propertyType}
               </p>
             </div>
           )}
 
-          {/* Quarter Breakdown */}
-          {taxData?.quarters && (
-            <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-indigo-600">
-                Quarter Breakdown
-              </h3>
-              {taxData.quarters.map((q) => (
-                <div
-                  key={q.quarter}
-                  className={`p-4 mb-3 rounded-lg ${
-                    q.status === "Paid"
-                      ? "bg-green-100"
-                      : q.status === "Overdue"
-                      ? "bg-red-100"
-                      : "bg-yellow-100"
-                  }`}
-                >
-                  <p><b>Quarter {q.quarter}</b> (Due {new Date(q.dueDate).toLocaleDateString()})</p>
-                  <p>Base: LKR {q.baseAmount.toLocaleString()}</p>
-                  <p>Paid: LKR {q.paidAmount.toLocaleString()}</p>
-                  <p>Remaining: LKR {q.remainingDue.toLocaleString()}</p>
-                  <p>Fine: LKR {q.fine.toLocaleString()}</p>
-                  <p>Status: {q.status}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Pay Button */}
+          {/* Tax Summary + Editable Payment */}
           {taxData && (
-            <div className="flex justify-center">
-              <button
-                onClick={handleProceedToPay}
-                className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition transform hover:scale-105"
-              >
-                💳 Confirm Payment
-              </button>
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl shadow-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold mb-4">💰 Payment Entry</h3>
+
+              {/* Display summary */}
+              <div className="mb-4 space-y-1">
+                <p>
+                  Annual Tax: <b>LKR {taxData.annualTax.toLocaleString()}</b>
+                </p>
+                <p>Discount: -LKR {taxData.discount.toLocaleString()}</p>
+                <p>Fine: +LKR {taxData.fine.toLocaleString()}</p>
+              </div>
+
+              {/* Input for user payment */}
+              <div className="flex flex-col space-y-2">
+                <label className="font-semibold">
+                  Enter Payment Amount (LKR)
+                </label>
+                <input
+                  type="number"
+                  className="px-4 py-2 rounded-lg text-gray-800 border border-gray-300 focus:ring-2 focus:ring-yellow-400"
+                  placeholder="Enter amount"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                />
+              </div>
+
+              {/* Proceed */}
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={handleProceedToPay}
+                  className="px-8 py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl shadow-md transition transform hover:scale-105"
+                >
+                  ✅ Confirm Payment
+                </button>
+              </div>
             </div>
           )}
         </div>

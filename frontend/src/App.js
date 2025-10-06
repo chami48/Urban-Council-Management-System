@@ -149,7 +149,7 @@ function App() {
           <Route path="/propertytax" element={<PropertyTax />} />
           <Route path="/assessmentdetails" element={<Assessments />} />
           <Route path="/propertyTaxCalculation/:part1/:part2" element={<PropertyTaxCalculator />} />
-          <Route path="/payment-details/:part1/:part2" element={<PaymentDetailsPage />} />
+          <Route path="/payment-details/:propertyNo/:year/:quarter" element={<PaymentDetailsPage />} />
           <Route path="/update-application/:id" element={<UpdateApplication/>}/>
 
           {/* Complaints */}

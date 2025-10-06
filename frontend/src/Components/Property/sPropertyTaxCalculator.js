@@ -8,7 +8,6 @@ function TaxCalculationSinhala() {
   const { propertyNo, part1, part2 } = useParams();
   const navigate = useNavigate();
 
-  // Handle different URL patterns safely
   const actualPropertyNo = propertyNo
     ? decodeURIComponent(propertyNo)
     : part1 && part2
@@ -30,19 +29,16 @@ function TaxCalculationSinhala() {
       try {
         const encodedPropertyNo = encodeURIComponent(actualPropertyNo);
 
-        // Fetch property
         const propertyRes = await axios.get(
           `http://localhost:5000/properties/propertyNo/${encodedPropertyNo}`
         );
         setProperty(propertyRes.data?.property || null);
 
-        // Fetch assessment
         const assessmentRes = await axios.get(
           `http://localhost:5000/assessments/propertyNo/${encodedPropertyNo}`
         );
         setAssessment(assessmentRes.data?.assessment || null);
 
-        // Fetch tax calculation
         const taxRes = await axios.get(
           `http://localhost:5000/calculateTax/${encodedPropertyNo}`
         );
@@ -58,274 +54,12 @@ function TaxCalculationSinhala() {
     fetchData();
   }, [actualPropertyNo]);
 
-  const formatCurrency = (num) =>
-    num ? `රු. ${Number(num).toLocaleString()}` : "රු. 0";
-
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e7f3ff 75%, #f0f9ff 100%)',
-      backgroundSize: '400% 400%',
-      animation: 'gradientShift 15s ease infinite',
-      position: 'relative',
-      fontFamily: 'Noto Sans Sinhala, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-    },
-    backgroundOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `
-        radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 50%)
-      `,
-      pointerEvents: 'none'
-    },
-    pageContent: {
-      position: 'relative',
-      zIndex: 1,
-      maxWidth: '1000px',
-      margin: '0 auto',
-      padding: '2rem 1rem'
-    },
-    header: {
-      textAlign: 'center',
-      marginBottom: '3rem',
-      animation: 'slideInDown 0.8s ease-out'
-    },
-    title: {
-      fontSize: 'clamp(2rem, 4vw, 3rem)',
-      fontWeight: '800',
-      color: '#1e293b',
-      marginBottom: '1rem',
-      textShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-      letterSpacing: '-0.02em'
-    },
-    cardsContainer: {
-      display: 'grid',
-      gap: '2rem',
-      marginBottom: '3rem'
-    },
-    card: {
-      background: 'rgba(255, 255, 255, 0.8)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '20px',
-      border: '1px solid rgba(226, 232, 240, 0.8)',
-      padding: '2rem',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
-      animation: 'slideInUp 0.8s ease-out',
-      position: 'relative',
-      overflow: 'hidden'
-    },
-    cardShimmer: {
-      position: 'absolute',
-      top: 0,
-      left: '-100%',
-      width: '100%',
-      height: '100%',
-      background: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.05), transparent)',
-      animation: 'shimmer 3s infinite'
-    },
-    cardHeader: {
-      display: 'flex',
-      alignItems: 'center',
-      marginBottom: '1.5rem',
-      paddingBottom: '1rem',
-      borderBottom: '2px solid rgba(59, 130, 246, 0.1)'
-    },
-    cardIcon: {
-      fontSize: '2rem',
-      marginRight: '1rem'
-    },
-    cardTitle: {
-      fontSize: '1.5rem',
-      fontWeight: '700',
-      color: '#1e293b',
-      margin: 0
-    },
-    cardContent: {
-      fontSize: '1.1rem',
-      color: '#475569',
-      lineHeight: '1.8',
-      fontWeight: '500'
-    },
-    propertyDetails: {
-      background: 'rgba(248, 250, 252, 0.8)',
-      borderRadius: '12px',
-      padding: '1.5rem',
-      marginTop: '1rem'
-    },
-    taxSummaryCard: {
-      background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-      color: 'white',
-      textAlign: 'center'
-    },
-    taxAmount: {
-      fontSize: 'clamp(2rem, 5vw, 3rem)',
-      fontWeight: '900',
-      textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
-      marginTop: '1rem'
-    },
-    taxLabel: {
-      fontSize: '1.2rem',
-      fontWeight: '600',
-      opacity: 0.9
-    },
-    actionsContainer: {
-      display: 'flex',
-      gap: '1rem',
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      animation: 'fadeIn 1s ease-out 0.8s both'
-    },
-    button: {
-      background: 'rgba(255, 255, 255, 0.9)',
-      backdropFilter: 'blur(10px)',
-      border: '1px solid rgba(226, 232, 240, 0.8)',
-      borderRadius: '12px',
-      padding: '1rem 2rem',
-      color: '#334155',
-      fontSize: '1rem',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem'
-    },
-    primaryButton: {
-      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-      color: 'white',
-      border: 'none',
-      boxShadow: '0 8px 25px rgba(16, 185, 129, 0.3)'
-    },
-    secondaryButton: {
-      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-      color: 'white',
-      border: 'none',
-      boxShadow: '0 8px 25px rgba(245, 158, 11, 0.3)'
-    },
-    loadingContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '60vh',
-      color: '#1e293b'
-    },
-    loadingSpinner: {
-      width: '60px',
-      height: '60px',
-      border: '4px solid rgba(59, 130, 246, 0.2)',
-      borderTop: '4px solid #3b82f6',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite',
-      marginBottom: '1.5rem'
-    },
-    loadingText: {
-      fontSize: '1.2rem',
-      fontWeight: '600'
-    },
-    errorContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '60vh',
-      textAlign: 'center'
-    },
-    errorCard: {
-      background: 'rgba(255, 255, 255, 0.9)',
-      backdropFilter: 'blur(20px)',
-      borderRadius: '20px',
-      border: '1px solid rgba(239, 68, 68, 0.2)',
-      padding: '3rem',
-      maxWidth: '500px',
-      width: '100%',
-      boxShadow: '0 20px 40px rgba(0, 0, 0, 0.08)'
-    },
-    errorIcon: {
-      fontSize: '4rem',
-      marginBottom: '1rem'
-    },
-    errorTitle: {
-      fontSize: '2rem',
-      fontWeight: '700',
-      color: '#ef4444',
-      marginBottom: '1rem'
-    },
-    errorMessage: {
-      fontSize: '1.1rem',
-      color: '#64748b',
-      marginBottom: '2rem'
-    }
-  };
-
-  const keyframes = `
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    
-    @keyframes slideInDown {
-      from {
-        opacity: 0;
-        transform: translateY(-30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes slideInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes shimmer {
-      0% { left: -100%; }
-      100% { left: 100%; }
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `;
-
   if (loading) {
     return (
-      <div style={styles.container}>
-        <style>{keyframes}</style>
-        <div style={styles.backgroundOverlay}></div>
+      <div>
         <Nav />
-        <div style={styles.pageContent}>
-          <div style={styles.loadingContainer}>
-            <div style={styles.loadingSpinner}></div>
-            <p style={styles.loadingText}>⏳ දත්ත ගෙන එමින්...</p>
-          </div>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <p className="text-center text-gray-500 text-lg">⏳ දත්ත ගෙන එමින්...</p>
         </div>
       </div>
     );
@@ -333,146 +67,156 @@ function TaxCalculationSinhala() {
 
   if (error) {
     return (
-      <div style={styles.container}>
-        <style>{keyframes}</style>
-        <div style={styles.backgroundOverlay}></div>
+      <div>
         <Nav />
-        <div style={styles.pageContent}>
-          <div style={styles.errorContainer}>
-            <div style={styles.errorCard}>
-              <div style={styles.errorIcon}>❌</div>
-              <h2 style={styles.errorTitle}>දෝෂයක්!</h2>
-              <p style={styles.errorMessage}>{error}</p>
-            </div>
-          </div>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <p className="text-center text-red-500 text-lg">❌ {error}</p>
         </div>
       </div>
     );
   }
 
-  if (!property) {
-    return (
-      <div style={styles.container}>
-        <style>{keyframes}</style>
-        <div style={styles.backgroundOverlay}></div>
-        <Nav />
-        <div style={styles.pageContent}>
-          <div style={styles.errorContainer}>
-            <div style={styles.errorCard}>
-              <div style={styles.errorIcon}>⚠️</div>
-              <h2 style={styles.errorTitle}>දේපල සොයාගත නොහැක</h2>
-            </div>
-          </div>
-        </div>
-      </div>
+  const handleProceedToPay = () => {
+    const year = new Date().getFullYear();
+    const quarter = Math.ceil((new Date().getMonth() + 1) / 3);
+    navigate(
+      `/payment-details/${encodeURIComponent(actualPropertyNo)}/${year}/${quarter}`
     );
-  }
+  };
 
   return (
-    <div style={styles.container}>
-      <style>{keyframes}</style>
-      <div style={styles.backgroundOverlay}></div>
+    <div>
       <Nav />
-      <div style={styles.pageContent}>
-        {/* Header */}
-        <div style={styles.header}>
-          <h1 style={styles.title}>🏠 දේපල බදු බිල් සාරාංශය</h1>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4">
+        <div className="w-full max-w-3xl">
+          <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+            🏠 දේපල බදු බිල් සාරාංශය
+          </h2>
 
-        <div style={styles.cardsContainer}>
-          {/* Property Info Card */}
-          <div style={styles.card}>
-            <div style={styles.cardShimmer}></div>
-            <div style={styles.cardHeader}>
-              <span style={styles.cardIcon}>🏘️</span>
-              <h2 style={styles.cardTitle}>දේපල තොරතුරු</h2>
+          {/* Property Information */}
+          {property && (
+            <div className="bg-white shadow-lg rounded-2xl p-6 mb-6 border border-gray-200">
+              <h3 className="text-xl font-semibold text-indigo-600 mb-4">
+                දේපල තොරතුරු
+              </h3>
+              <p className="mb-2">
+                <b>දේපල අංකය:</b> {property.propertyNo}
+              </p>
+              <p className="mb-2">
+                <b>කොට්ඨාශය:</b> {property.division?.si || "-"}
+              </p>
+              <p className="mb-2">
+                <b>වීදිය:</b> {property.street?.si || "-"}
+              </p>
+              {property.branch?.si && (
+                <p className="mb-2">
+                  <b>ශාඛාව:</b> {property.branch.si}
+                </p>
+              )}
             </div>
-            <div style={styles.propertyDetails}>
-              <p style={styles.cardContent}>
-                {property.branch?.si || "-"}, {property.division?.si || "-"},{" "}
-                {property.street?.si || "-"}, {property.propertyNo}
+          )}
+
+          {/* Owner & Assessment Info */}
+          {assessment && (
+            <div className="bg-white shadow-lg rounded-2xl p-6 mb-6 border border-gray-200">
+              <h3 className="text-xl font-semibold text-indigo-600 mb-4">
+                අයිතිකරු සහ තක්සේරු විස්තර
+              </h3>
+              <p className="mb-2">
+                <b>අයිතිකරු:</b> {assessment.ownerName || "-"}
+              </p>
+              <p className="mb-2">
+                <b>ජා.හැ.ප.:</b> {assessment.ownerNIC || "-"}
+              </p>
+              <p className="mb-2">
+                <b>සම්බන්ධතා අංකය:</b> {assessment.contactNo || "-"}
+              </p>
+              <p className="mb-2">
+                <b>දේපල වර්ගය:</b> {assessment.propertyType || "-"}
               </p>
             </div>
-          </div>
+          )}
 
-          {/* Owner Info Card */}
-          <div style={styles.card}>
-            <div style={styles.cardShimmer}></div>
-            <div style={styles.cardHeader}>
-              <span style={styles.cardIcon}>👤</span>
-              <h2 style={styles.cardTitle}>අයිතිකරුගේ තොරතුරු</h2>
-            </div>
-            <div style={styles.propertyDetails}>
-              <p style={styles.cardContent}>
-                {assessment?.ownerName || "-"} - {assessment?.ownerNIC || "-"}
+          {/* Tax Summary */}
+          {taxDetails && (
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-2xl shadow-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold mb-4">ගෙවීම් සාරාංශය</h3>
+              <p className="mb-2">
+                වාර්ෂික බද්ද: රු. {taxDetails.annualTax?.toLocaleString() || "0"}
+              </p>
+              <p className="mb-2">
+                වට්ටම: -රු. {taxDetails.discount?.toLocaleString() || "0"}
+              </p>
+              <p className="mb-2">
+                දඩ මුදල: +රු. {taxDetails.fine?.toLocaleString() || "0"}
+              </p>
+              <p className="text-2xl font-bold mt-4">
+                ගෙවිය යුතු මුළු මුදල: රු. {taxDetails.payableAmount?.toLocaleString() || "0"}
               </p>
             </div>
-          </div>
+          )}
 
-          {/* Tax Summary Card */}
-          <div style={{...styles.card, ...styles.taxSummaryCard}}>
-            <div style={styles.cardHeader}>
-              <span style={styles.cardIcon}>💰</span>
-              <h2 style={styles.cardTitle}>බදු සාරාංශය</h2>
+          {/* Quarter Breakdown */}
+          {taxDetails?.quarters && taxDetails.quarters.length > 0 && (
+            <div className="bg-white shadow-lg rounded-2xl p-6 border border-gray-200 mb-6">
+              <h3 className="text-lg font-semibold mb-4 text-indigo-600">
+                කාර්තු විස්තර
+              </h3>
+              {taxDetails.quarters.map((q) => (
+                <div
+                  key={q.quarter}
+                  className={`p-4 mb-3 rounded-lg ${
+                    q.status === "Paid"
+                      ? "bg-green-100"
+                      : q.status === "Overdue"
+                      ? "bg-red-100"
+                      : "bg-yellow-100"
+                  }`}
+                >
+                  <p className="font-semibold mb-2">
+                    <b>{q.quarter} වන කාර්තුව</b> (නියමිත දිනය: {new Date(q.dueDate).toLocaleDateString()})
+                  </p>
+                  <p className="text-sm mb-1">
+                    මූලික මුදල: රු. {q.baseAmount?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-sm mb-1">
+                    ගෙවූ මුදල: රු. {q.paidAmount?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-sm mb-1">
+                    ඉතිරි මුදල: රු. {q.remainingDue?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-sm mb-1">
+                    දඩ මුදල: රු. {q.fine?.toLocaleString() || "0"}
+                  </p>
+                  <p className="text-sm font-semibold mt-2">
+                    තත්ත්වය: {q.status === "Paid" ? "ගෙවා ඇත" : q.status === "Overdue" ? "කල් ඉකුත් වී ඇත" : "ගෙවිය යුතුයි"}
+                  </p>
+                </div>
+              ))}
             </div>
-            <div style={styles.taxLabel}>ගෙවිය යුතු මුළු ගාස්තුව</div>
-            <div style={styles.taxAmount}>
-              {formatCurrency(taxDetails?.payableAmount || 0)}
-            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-4 justify-center">
+            <button
+              onClick={() => navigate(-1)}
+              className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-xl shadow-md transition transform hover:scale-105"
+            >
+              ← ආපසු
+            </button>
+            <button
+              onClick={() => {/* Add payment history navigation */}}
+              className="px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl shadow-md transition transform hover:scale-105"
+            >
+              📊 ගෙවීම් ඉතිහාසය
+            </button>
+            <button
+              onClick={handleProceedToPay}
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl shadow-md transition transform hover:scale-105"
+            >
+              💳 ගෙවීම තහවුරු කරන්න
+            </button>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div style={styles.actionsContainer}>
-          <button 
-            style={styles.button} 
-            onClick={() => navigate(-1)}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 6px 20px rgba(0, 0, 0, 0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.08)';
-            }}
-          >
-            ← ආපසු
-          </button>
-
-          <button 
-            style={{...styles.button, ...styles.secondaryButton}}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 12px 35px rgba(245, 158, 11, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 8px 25px rgba(245, 158, 11, 0.3)';
-            }}
-          >
-            📊 ගෙවීම් ඉතිහාසය
-          </button>
-
-          <button
-            style={{...styles.button, ...styles.primaryButton}}
-            onClick={() => {
-              const year = new Date().getFullYear();
-              const quarter = Math.ceil((new Date().getMonth() + 1) / 3);
-              navigate(
-                `/payment-details/${encodeURIComponent(actualPropertyNo)}/${year}/${quarter}`
-              );
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 12px 35px rgba(16, 185, 129, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = 'translateY(0)';
-              e.target.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.3)';
-            }}
-          >
-            💳 ගෙවීම තහවුරු කරන්න
-          </button>
         </div>
       </div>
     </div>
