@@ -34,7 +34,7 @@ const ShopApplicationSchema = new mongoose.Schema({
   agreeTerms: { type: Boolean, default: false },
   informationAccurate: { type: Boolean, default: false },
 
-  // System fields
+  // System fields  
   status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
   createdAt: { type: Date, default: Date.now }
 });
