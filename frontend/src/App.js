@@ -22,13 +22,20 @@ import Adminbooking from './Components/Admincheck/Adminbooking';
 import Displaybooking from './Components/Displaybooking/Displaybooking';
 import HoranaCouncilLanding from './Components/Landing/oranaCouncilLanding';
 import AdminHome from './Components/AdminHome/AdminHome';
+
 import AddProperty from './Components/Property/AddProperty';
 import PropertyAssessmentDetails from './Components/Property/PropertyAssessmentDetails';
 import PropertyHome from './Components/Property/PropertyHome';
 import AddAssessment from './Components/Assessment/AddAssessment';
+
 import Complaints from './Components/Complaint/Complaints';
+import TComplaints from './Components/Complaint/tComplaints';
+import SComplaints from './Components/Complaint/sComplaints';
 import Announcements from './Components/Announcements/Announcements';
 import ContactUs from './Components/ContactUs/contactus';
+import TContactUs from './Components/ContactUs/Tcontactus';
+import EContactUs from './Components/ContactUs/Econtactus';
+
 import ServicesChatbot from './Components/chatbot/ServicesChatbot';
 import ComplaintsDetails from './Components/Complaint/ComplaintsDetails';
 import UpdateAssessment from './Components/Assessment/UpdateAssessment';
@@ -186,8 +193,29 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/scomplaint"
+            element={
+              <ProtectedRoute onForbiddenRedirect="/login">
+                <SComplaints />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/tcomplaint"
+            element={
+              <ProtectedRoute onForbiddenRedirect="/login">
+                <TComplaints />
+              </ProtectedRoute>
+            }
+          />
+          
           <Route path="/announcements" element={<Announcements />} />
           <Route path="/contact" element={<ContactUs />} />
+          <Route path='/econtactus' element={<EContactUs />} />
+          <Route path='/tcontactus' element={<TContactUs />} />
           <Route path="/chatbot" element={<ServicesChatbot />} />
           <Route
             path="/complaintsDetails"

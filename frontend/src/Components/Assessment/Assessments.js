@@ -2,41 +2,31 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf"; // ✅ fixed import (must destructure)
 import autoTable from "jspdf-autotable";
 import Navigation from "../Navigation/Navigation";
+
 import {
   Building,
   Search,
   Plus,
   Edit,
   Trash2,
-  FileText,
-  MapPin,
   User,
   Phone,
-  DollarSign,
+  MapPin,
   Clock,
   Eye,
   Download,
-  RefreshCw,
-  AlertCircle,
   CheckCircle,
   XCircle,
 } from "lucide-react";
 
 const URL = "http://localhost:5000/assessments";
 
-const fetchHandler = async () => {
-  try {
-    const res = await axios.get(URL);
-    return res.data;
-  } catch (err) {
-    console.error("Error fetching assessments:", err);
-    return { assessments: [] };
-  }
-};
-
+// ----------------------------
+// Loader
+// ----------------------------
 const LoadingSpinner = () => (
   <div className="flex flex-col items-center justify-center min-h-[60vh]">
     <div className="relative">
@@ -54,17 +44,18 @@ const LoadingSpinner = () => (
   </div>
 );
 
+// ----------------------------
+// Status Badge
+// ----------------------------
 const StatusBadge = ({ status }) => {
   const getStatusInfo = (status) => {
     switch (status?.toLowerCase()) {
-      case "ක්‍රියාකාරී":
       case "active":
         return {
           color: "bg-emerald-100 text-emerald-700 border-emerald-200",
           icon: <CheckCircle size={12} />,
           text: "Active",
         };
-      case "අක්‍රිය":
       case "inactive":
         return {
           color: "bg-red-100 text-red-700 border-red-200",
@@ -81,7 +72,6 @@ const StatusBadge = ({ status }) => {
   };
 
   const statusInfo = getStatusInfo(status);
-
   return (
     <div
       className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full border ${statusInfo.color}`}
@@ -92,6 +82,9 @@ const StatusBadge = ({ status }) => {
   );
 };
 
+// ----------------------------
+// Assessment Card
+// ----------------------------
 const AssessmentCard = ({ assessment, index, onUpdate, onDelete, onView }) => (
   <motion.div
     layout
@@ -118,9 +111,7 @@ const AssessmentCard = ({ assessment, index, onUpdate, onDelete, onView }) => (
           <p className="text-lg font-bold text-blue-600">
             Rs. {assessment.appraisedValue}
           </p>
-          <p className="text-sm text-gray-500">
-            {assessment.taxRate}% tax rate
-          </p>
+          <p className="text-sm text-gray-500">{assessment.taxRate}% tax rate</p>
         </div>
       </div>
 
@@ -212,7 +203,7 @@ const AssessmentCard = ({ assessment, index, onUpdate, onDelete, onView }) => (
 );
 
 // ----------------------------
-// NEW GOVERNMENT-STYLE PDF REPORT
+// CONFIG for PDF
 // ----------------------------
 const CONFIG = {
   emblem: "/emblem.png",
@@ -220,21 +211,26 @@ const CONFIG = {
   signature: "/signature.png",
   country: "DEMOCRATIC SOCIALIST REPUBLIC OF SRI LANKA",
   council: "HORANA URBAN COUNCIL",
-  local: ".", 
+  local: "Horana Nagara Sabhaawa",
   address: "Horana Urban Council, Mathugama Road, Horana, Sri Lanka",
-  email: "info@horana.mc.gov.lk", 
-  fax: "+94 34 226 0505", 
+  email: "info@horana.mc.gov.lk",
+  fax: "+94 34 226 0505",
 };
 
-async function generateAssessmentsReport(data, searchQuery) {
+// ----------------------------
+// Generate PDF Report
+// ----------------------------
+async function generateAssessmentsReport(data) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 40;
   const now = new Date();
 
+  // Helper to load images
   const loadImage = (src) =>
     new Promise((resolve) => {
       const img = new Image();
+      img.crossOrigin = "anonymous";
       img.src = src;
       img.onload = () => {
         const canvas = document.createElement("canvas");
@@ -247,6 +243,7 @@ async function generateAssessmentsReport(data, searchQuery) {
       img.onerror = () => resolve(null);
     });
 
+  // Header
   const addHeader = async () => {
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, 150, "F");
@@ -265,10 +262,8 @@ async function generateAssessmentsReport(data, searchQuery) {
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.text(CONFIG.country, cx, 35, { align: "center" });
-
     doc.setFontSize(16);
     doc.text(CONFIG.council, cx, 57, { align: "center" });
-
     doc.setFont("helvetica", "normal");
     doc.setFontSize(13);
     doc.text(CONFIG.local, cx, 77, { align: "center" });
@@ -298,6 +293,7 @@ async function generateAssessmentsReport(data, searchQuery) {
     );
   };
 
+  // Footer
   const addFooter = async () => {
     const footerY = doc.internal.pageSize.getHeight() - 110;
     const sigX = pageWidth - margin - 160;
@@ -373,6 +369,9 @@ async function generateAssessmentsReport(data, searchQuery) {
   doc.save(`Property_Assessments_Report_${now.toISOString().slice(0, 10)}.pdf`);
 }
 
+// ----------------------------
+// Main Component
+// ----------------------------
 function Assessments() {
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -401,9 +400,9 @@ function Assessments() {
   const loadAssessments = async () => {
     setLoading(true);
     try {
-      const data = await fetchHandler();
-      setAssessments(data.assessments || []);
-      setFilteredAssessments(data.assessments || []);
+      const res = await axios.get(URL);
+      setAssessments(res.data.assessments || []);
+      setFilteredAssessments(res.data.assessments || []);
     } catch (error) {
       console.error("Error loading assessments:", error);
     } finally {
@@ -479,9 +478,7 @@ function Assessments() {
 
               <div className="flex flex-col lg:flex-row items-center gap-4">
                 <button
-                  onClick={() =>
-                    generateAssessmentsReport(filteredAssessments, searchQuery)
-                  }
+                  onClick={() => generateAssessmentsReport(filteredAssessments)}
                   className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200"
                 >
                   <Download className="w-5 h-5" />

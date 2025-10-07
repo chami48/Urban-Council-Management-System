@@ -121,7 +121,7 @@ function Nav() {
 
             {/* Complaint */}
             <Link
-              to="/complaint"
+              to="/scomplaint"
               className="flex items-center py-2 px-4 hover:bg-blue-700 rounded transition-colors"
             >
               <span>👨‍💼</span>

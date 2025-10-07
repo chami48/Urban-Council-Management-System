@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Nav from "../Nav/Nav";
+import Nav from "../Nav/ENav";
 import axios from "axios";
 import "./complaints.css";
 

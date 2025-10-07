@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import Nav from "../Nav/Nav";
+import Nav from "../Nav/ENav";
 import Swal from "sweetalert2";
 
 const MyApplications = () => {

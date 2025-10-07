@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { DollarSign, TrendingUp, FileText, Calendar, CreditCard, AlertCircle, CheckCircle, Clock, XCircle, Download, Search, Filter, Menu, X } from "lucide-react";
-import { PieChart, Pie, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from "recharts";
+import { 
+  DollarSign, TrendingUp, FileText, Calendar, CreditCard, 
+  AlertCircle, CheckCircle, Clock, XCircle, Download, 
+  Search, Menu, X 
+} from "lucide-react";
+import { 
+  PieChart, Pie, BarChart, Bar, 
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
+  ResponsiveContainer, Cell 
+} from "recharts";
 
 const Financial = () => {
   const [stats, setStats] = useState(null);
@@ -20,7 +28,7 @@ const Financial = () => {
   const fetchStats = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/payment/stats");
-      if (!response.ok) throw new Error('Failed to fetch stats');
+      if (!response.ok) throw new Error("Failed to fetch stats");
       const data = await response.json();
       setStats(data);
     } catch (error) {
@@ -33,7 +41,7 @@ const Financial = () => {
     try {
       setLoading(true);
       const response = await fetch("http://localhost:5000/api/payment/all");
-      if (!response.ok) throw new Error('Failed to fetch payments');
+      if (!response.ok) throw new Error("Failed to fetch payments");
       const data = await response.json();
       setPayments(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -48,50 +56,52 @@ const Financial = () => {
   // Process data for charts
   const getStatusData = () => {
     if (!stats || !Array.isArray(stats)) return [];
-    return stats.map(item => ({
+    return stats.map((item) => ({
       name: item._id.charAt(0).toUpperCase() + item._id.slice(1),
       value: item.totalAmount,
-      count: item.count
+      count: item.count,
     }));
   };
 
   const getPaymentTypeData = () => {
     if (!Array.isArray(payments) || payments.length === 0) return [];
     const typeMap = {};
-    payments.forEach(payment => {
-      const type = payment.paymentType || 'other';
+    payments.forEach((payment) => {
+      const type = payment.paymentType || "other";
       if (!typeMap[type]) {
         typeMap[type] = { type, amount: 0, count: 0 };
       }
       typeMap[type].amount += payment.amount || 0;
       typeMap[type].count += 1;
     });
-    return Object.values(typeMap).map(item => ({
-      name: item.type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    return Object.values(typeMap).map((item) => ({
+      name: item.type.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
       amount: item.amount,
-      count: item.count
+      count: item.count,
     }));
   };
 
   const getMonthlyData = () => {
     if (!Array.isArray(payments) || payments.length === 0) return [];
     const monthMap = {};
-    payments.forEach(payment => {
+    payments.forEach((payment) => {
       const date = new Date(payment.paymentDate);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       if (!monthMap[monthKey]) {
         monthMap[monthKey] = { month: monthKey, amount: 0, count: 0 };
       }
       monthMap[monthKey].amount += payment.amount || 0;
       monthMap[monthKey].count += 1;
     });
-    return Object.values(monthMap).sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
+    return Object.values(monthMap)
+      .sort((a, b) => a.month.localeCompare(b.month))
+      .slice(-6);
   };
 
   const getTotalRevenue = () => {
     if (!Array.isArray(payments)) return 0;
     return payments.reduce((sum, payment) => {
-      if (payment.status === 'completed') {
+      if (payment.status === "completed") {
         return sum + (payment.amount || 0);
       }
       return sum;
@@ -101,7 +111,7 @@ const Financial = () => {
   const getPendingAmount = () => {
     if (!Array.isArray(payments)) return 0;
     return payments.reduce((sum, payment) => {
-      if (payment.status === 'pending') {
+      if (payment.status === "pending") {
         return sum + (payment.amount || 0);
       }
       return sum;
@@ -110,31 +120,33 @@ const Financial = () => {
 
   const getCompletedCount = () => {
     if (!Array.isArray(payments)) return 0;
-    return payments.filter(p => p.status === 'completed').length;
+    return payments.filter((p) => p.status === "completed").length;
   };
 
   // Filter payments
-  const filteredPayments = Array.isArray(payments) ? payments.filter(payment => {
-    const matchesSearch = 
-      payment.applicantName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.nicNumber?.includes(searchTerm) ||
-      payment.receiptNumber?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = filterType === 'all' || payment.paymentType === filterType;
-    const matchesStatus = filterStatus === 'all' || payment.status === filterStatus;
-    
-    return matchesSearch && matchesType && matchesStatus;
-  }) : [];
+  const filteredPayments = Array.isArray(payments)
+    ? payments.filter((payment) => {
+        const matchesSearch =
+          payment.applicantName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          String(payment.nicNumber)?.includes(searchTerm) ||
+          payment.receiptNumber?.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#6366f1', '#8b5cf6', '#ec4899'];
+        const matchesType = filterType === "all" || payment.paymentType === filterType;
+        const matchesStatus = filterStatus === "all" || payment.status === filterStatus;
+
+        return matchesSearch && matchesType && matchesStatus;
+      })
+    : [];
+
+  const COLORS = ["#10b981", "#f59e0b", "#ef4444", "#6366f1", "#8b5cf6", "#ec4899"];
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'completed':
+      case "completed":
         return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'pending':
+      case "pending":
         return <Clock className="w-5 h-5 text-yellow-500" />;
-      case 'failed':
+      case "failed":
         return <XCircle className="w-5 h-5 text-red-500" />;
       default:
         return <AlertCircle className="w-5 h-5 text-gray-500" />;
@@ -142,31 +154,55 @@ const Financial = () => {
   };
 
   const formatCurrency = (amount) => {
-    return `Rs. ${amount?.toLocaleString('en-IN') || 0}`;
+    return `Rs. ${amount?.toLocaleString("en-IN") || 0}`;
   };
 
+  // ✅ Export CSV with NIC wrapped in quotes + summary
   const exportToCSV = () => {
-    const headers = ['Receipt Number', 'Date', 'Name', 'NIC', 'Type', 'Amount', 'Status'];
-    const rows = filteredPayments.map(p => [
+    const headers = ["Receipt Number", "Date", "Name", "NIC", "Type", "Amount", "Status"];
+    const rows = filteredPayments.map((p) => [
       p.receiptNumber,
       new Date(p.paymentDate).toLocaleDateString(),
       p.applicantName,
-      p.nicNumber,
+      `"${p.nicNumber}"`, // ✅ wrap NIC in quotes so Excel keeps it as text
       p.paymentType,
       p.amount,
-      p.status
+      p.status,
     ]);
-    
+
+    // --- 📊 Summary Section ---
+    const summaryMap = {};
+    filteredPayments.forEach((p) => {
+      const type = p.paymentType || "other";
+      if (!summaryMap[type]) {
+        summaryMap[type] = { type, totalAmount: 0, count: 0 };
+      }
+      summaryMap[type].totalAmount += p.amount || 0;
+      summaryMap[type].count += 1;
+    });
+
+    const summaryRows = [
+      [],
+      ["---- Summary by Payment Type ----"],
+      ["Payment Type", "Total Count", "Total Amount"],
+    ];
+
+    Object.values(summaryMap).forEach((item) => {
+      summaryRows.push([item.type, item.count, item.totalAmount]);
+    });
+
+    // --- Final CSV ---
     const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+      headers.join(","),
+      ...rows.map((row) => row.join(",")),
+      ...summaryRows.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `financial-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `financial-report-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
   };
 
@@ -184,7 +220,11 @@ const Financial = () => {
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-screen bg-white shadow-xl z-50 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-0'} overflow-hidden`}>
+      <aside
+        className={`fixed left-0 top-0 h-screen bg-white shadow-xl z-50 transition-all duration-300 ${
+          sidebarOpen ? "w-64" : "w-0"
+        } overflow-hidden`}
+      >
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -201,13 +241,13 @@ const Financial = () => {
             </button>
           </div>
         </div>
-        
+
         <nav className="p-4 space-y-2">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+          <a href="mainhome" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
             <TrendingUp className="w-5 h-5" />
             <span className="font-medium">Home</span>
           </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
+          <a href="adminhome" className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors">
             <FileText className="w-5 h-5" />
             <span className="font-medium">Dashboard</span>
           </a>
@@ -215,7 +255,7 @@ const Financial = () => {
             <FileText className="w-5 h-5" />
             <span className="font-medium">Citizens</span>
           </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-600 text-white transition-colors">
+          <a href="financial" className="flex items-center gap-3 px-4 py-3 rounded-lg bg-indigo-600 text-white transition-colors">
             <DollarSign className="w-5 h-5" />
             <span className="font-medium">Finance</span>
           </a>
@@ -239,12 +279,12 @@ const Financial = () => {
       </aside>
 
       {/* Main Content */}
-      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? "ml-64" : "ml-0"}`}>
         {/* Top Header */}
         <header className="bg-white/80 backdrop-blur-lg border-b border-gray-200 sticky top-0 z-40">
           <div className="px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -271,6 +311,7 @@ const Financial = () => {
           </div>
         </header>
 
+        
         <div className="p-6 lg:p-8">
           {/* Stats Cards with Gradient */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -121,7 +121,7 @@ function NavTamil() {
 
             {/* Complaints */}
             <Link
-              to="/complaint"
+              to="/tcomplaint"
               className="flex items-center py-2 px-4 hover:bg-blue-700 rounded transition-colors"
             >
               <span>📝</span>
@@ -130,7 +130,7 @@ function NavTamil() {
 
             {/* Contact */}
             <Link
-              to="/contact"
+              to="/tcontactus"
               className="flex items-center py-2 px-4 hover:bg-blue-700 rounded transition-colors"
             >
               <span>📞</span>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { User, Building, Phone, Mail, MapPin, FileText, Clock, Users, Zap, Upload } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Nav from "../Nav/Nav";
+import Nav from "../Nav/ENav";
 import Swal from "sweetalert2";
 
 

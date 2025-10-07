@@ -121,7 +121,7 @@ function NavEnglish() {
 
             {/* Complaints */}
             <Link
-              to="/complaint"
+              to="/ecomplaint"
               className="flex items-center py-2 px-4 hover:bg-blue-700 rounded transition-colors"
             >
               <span>📝</span>
@@ -130,7 +130,7 @@ function NavEnglish() {
 
             {/* Contact */}
             <Link
-              to="/contact"
+              to="/econtactus"
               className="flex items-center py-2 px-4 hover:bg-blue-700 rounded transition-colors"
             >
               <span>📞</span>
