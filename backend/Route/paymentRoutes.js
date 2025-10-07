@@ -218,15 +218,6 @@ router.get("/all", async (req, res) => {
   }
 });
 
-// Get payment by intent ID
-router.get('/get-payment/:intentId', async (req, res) => {
-  try {
-    const payment = await Payment.findOne({ paymentIntentId: req.params.intentId });
-    if (!payment) return res.status(404).json({ error: "Payment not found" });
-    res.json(payment);
-  } catch (err) {
-    res.status(500).json({ error: "Server error" });
-  }
-});
+
 
 module.exports = router;
