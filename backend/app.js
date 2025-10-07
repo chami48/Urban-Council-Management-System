@@ -24,6 +24,7 @@ const paymentRoutes = require('./Route/paymentRoutes');
 const shopPaymentRoute = require("./Route/shopPaymentRoute");
 const paymentRouter = require("./Route/taxPaymentRoute");
 
+
 const salaryRoutes = require('./Route/salaryRoutes');     //c
 const leaveRoutes = require('./Route/leaveRoutes');    //c
 
@@ -71,6 +72,8 @@ app.use("/inventory", inventoryRouter);
 app.use("/inventory-logs", inventoryLogRouter); 
 app.use('/api/payment', paymentRoutes);
 app.use("/api/shop-payment", shopPaymentRoute);
+app.use("/api/payment", paymentRoutes);
+
 
 app.use("/api/salaries", salaryRoutes);    //c
 app.use("/api/leaves", leaveRoutes);      //c

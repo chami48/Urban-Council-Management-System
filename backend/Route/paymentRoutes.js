@@ -207,4 +207,15 @@ router.get('/payments/:part1/:part2/quarterly/:year/:quarter', async (req, res) 
   }
 });
 
+// ✅ NEW: Get all payments (needed for React Financial.jsx)
+router.get("/all", async (req, res) => {
+  try {
+    const payments = await Payment.find().sort({ paymentDate: -1 });
+    res.json(payments);
+  } catch (err) {
+    console.error("❌ Error fetching payments:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

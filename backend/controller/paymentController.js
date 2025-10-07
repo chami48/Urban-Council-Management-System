@@ -72,22 +72,32 @@ const savePayment = async (req, res) => {
   }
 };
 
-// Payment history by NIC
+// 📜 Payment history by NIC
 const getHistoryByNIC = async (req, res) => {
   try {
-    const payments = await Payment.findByNIC(req.params.nicNumber);
+    const payments = await Payment.find({ nicNumber: req.params.nicNumber }).sort({ paymentDate: -1 });
     res.json(payments);
   } catch (err) {
+    console.error("❌ Error fetching history:", err);
     res.status(500).json({ error: err.message });
   }
 };
 
-// Stats
+// 📊 Stats
 const getStats = async (req, res) => {
   try {
-    const stats = await Payment.getPaymentStats();
+    const stats = await Payment.aggregate([
+      {
+        $group: {
+          _id: "$status",
+          totalAmount: { $sum: "$amountPaid" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
     res.json(stats);
   } catch (err) {
+    console.error("❌ Error fetching stats:", err);
     res.status(500).json({ error: err.message });
   }
 };
