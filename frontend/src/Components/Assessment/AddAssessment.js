@@ -18,7 +18,7 @@ function AddAssessment() {
     description: "",
     contactNo: "",
     propertyType: "Business",
-    appraisedValue: "100000",
+    appraisedValue: "",
     taxRate: "",
     status: "Active",
   });
