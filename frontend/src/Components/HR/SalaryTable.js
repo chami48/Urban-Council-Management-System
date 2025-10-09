@@ -1,38 +1,344 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import * as XLSX from "xlsx";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 import Navigation from "../Navigation/Navigation";
+
+// Government letterhead configuration
+const GOVERNMENT_CONFIG = {
+  emblemPath: "/emblem.png",
+  logoPath: "/horanalogo.png",
+  signaturePath: "/signature.png",
+  country: "DEMOCRATIC SOCIALIST REPUBLIC OF SRI LANKA",
+  council: "HORANA URBAN COUNCIL",
+  localName: "Horana Nagara Sabhaawa",
+  address: "123, Mathugama Horana",
+  email: "horanaurbancouncil123@gmail.com",
+  fax: "1235565"
+};
+
+// Helper function to load PNG images as base64
+const loadImageAsBase64 = (src) => {
+  console.log('🔍 PNG Loading Debug - Starting to load PNG from:', src);
+  
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    
+    img.onload = () => {
+      console.log('✅ PNG Loading Debug - Image loaded successfully');
+      console.log('🔍 PNG Loading Debug - Image dimensions:', img.width, 'x', img.height);
+      
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL('image/png');
+        console.log('✅ PNG Loading Debug - Successfully converted to base64, length:', dataURL.length);
+        resolve(dataURL);
+      } catch (error) {
+        console.error('❌ PNG Loading Debug - Canvas error:', error);
+        reject(error);
+      }
+    };
+    
+    img.onerror = (error) => {
+      console.error('❌ PNG Loading Debug - Failed to load image:', src);
+      console.error('❌ PNG Loading Debug - Error event:', error);
+      reject(error);
+    };
+    
+    const fullUrl = new URL(src, window.location.origin).href;
+    console.log('🔍 PNG Loading Debug - Full URL:', fullUrl);
+    
+    img.src = src;
+  });
+};
+
+// PDF Report Builder
+async function buildPdfReport({ rows, columns, title, subtitle }) {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  const currentDate = new Date();
+  
+  const addGovernmentHeader = async () => {
+    console.log('🔧 PDF Generation Debug - Starting government header creation');
+    
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, pageWidth, 150, 'F');
+    
+    doc.setDrawColor(128, 0, 32);
+    doc.setLineWidth(3);
+    doc.line(margin, 145, pageWidth - margin, 145);
+    
+    let emblemLoaded = false;
+    let logoLoaded = false;
+    
+    try {
+      const emblemBase64 = await loadImageAsBase64(GOVERNMENT_CONFIG.emblemPath);
+      if (emblemBase64) {
+        doc.addImage(emblemBase64, 'PNG', margin, 40, 50, 50);
+        emblemLoaded = true;
+      }
+    } catch (error) {
+      console.error('❌ PDF Generation Debug - Emblem loading error:', error);
+    }
+    
+    try {
+      const logoBase64 = await loadImageAsBase64(GOVERNMENT_CONFIG.logoPath);
+      if (logoBase64) {
+        doc.addImage(logoBase64, 'PNG', pageWidth - margin - 50, 40, 50, 50);
+        logoLoaded = true;
+      }
+    } catch (error) {
+      console.error('❌ PDF Generation Debug - Logo loading error:', error);
+    }
+    
+    if (!emblemLoaded) {
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(2);
+      doc.rect(margin, 40, 50, 50, 'S');
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(8);
+      doc.text('EMBLEM', margin + 10, 60, { align: 'left' });
+      doc.text('NOT FOUND', margin + 5, 75, { align: 'left' });
+    }
+    
+    if (!logoLoaded) {
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(2);
+      doc.rect(pageWidth - margin - 50, 40, 50, 50, 'S');
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(8);
+      doc.text('LOGO', pageWidth - margin - 35, 60, { align: 'left' });
+      doc.text('NOT FOUND', pageWidth - margin - 45, 75, { align: 'left' });
+    }
+    
+    const centerX = pageWidth / 2;
+    
+    doc.setTextColor(128, 0, 32);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text(GOVERNMENT_CONFIG.country, centerX, 35, { align: 'center' });
+    
+    doc.setFontSize(16);
+    doc.text(GOVERNMENT_CONFIG.council, centerX, 57, { align: 'center' });
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(13);
+    doc.text(GOVERNMENT_CONFIG.localName, centerX, 77, { align: 'center' });
+    
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    doc.text(`${GOVERNMENT_CONFIG.address} | Email: ${GOVERNMENT_CONFIG.email} | Fax: ${GOVERNMENT_CONFIG.fax}`, centerX, 98, { align: 'center' });
+    
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text(title.toUpperCase(), centerX, 120, { align: 'center' });
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(subtitle, centerX, 135, { align: 'center' });
+  };
+  
+  const addFooter = async () => {
+    const footerY = pageHeight - 110;
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('Generated on:', margin, footerY);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(currentDate.toLocaleDateString('en-GB', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    }), margin, footerY + 15);
+    doc.text(currentDate.toLocaleTimeString('en-GB', { 
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }), margin, footerY + 30);
+    
+    const sigX = pageWidth - margin - 160;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('Authorized by:', sigX, footerY);
+    
+    let signatureLoaded = false;
+    try {
+      const signatureBase64 = await loadImageAsBase64(GOVERNMENT_CONFIG.signaturePath);
+      if (signatureBase64) {
+        doc.addImage(signatureBase64, 'PNG', sigX, footerY + 10, 100, 25);
+        signatureLoaded = true;
+      }
+    } catch (error) {
+      console.error('❌ PDF Footer Debug - Signature loading error:', error);
+    }
+    
+    if (!signatureLoaded) {
+      doc.setDrawColor(0, 100, 200);
+      doc.setLineWidth(2);
+      doc.line(sigX, footerY + 25, sigX + 150, footerY + 25);
+      
+      doc.setDrawColor(0, 80, 180);
+      doc.setLineWidth(2.5);
+      const sigY = footerY + 20;
+      doc.line(sigX + 15, sigY, sigX + 35, sigY - 6);
+      doc.line(sigX + 35, sigY - 6, sigX + 55, sigY + 4);
+      doc.line(sigX + 55, sigY + 4, sigX + 85, sigY - 3);
+      doc.line(sigX + 85, sigY - 3, sigX + 115, sigY + 6);
+      doc.line(sigX + 115, sigY + 6, sigX + 135, sigY - 2);
+    }
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text('Administrative Officer', sigX, footerY + 40);
+    doc.text('Horana Urban Council', sigX, footerY + 52);
+    
+    doc.setDrawColor(128, 0, 32);
+    doc.setLineWidth(1);
+    doc.line(margin, footerY + 70, pageWidth - margin, footerY + 70);
+    
+    const pageStr = `Page ${doc.internal.getNumberOfPages()}`;
+    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    doc.text(pageStr, pageWidth / 2, footerY + 85, { align: 'center' });
+  };
+
+  const addSimpleHeader = () => {
+    doc.setFillColor(255, 255, 255);
+    doc.rect(0, 0, pageWidth, 150, 'F');
+    doc.setDrawColor(128, 0, 32);
+    doc.setLineWidth(3);
+    doc.line(margin, 145, pageWidth - margin, 145);
+    
+    doc.setDrawColor(150, 150, 150);
+    doc.setLineWidth(2);
+    doc.rect(margin, 40, 50, 50, 'S');
+    doc.rect(pageWidth - margin - 50, 40, 50, 50, 'S');
+    
+    const centerX = pageWidth / 2;
+    doc.setTextColor(128, 0, 32);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text(GOVERNMENT_CONFIG.country, centerX, 35, { align: 'center' });
+    doc.setFontSize(16);
+    doc.text(GOVERNMENT_CONFIG.council, centerX, 57, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(13);
+    doc.text(GOVERNMENT_CONFIG.localName, centerX, 77, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text(title.toUpperCase(), centerX, 120, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(subtitle, centerX, 135, { align: 'center' });
+  };
+
+  await addGovernmentHeader();
+
+  autoTable(doc, {
+    startY: 165,
+    headStyles: { 
+      fillColor: [128, 0, 32],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      fontSize: 11,
+      halign: 'center',
+      valign: 'middle'
+    },
+    bodyStyles: {
+      fontSize: 10,
+      cellPadding: 10,
+      lineColor: [180, 180, 180],
+      lineWidth: 0.5,
+      valign: 'middle'
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 255]
+    },
+    styles: { 
+      fontSize: 10, 
+      cellPadding: 8,
+      halign: 'center',
+      overflow: 'linebreak'
+    },
+    head: [columns.map(c => c.header)],
+    body: rows.map(r => columns.map(c => (typeof c.accessor === 'function' ? c.accessor(r) : r[c.accessor] ?? 'N/A'))),
+    didDrawPage: async (data) => {
+      if (data.pageNumber > 1) {
+        addSimpleHeader();
+      }
+      await addFooter();
+    },
+    margin: { top: 170, bottom: 120, left: margin, right: margin }
+  });
+
+  if (doc.internal.getNumberOfPages() === 1) {
+    await addFooter();
+  }
+
+  return doc;
+}
 
 const SalaryTable = () => {
   const [salaries, setSalaries] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
-  const handleExport = () => {
-    if (!salaries.length) return;
+  const handleExport = async () => {
+    if (!filteredSalaries.length) return;
 
-    const headers = ["Employee ID", "Month", "Year", "Basic Salary", "Net Salary"];
-    const rows = salaries.map((s) => [
-      s.employeeId,
-      s.month,
-      s.year,
-      Number(s.basicSalary).toFixed(2),
-      Number(s.netSalary).toFixed(2),
-    ]);
-
-    const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
-    ws["!cols"] = [
-      { wch: 15 },
-      { wch: 10 },
-      { wch: 8 },
-      { wch: 12 },
-      { wch: 12 },
+    const columns = [
+      { header: 'Employee ID', accessor: 'employeeId' },
+      { header: 'Month', accessor: 'month' },
+      { header: 'Year', accessor: 'year' },
+      { header: 'Basic Salary', accessor: (r) => `Rs ${Number(r.basicSalary).toFixed(2)}` },
+      { header: 'Net Salary', accessor: (r) => `Rs ${Number(r.netSalary).toFixed(2)}` }
     ];
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Salary Report");
-    XLSX.writeFile(wb, "salary_report.xlsx");
+    const now = new Date();
+
+    try {
+      const doc = await buildPdfReport({
+        rows: filteredSalaries,
+        columns,
+        title: 'Salary Report',
+        subtitle: `Generated on ${now.toLocaleString()} | Total Records: ${filteredSalaries.length}`
+      });
+
+      doc.save(`Salary_Report_${now.toISOString().slice(0, 10)}.pdf`);
+      
+      Swal.fire({
+        title: "Success!",
+        text: "PDF report has been generated successfully.",
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to generate PDF. Please try again.",
+        icon: "error",
+      });
+    }
   };
 
   useEffect(() => {
@@ -67,6 +373,16 @@ const SalaryTable = () => {
       }
     });
   };
+
+  // Filter salaries based on search term
+  const filteredSalaries = salaries.filter((salary) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      salary.employeeId?.toLowerCase().includes(searchLower) ||
+      salary.month?.toLowerCase().includes(searchLower) ||
+      salary.year?.toString().includes(searchLower)
+    );
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -104,6 +420,42 @@ const SalaryTable = () => {
               </div>
             </div>
 
+            {/* Search Bar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mb-6 max-w-2xl mx-auto"
+            >
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search by Employee ID, Month, or Year..."
+                  className="w-full px-6 py-4 pl-12 text-sm border-2 border-gray-200 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 bg-white shadow-sm"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <svg
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              {searchTerm && (
+                <div className="mt-2 text-sm text-gray-600 text-center">
+                  Found <span className="font-bold text-blue-600">{filteredSalaries.length}</span> of {salaries.length} records
+                </div>
+              )}
+            </motion.div>
+
             {/* Action Buttons */}
             <div className="flex justify-center gap-4 mb-8">
               <motion.div
@@ -134,7 +486,7 @@ const SalaryTable = () => {
               >
                 <div
                   onClick={handleExport}
-                  className={`cursor-pointer group relative px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${!salaries.length ? 'opacity-50 cursor-not-allowed transform-none' : ''}`}
+                  className={`cursor-pointer group relative px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden ${!filteredSalaries.length ? 'opacity-50 cursor-not-allowed transform-none' : ''}`}
                 >
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center">
@@ -143,14 +495,14 @@ const SalaryTable = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
-                    Export Excel
+                    Export PDF
                   </div>
                 </div>
               </motion.div>
             </div>
 
             {/* Statistics Cards */}
-            {salaries.length > 0 && (
+            {filteredSalaries.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -168,8 +520,8 @@ const SalaryTable = () => {
                       </div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-gray-800">{salaries.length}</div>
-                      <div className="text-gray-600">Total Records</div>
+                      <div className="text-2xl font-bold text-gray-800">{filteredSalaries.length}</div>
+                      <div className="text-gray-600">{searchTerm ? 'Filtered' : 'Total'} Records</div>
                     </div>
                   </div>
                 </div>
@@ -184,7 +536,7 @@ const SalaryTable = () => {
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-gray-800">
-                        Rs {Math.round(salaries.reduce((sum, s) => sum + Number(s.basicSalary), 0) / salaries.length).toLocaleString()}
+                        Rs {Math.round(filteredSalaries.reduce((sum, s) => sum + Number(s.basicSalary), 0) / filteredSalaries.length).toLocaleString()}
                       </div>
                       <div className="text-gray-600">Avg Basic Salary</div>
                     </div>
@@ -203,7 +555,7 @@ const SalaryTable = () => {
                     </div>
                     <div>
                       <div className="text-2xl font-bold text-gray-800">
-                        Rs {Math.round(salaries.reduce((sum, s) => sum + Number(s.netSalary), 0) / salaries.length).toLocaleString()}
+                        Rs {Math.round(filteredSalaries.reduce((sum, s) => sum + Number(s.netSalary), 0) / filteredSalaries.length).toLocaleString()}
                       </div>
                       <div className="text-gray-600">Avg Net Salary</div>
                     </div>
@@ -241,7 +593,7 @@ const SalaryTable = () => {
               {/* Table Body */}
               <div className="bg-white">
                 <AnimatePresence>
-                  {salaries.length === 0 ? (
+                  {filteredSalaries.length === 0 ? (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -255,12 +607,16 @@ const SalaryTable = () => {
                             </svg>
                           </div>
                         </div>
-                        <div className="text-gray-500 text-lg font-medium">No salary records found</div>
-                        <div className="text-gray-400 text-sm mt-1">Create your first salary record to get started</div>
+                        <div className="text-gray-500 text-lg font-medium">
+                          {searchTerm ? "No matching salary records found" : "No salary records found"}
+                        </div>
+                        <div className="text-gray-400 text-sm mt-1">
+                          {searchTerm ? "Try adjusting your search criteria" : "Create your first salary record to get started"}
+                        </div>
                       </div>
                     </motion.div>
                   ) : (
-                    salaries.map((s, index) => (
+                    filteredSalaries.map((s, index) => (
                       <motion.div
                         key={s._id}
                         initial={{ opacity: 0, y: 10 }}

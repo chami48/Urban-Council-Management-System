@@ -5,12 +5,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {
-  Search, Filter, MessageSquare, Trash2, FileText,
+  Search, Filter,  Trash2, FileText,
   Mail, Phone, MapPin, User, Calendar, AlertCircle,
   CheckCircle, XCircle, Eye, EyeOff, Send, X,
   Download, Paperclip, RefreshCw, Edit, Clock,
   Megaphone, Plus, List
 } from "lucide-react";
+
+// ✅ Government letterhead configuration (moved above all other code blocks)
+const GOVERNMENT_CONFIG = {
+  emblemPath: "/emblem.png",           // Sri Lankan Government Emblem (using PNG)
+  logoPath: "/horanalogo.png",         // Horana Urban Council Logo
+  signaturePath: "/signature.png",     // Digital signature image
+  country: "DEMOCRATIC SOCIALIST REPUBLIC OF SRI LANKA",
+  council: "HORANA URBAN COUNCIL",
+  localName: "Horana Nagara Sabhaawa", // Sinhala transliteration
+  address: "123, Mathugama Horana",
+  email: "horanaurbancouncil123@gmail.com",
+  fax: "1235565"
+};
 
 const URL = "http://localhost:5000/complaints";
 const ANNOUNCEMENT_URL = "http://localhost:5000/announcements";
@@ -329,14 +342,7 @@ const ComplaintCard = ({ complaint, onReject, onDelete, onSendEmail, isExpanded,
 
           <div className="flex gap-2 flex-wrap">
             {/* Send Email Button */}
-            <button
-              onClick={() => onSendEmail(complaint.Email)}
-              disabled={!complaint.Email}
-              className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors"
-            >
-              <Mail size={16} />
-              Send Email
-            </button>
+           
 
             {/* Reject Button */}
             {!showRejectConfirm ? (
@@ -687,6 +693,19 @@ const AnnouncementsTab = ({ announcements, loading, error, onSubmit, onEdit, onD
               rows={4}
             />
           </div>
+<div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Description <span className="text-red-500">*</span>
+    </label>
+    <textarea
+      value={description}
+      onChange={(e) => setDescription(e.target.value)}
+      placeholder="Enter detailed description about the announcement"
+      className="w-full p-4 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-200 resize-none"
+      rows={4}
+    />
+  </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
@@ -936,112 +955,150 @@ function ComplaintsAndAnnouncements() {
     setEmailModal({ isOpen: false, email: "" });
   };
 
-  const generateComplaintsReport = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
 
-    // Header
+
+const loadImageAsBase64 = (src) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+};
+
+
+  const generateComplaintsReport = async () => {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const margin = 40;
+
+  // HEADER SECTION
+  const addGovernmentHeader = async () => {
+    try {
+      const emblemBase64 = await loadImageAsBase64(GOVERNMENT_CONFIG.emblemPath);
+      const logoBase64 = await loadImageAsBase64(GOVERNMENT_CONFIG.logoPath);
+      doc.addImage(emblemBase64, "PNG", margin, 40, 50, 50);
+      doc.addImage(logoBase64, "PNG", pageWidth - margin - 50, 40, 50, 50);
+    } catch {
+      // placeholders if missing
+      doc.rect(margin, 40, 50, 50);
+      doc.rect(pageWidth - margin - 50, 40, 50, 50);
+    }
+
+    const centerX = pageWidth / 2;
+    doc.setTextColor(128, 0, 32);
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Complaints Management Report', pageWidth / 2, 20, { align: 'center' });
+    doc.text(GOVERNMENT_CONFIG.country, centerX, 35, { align: "center" });
+    doc.setFontSize(16);
+    doc.text(GOVERNMENT_CONFIG.council, centerX, 57, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(13);
+    doc.text(GOVERNMENT_CONFIG.localName, centerX, 77, { align: "center" });
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    doc.text(
+      `${GOVERNMENT_CONFIG.address} | Email: ${GOVERNMENT_CONFIG.email} | Fax: ${GOVERNMENT_CONFIG.fax}`,
+      centerX,
+      98,
+      { align: "center" }
+    );
 
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, pageWidth / 2, 30, { align: 'center' });
-    doc.text(`Total Complaints: ${complaints.length}`, pageWidth / 2, 40, { align: 'center' });
+    doc.setDrawColor(128, 0, 32);
+    doc.setLineWidth(3);
+    doc.line(margin, 145, pageWidth - margin, 145);
 
-    let yPosition = 55;
-
-    // Summary Statistics
-    const total = complaints.length || 1;
-    const pendingCount = complaints.filter(c => !c.status || c.status === 'pending').length;
-    const resolvedCount = complaints.filter(c => c.status === 'resolved').length;
-    const rejectedCount = complaints.filter(c => c.status === 'rejected').length;
-
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Summary Statistics', 15, yPosition);
-    yPosition += 15;
-
-    autoTable(doc, {
-      head: [['Status', 'Count', 'Percentage']],
-      body: [
-        ['Pending', pendingCount.toString(), `${((pendingCount / total) * 100).toFixed(1)}%`],
-        ['Resolved', resolvedCount.toString(), `${((resolvedCount / total) * 100).toFixed(1)}%`],
-        ['Rejected', rejectedCount.toString(), `${((rejectedCount / total) * 100).toFixed(1)}%`]
-      ],
-      startY: yPosition,
-      styles: { fontSize: 10, cellPadding: 3 },
-      headStyles: { fillColor: [59, 130, 246], textColor: 255 },
-      alternateRowStyles: { fillColor: [248, 250, 252] }
-    });
-
-    yPosition = (doc.lastAutoTable?.finalY || yPosition) + 20;
-
-    if (yPosition > doc.internal.pageSize.height - 40) {
-      doc.addPage();
-      yPosition = 20;
-    }
-
-    // Detailed Complaints List
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Detailed Complaints List', 15, yPosition);
-    yPosition += 10;
-
-    const complaintsData = complaints.map(complaint => [
-      complaint.Name || 'N/A',
-      complaint.NatureofComplaint || 'N/A',
-      complaint.Email || 'N/A',
-      complaint.Location || 'N/A',
-      complaint.status || 'Pending',
-      new Date(complaint.createdAt || Date.now()).toLocaleDateString()
-    ]);
-
-    autoTable(doc, {
-      head: [['Name', 'Nature of Complaint', 'Email', 'Location', 'Status', 'Date']],
-      body: complaintsData,
-      startY: yPosition,
-      styles: {
-        fontSize: 8,
-        cellPadding: 2,
-        overflow: 'linebreak'
-      },
-      headStyles: { fillColor: [59, 130, 246], textColor: 255 },
-      alternateRowStyles: { fillColor: [248, 250, 252] },
-      columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 35 },
-        2: { cellWidth: 30 },
-        3: { cellWidth: 25 },
-        4: { cellWidth: 20 },
-        5: { cellWidth: 15 }
-      }
-    });
-
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text(
-        'Complaints Management System - Horana Municipal Council',
-        pageWidth / 2,
-        doc.internal.pageSize.height - 10,
-        { align: 'center' }
-      );
-      doc.text(
-        `Page ${i} of ${pageCount}`,
-        pageWidth - 20,
-        doc.internal.pageSize.height - 10,
-        { align: 'right' }
-      );
-    }
-
-    const filename = `Complaints_Report_${new Date().toISOString().split('T')[0]}.pdf`;
-    doc.save(filename);
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(0, 0, 0);
+    doc.text("COMPLAINTS MANAGEMENT REPORT", centerX, 120, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(100, 100, 100);
+    doc.text(
+      `Generated on ${new Date().toLocaleString()}`,
+      centerX,
+      135,
+      { align: "center" }
+    );
   };
+
+  await addGovernmentHeader();
+
+  // TABLE CONTENT
+  const total = complaints.length || 1;
+  const pending = complaints.filter(c => !c.status || c.status === "pending").length;
+  const resolved = complaints.filter(c => c.status === "resolved").length;
+  const rejected = complaints.filter(c => c.status === "rejected").length;
+
+  autoTable(doc, {
+    startY: 165,
+    head: [["Status", "Count", "Percentage"]],
+    body: [
+      ["Pending", pending, `${((pending / total) * 100).toFixed(1)}%`],
+      ["Resolved", resolved, `${((resolved / total) * 100).toFixed(1)}%`],
+      ["Rejected", rejected, `${((rejected / total) * 100).toFixed(1)}%`],
+    ],
+    headStyles: { fillColor: [128, 0, 32], textColor: 255 },
+    bodyStyles: { textColor: 20 },
+    alternateRowStyles: { fillColor: [250, 250, 250] },
+    margin: { left: margin, right: margin },
+  });
+
+  const yPosition = doc.lastAutoTable.finalY + 30;
+  autoTable(doc, {
+    startY: yPosition,
+    head: [["Name", "Nature of Complaint", "Email", "Location", "Status", "Date"]],
+    body: complaints.map(c => [
+      c.Name || "N/A",
+      c.NatureofComplaint || "N/A",
+      c.Email || "N/A",
+      c.Location || "N/A",
+      c.status || "Pending",
+      new Date(c.createdAt || Date.now()).toLocaleDateString(),
+    ]),
+    styles: { fontSize: 9, cellPadding: 6 },
+    headStyles: { fillColor: [128, 0, 32], textColor: 255 },
+    alternateRowStyles: { fillColor: [250, 250, 250] },
+    margin: { left: margin, right: margin },
+  });
+
+  // FOOTER
+  const addFooter = async () => {
+    const footerY = pageHeight - 90;
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    doc.text(
+      `Generated on ${new Date().toLocaleString()}`,
+      margin,
+      footerY + 15
+    );
+    try {
+      const sigBase64 = await loadImageAsBase64(GOVERNMENT_CONFIG.signaturePath);
+      doc.addImage(sigBase64, "PNG", pageWidth - margin - 120, footerY - 5, 100, 30);
+    } catch {
+      doc.line(pageWidth - margin - 120, footerY + 10, pageWidth - margin, footerY + 10);
+    }
+    doc.text("Administrative Officer", pageWidth - margin - 120, footerY + 45);
+    doc.text("Horana Urban Council", pageWidth - margin - 120, footerY + 58);
+    doc.setDrawColor(128, 0, 32);
+    doc.line(margin, pageHeight - 40, pageWidth - margin, pageHeight - 40);
+  };
+
+  await addFooter();
+
+  doc.save(`Complaints_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+};
 
   const handleAnnouncementSubmit = async (announcementData, editingId) => {
     if (editingId) {

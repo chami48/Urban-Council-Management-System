@@ -6,6 +6,10 @@ const UpdateSalary = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState(null);
 
+  const currentYear = 2025; // Fixed to 2025
+  const currentMonth = 9; // October (0-indexed, so 9 = October)
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
   useEffect(() => {
     fetch(`http://localhost:5000/api/salaries/${id}`)
       .then(res => res.json())
@@ -44,24 +48,38 @@ const UpdateSalary = () => {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
+    
+    // Validate year
+    if (Number(form.year) !== currentYear) {
+      alert(`Only year ${currentYear} is allowed`);
+      return;
+    }
+
+    // Validate month
+    const monthIndex = months.indexOf(form.month);
+    if (Number(form.year) === currentYear && monthIndex < currentMonth) {
+      alert('Cannot select past months. Only October and later months are allowed');
+      return;
+    }
+
     const payload = {
       ...form,
       year: Number(form.year),
       basicSalary: Number(form.basicSalary),
       allowances: {
-        transport: Number(form.allowances.transport),
-        meal: Number(form.allowances.meal),
-        medical: Number(form.allowances.medical),
-        other: Number(form.allowances.other)
+        transport: Number(form.allowances.transport || 0),
+        meal: Number(form.allowances.meal || 0),
+        medical: Number(form.allowances.medical || 0),
+        other: Number(form.allowances.other || 0)
       },
       overtime: {
-        normalDayHours: Number(form.overtime.normalDayHours),
-        holidayHours: Number(form.overtime.holidayHours)
+        normalDayHours: Number(form.overtime.normalDayHours || 0),
+        holidayHours: Number(form.overtime.holidayHours || 0)
       },
       deductions: {
-        loan: Number(form.deductions.loan),
-        insurance: Number(form.deductions.insurance),
-        other: Number(form.deductions.other)
+        loan: Number(form.deductions.loan || 0),
+        insurance: Number(form.deductions.insurance || 0),
+        other: Number(form.deductions.other || 0)
       }
     };
     await fetch(`http://localhost:5000/api/salaries/${id}`, {
@@ -140,8 +158,14 @@ const UpdateSalary = () => {
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 hover:border-gray-300 bg-white"
                   >
                     <option value="">Select Month</option>
-                    {['January','February','March','April','May','June','July','August','September','October','November','December'].map(m => (
-                      <option key={m} value={m}>{m}</option>
+                    {months.map((m, index) => (
+                      <option 
+                        key={m} 
+                        value={m}
+                        disabled={form.year == currentYear && index < currentMonth}
+                      >
+                        {m}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -157,9 +181,7 @@ const UpdateSalary = () => {
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 hover:border-gray-300 bg-white"
                   >
                     <option value="">Select Year</option>
-                    {Array.from({length: 10}, (_, i) => new Date().getFullYear() - i).map(y => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
+                    <option value={currentYear}>{currentYear}</option>
                   </select>
                 </div>
                 <div className="group">
@@ -177,6 +199,8 @@ const UpdateSalary = () => {
                     required
                     type="number"
                     min="0"
+                    step="0.01"
+                    placeholder="00000.00"
                     className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-gray-800 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200 hover:border-gray-300"
                   />
                 </div>
@@ -196,10 +220,10 @@ const UpdateSalary = () => {
                   Allowances
                 </h4>
                 <div className="space-y-3">
-                  <input name="allowances.transport" value={form.allowances.transport} onChange={handleFormChange} placeholder="Transport Allowance" type="number" min="0" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
-                  <input name="allowances.meal" value={form.allowances.meal} onChange={handleFormChange} placeholder="Meal Allowance" type="number" min="0" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
-                  <input name="allowances.medical" value={form.allowances.medical} onChange={handleFormChange} placeholder="Medical Allowance" type="number" min="0" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
-                  <input name="allowances.other" value={form.allowances.other} onChange={handleFormChange} placeholder="Other Allowances" type="number" min="0" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
+                  <input name="allowances.transport" value={form.allowances.transport} onChange={handleFormChange} placeholder="Transport (00000.00)" type="number" min="0" step="0.01" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
+                  <input name="allowances.meal" value={form.allowances.meal} onChange={handleFormChange} placeholder="Meal (00000.00)" type="number" min="0" step="0.01" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
+                  <input name="allowances.medical" value={form.allowances.medical} onChange={handleFormChange} placeholder="Medical (00000.00)" type="number" min="0" step="0.01" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
+                  <input name="allowances.other" value={form.allowances.other} onChange={handleFormChange} placeholder="Other (00000.00)" type="number" min="0" step="0.01" className="w-full px-4 py-3 border border-green-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-200 focus:border-green-400 transition-all bg-white/70" />
                 </div>
               </div>
 
@@ -214,8 +238,8 @@ const UpdateSalary = () => {
                   Overtime Hours
                 </h4>
                 <div className="space-y-3">
-                  <input name="overtime.normalDayHours" value={form.overtime.normalDayHours} onChange={handleFormChange} placeholder="Normal Day Hours" type="number" min="0" className="w-full px-4 py-3 border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-white/70" />
-                  <input name="overtime.holidayHours" value={form.overtime.holidayHours} onChange={handleFormChange} placeholder="Holiday Hours" type="number" min="0" className="w-full px-4 py-3 border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-white/70" />
+                  <input name="overtime.normalDayHours" value={form.overtime.normalDayHours} onChange={handleFormChange} placeholder="Normal Day Hours (0.00)" type="number" min="0" step="0.1" className="w-full px-4 py-3 border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-white/70" />
+                  <input name="overtime.holidayHours" value={form.overtime.holidayHours} onChange={handleFormChange} placeholder="Holiday Hours (0.00)" type="number" min="0" step="0.1" className="w-full px-4 py-3 border border-blue-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400 transition-all bg-white/70" />
                 </div>
               </div>
             </div>
@@ -231,9 +255,9 @@ const UpdateSalary = () => {
                 Deductions
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input name="deductions.loan" value={form.deductions.loan} onChange={handleFormChange} placeholder="Loan Deduction" type="number" min="0" className="w-full px-4 py-3 border border-red-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all bg-white/70" />
-                <input name="deductions.insurance" value={form.deductions.insurance} onChange={handleFormChange} placeholder="Insurance" type="number" min="0" className="w-full px-4 py-3 border border-red-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all bg-white/70" />
-                <input name="deductions.other" value={form.deductions.other} onChange={handleFormChange} placeholder="Other Deductions" type="number" min="0" className="w-full px-4 py-3 border border-red-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all bg-white/70" />
+                <input name="deductions.loan" value={form.deductions.loan} onChange={handleFormChange} placeholder="Loan (00000.00)" type="number" min="0" step="0.01" className="w-full px-4 py-3 border border-red-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all bg-white/70" />
+                <input name="deductions.insurance" value={form.deductions.insurance} onChange={handleFormChange} placeholder="Insurance (00000.00)" type="number" min="0" step="0.01" className="w-full px-4 py-3 border border-red-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all bg-white/70" />
+                <input name="deductions.other" value={form.deductions.other} onChange={handleFormChange} placeholder="Other (00000.00)" type="number" min="0" step="0.01" className="w-full px-4 py-3 border border-red-200 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400 transition-all bg-white/70" />
               </div>
             </div>
 

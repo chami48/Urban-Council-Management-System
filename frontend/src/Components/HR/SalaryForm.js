@@ -20,6 +20,9 @@ const SalaryForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  const currentYear = 2025; // Fixed to 2025
+  const currentMonth = 9; // October (0-indexed, so 9 = October)
+
   // Validation function
   const validateForm = () => {
     const newErrors = {};
@@ -38,13 +41,18 @@ const SalaryForm = () => {
     if (!salary.year) {
       newErrors.year = 'Year is required';
     } else {
-      const currentYear = new Date().getFullYear();
       const selectedYear = Number(salary.year);
-      if (selectedYear > currentYear) {
-        newErrors.year = 'Year cannot be in the future';
+      if (selectedYear !== currentYear) {
+        newErrors.year = `Only year ${currentYear} is allowed`;
       }
-      if (selectedYear < currentYear - 10) {
-        newErrors.year = 'Year cannot be more than 10 years in the past';
+    }
+
+    // Month/Year combination validation
+    if (salary.month && salary.year) {
+      const monthIndex = getMonthNumber(salary.month);
+      const selectedYear = Number(salary.year);
+      if (selectedYear === currentYear && monthIndex < currentMonth) {
+        newErrors.month = 'Cannot select past months. Only October and later months are allowed';
       }
     }
 
@@ -112,13 +120,6 @@ const SalaryForm = () => {
     const totalDeductions = deductionFields.reduce((sum, field) => sum + Number(salary.deductions[field] || 0), 0);
     if (totalDeductions > basicSalaryNum) {
       newErrors.totalDeductions = 'Total deductions cannot exceed basic salary';
-    }
-
-    // Duplicate record validation (month/year combination)
-    const currentDate = new Date();
-    const selectedDate = new Date(salary.year, getMonthNumber(salary.month));
-    if (selectedDate > currentDate && !editingId) {
-      newErrors.futureDate = 'Cannot create salary record for future months';
     }
 
     return newErrors;
@@ -359,7 +360,10 @@ const SalaryForm = () => {
                     <select
                       name="employeeId"
                       value={salary.employeeId}
-                      onChange={e => setSalary({ ...salary, employeeId: e.target.value })}
+                      onChange={e => {
+                        setSalary({ ...salary, employeeId: e.target.value });
+                        clearFieldError('employeeId');
+                      }}
                       required
                       className={`w-full px-4 py-3 border-2 rounded-xl text-gray-800 bg-white/90 backdrop-blur-sm focus:outline-none transition-all duration-300 shadow-sm hover:shadow-md ${
                         errors.employeeId 
@@ -394,8 +398,14 @@ const SalaryForm = () => {
                       }`}
                     >
                       <option value="">Select Month</option>
-                      {['January','February','March','April','May','June','July','August','September','October','November','December'].map(m => (
-                        <option key={m} value={m}>{m}</option>
+                      {['January','February','March','April','May','June','July','August','September','October','November','December'].map((m, index) => (
+                        <option 
+                          key={m} 
+                          value={m}
+                          disabled={salary.year == currentYear && index < currentMonth}
+                        >
+                          {m}
+                        </option>
                       ))}
                     </select>
                     {errors.month && <p className="text-red-500 text-sm mt-2 flex items-center">
@@ -422,9 +432,7 @@ const SalaryForm = () => {
                       }`}
                     >
                       <option value="">Select Year</option>
-                      {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(y => (
-                        <option key={y} value={y}>{y}</option>
-                      ))}
+                      <option value={currentYear}>{currentYear}</option>
                     </select>
                     {errors.year && <p className="text-red-500 text-sm mt-2 flex items-center">
                       <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -448,9 +456,10 @@ const SalaryForm = () => {
                           if (["Backspace","Delete","Tab","Escape","Enter","ArrowLeft","ArrowRight","."].includes(e.key)) return;
                           if (!/^[0-9]$/.test(e.key)) e.preventDefault();
                         }}
-                        placeholder="Basic Salary"
+                        placeholder="00000.00"
                         type="number"
                         min="0"
+                        step="0.01"
                         className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-gray-800 bg-white/90 backdrop-blur-sm focus:outline-none transition-all duration-300 shadow-sm hover:shadow-md ${
                           errors.basicSalary 
                             ? 'border-red-500 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' 
@@ -470,7 +479,7 @@ const SalaryForm = () => {
               </motion.div>
 
               {/* General validation errors */}
-              {(errors.futureDate || errors.totalDeductions) && (
+              {errors.totalDeductions && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -482,8 +491,7 @@ const SalaryForm = () => {
                     </svg>
                     <div>
                       <p className="text-red-600 font-semibold">Validation Error</p>
-                      {errors.futureDate && <p className="text-red-600 text-sm">{errors.futureDate}</p>}
-                      {errors.totalDeductions && <p className="text-red-600 text-sm">{errors.totalDeductions}</p>}
+                      <p className="text-red-600 text-sm">{errors.totalDeductions}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -522,9 +530,10 @@ const SalaryForm = () => {
                             if (["Backspace","Delete","Tab","Escape","Enter","ArrowLeft","ArrowRight","."].includes(e.key)) return;
                             if (!/^[0-9]$/.test(e.key)) e.preventDefault();
                           }}
-                          placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                          placeholder="00000.00"
                           type="number"
                           min="0"
+                          step="0.01"
                           className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-gray-800 bg-white/90 backdrop-blur-sm focus:outline-none transition-all duration-300 shadow-sm hover:shadow-md ${
                             errors[`allowances.${field}`] 
                               ? 'border-red-500 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' 
@@ -575,9 +584,10 @@ const SalaryForm = () => {
                             if (["Backspace","Delete","Tab","Escape","Enter","ArrowLeft","ArrowRight","."].includes(e.key)) return;
                             if (!/^[0-9]$/.test(e.key)) e.preventDefault();
                           }}
-                          placeholder={field === 'normalDayHours' ? 'Normal Day Hours' : 'Holiday Hours'}
+                          placeholder="0.00"
                           type="number"
                           min="0"
+                          step="0.1"
                           className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl text-gray-800 bg-white/90 backdrop-blur-sm focus:outline-none transition-all duration-300 shadow-sm hover:shadow-md ${
                             errors[`overtime.${field}`] 
                               ? 'border-red-500 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' 
@@ -631,9 +641,10 @@ const SalaryForm = () => {
                             if (["Backspace","Delete","Tab","Escape","Enter","ArrowLeft","ArrowRight","."].includes(e.key)) return;
                             if (!/^[0-9]$/.test(e.key)) e.preventDefault();
                           }}
-                          placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                          placeholder="00000.00"
                           type="number"
                           min="0"
+                          step="0.01"
                           className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-gray-800 bg-white/90 backdrop-blur-sm focus:outline-none transition-all duration-300 shadow-sm hover:shadow-md ${
                             errors[`deductions.${field}`] 
                               ? 'border-red-500 focus:border-red-600 focus:ring-4 focus:ring-red-500/20' 

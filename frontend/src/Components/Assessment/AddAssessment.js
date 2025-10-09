@@ -47,14 +47,24 @@ function AddAssessment() {
       }
       return;
     }
+if (name === "appraisedValue") {
+  const raw = value.replace(/Rs\s?/g, "").replace(/,/g, "");
 
-    if (name === "appraisedValue") {
-      const raw = value.replace(/Rs\s?/g, "").replace(/,/g, "");
-      if (raw === "" || !isNaN(raw)) {
-        setInputs((prev) => ({ ...prev, appraisedValue: raw }));
-      }
-      return;
+  // Allow only empty string OR non-negative numbers
+  if (raw === "" || (!isNaN(raw) && Number(raw) >= 0)) {
+    setInputs((prev) => ({ ...prev, appraisedValue: raw }));
+  }
+
+  return;
+}
+if (name === "taxRate") {
+    // Allow only empty string or non-negative numbers
+    if (value === "" || (!isNaN(value) && Number(value) >= 0)) {
+      setInputs((prev) => ({ ...prev, taxRate: value }));
     }
+    return;
+  }
+
 
     setInputs((prev) => ({ ...prev, [name]: value }));
   };
