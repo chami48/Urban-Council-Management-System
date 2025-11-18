@@ -1,6 +1,6 @@
 # 🏛️ Horana Urban Council Smart Management System
 
-A modern, digital-first platform designed to **transform local government services** into a faster, smarter, and more citizen‑friendly experience. From online payments to service requests, licensing, and municipal finance everything is now just a click away.
+A modern, digital-first platform designed to **transform local government services** into a faster, smarter, and more citizen‑friendly experience. From online payments to service requests, licensing, and municipal finance, everything is now just a click away.
 
 ---
 
@@ -88,13 +88,15 @@ Whether you're a **citizen**, **officer**, or **administrator**, this platform e
 
 ## 🧪 Technologies Used
 
-| Layer        | Technologies                                |
-| ------------ | ------------------------------------------- |
-| **Frontend** | React.js / HTML / CSS / Bootstrap           |
-| **Backend**  | Node.js, Express.js (or Java/JSP depending) |
-| **Database** | MongoDB / MySQL                             |
-| **Server**   | Apache / Node Server                        |
-| **Tools**    | Git, GitHub, VS Code, Postman, Figma        |
+| Layer        | Technologies                       |
+| ------------ | ---------------------------------- |
+| **Frontend** | React.js, Tailwind CSS              |
+| **Backend**  | Node.js, Express.js                 |
+| **Database** | MongoDB                             |
+| **Server**   | Node.js (Express server)            |
+| **Tools**    | Git, GitHub, VS Code, Postman, Figma |
+
+> ⚡ **Stack:** This project is built entirely on the **MERN Stack** (MongoDB, Express.js, React.js, Node.js) with **Tailwind CSS** for styling.
 
 ---
 
@@ -109,5 +111,5 @@ You can access our detailed project documentation here:
 
 ## 🙌 Final Note
 
-This system is built to enhance municipal operations and provide citizens with seamless access to essential services. A powerful, scalable, and user-friendly smart council system.
+This **MERN-based smart council system** is built to enhance municipal operations and provide citizens with seamless access to essential services. It is scalable, user-friendly, and designed for modern digital governance.
 
