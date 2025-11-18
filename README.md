@@ -30,6 +30,8 @@ Whether you're a **citizen**, **officer**, or **administrator**, this platform e
 | **Finance Officer** | Manage payments, expenses, salaries, finance reports             |
 | **License Officer** | Process licenses, renewals, verifications                        |
 | **HR Officer**      | Manage employees, attendance, salary bands                       |
+| **Assessment Officer** | Manage property and business assessments                     |
+| **Shop Registration Officer** | Approve and manage shop registrations                   |
 
 ---
 
@@ -37,34 +39,78 @@ Whether you're a **citizen**, **officer**, or **administrator**, this platform e
 
 ### 📝 1. **Citizen Service Request Management (CSR)**
 
-* Submit, track, and manage requests (garbage, repairs, complaints)  
-* Automated status updates  
-* Admin approval flow
+* Submit, track, and manage requests and complaints  
+* Receive automated status updates via dashboard or email  
+* Admin approval workflow for requests  
+* Citizens can track progress and download service completion receipts  
+
+**Summary:** Simplifies interaction between citizens and the council, reducing delays and improving accountability.
+
+---
 
 ### 📄 2. **License & Permit System**
 
-* Apply for business licenses  
-* Vehicle permits, trade certificates, construction permits  
-* Renewals & digital approvals
+* Apply for business licenses, vehicle permits, trade certificates, and construction permits  
+* Renew existing licenses online  
+* Admin verification and approval workflow  
+* Digital certificate/permit generation
+* AI Chatbot (Assist with voice) to book playground and cremetorium
+
+**Summary:** Enables citizens and businesses to obtain and renew permits quickly without in-person visits.
+
+---
 
 ### 💰 3. **Finance & Payment Management**
 
-* Online payments for taxes, fines, and fees  
-* Manage municipal expenses, vehicles, assets  
-* Automatic receipt generation (PDF)  
-* Monthly & annual finance reports
+* Online payments for taxes, fines, and other municipal fees  
+* Manage municipal expenses, vehicle & asset maintenance costs  
+* Generate receipts in PDF format  
+* View income reports, monthly and yearly summaries  
+* Analytics via pie and bar charts  
+
+**Summary:** Streamlines financial operations, improves transparency, and reduces manual paperwork.
+
+---
 
 ### 🧑‍💼 4. **Salary & HR Management**
 
-* Staff profiles, attendance & payroll  
-* Salary calculations  
-* Leave & allowance management
+* Manage staff profiles, attendance, and payroll  
+* Calculate salaries automatically based on attendance and allowances  
+* Manage leaves, overtime, and salary bands  
+* Admin can generate HR reports and summaries  
 
-### 🔐 5. **User & Admin Management**
+**Summary:** Provides efficient HR management for council staff, ensuring accurate and timely payroll.
 
-* Role-based access control  
-* Secure login system  
-* CRUD operations for all user types
+---
+
+### 🏢 5. **Assessment Management**
+
+* Officers can assess property, land, and business taxes  
+* Manage assessment records and update values  
+* Generate reports for finance and audit purposes  
+
+**Summary:** Ensures accurate property and business assessments, helping the council manage taxes efficiently.
+
+---
+
+### 🏬 6. **Shop Registration Management**
+
+* Officers can register new shops and businesses in the municipality  
+* Manage shop license approvals and renewals  
+* Maintain a record of active and expired registrations  
+
+**Summary:** Simplifies business registration, tracking, and regulatory compliance for shops.
+
+---
+
+### 🔐 7. **User & Admin Management**
+
+* Role-based access control for citizens, staff, and administrators  
+* Secure login and authentication  
+* CRUD operations for all user types  
+* Admin can manage roles, permissions, and monitor system activity  
+
+**Summary:** Ensures proper access, security, and management of system users, maintaining operational integrity.
 
 ---
 
@@ -74,9 +120,6 @@ Whether you're a **citizen**, **officer**, or **administrator**, this platform e
 
 * Add/Update/Delete **tax, fines & fee payment records**  
 * Online payment gateway simulation  
-* Receipt generation (PDF)  
-* Vehicle & asset expense management  
-* Salary calculation module (if included)
 
 ### 📊 Includes:
 
@@ -112,4 +155,3 @@ You can access our detailed project documentation here:
 ## 🙌 Final Note
 
 This **MERN-based smart council system** is built to enhance municipal operations and provide citizens with seamless access to essential services. It is scalable, user-friendly, and designed for modern digital governance.
-
